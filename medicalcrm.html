@@ -1,0 +1,1886 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaPulse POS & Inventory CRM</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#1E293B',
+                            900: '#0F172A',
+                            950: '#020617',
+                        },
+                        emerald: {
+                            500: '#10B981',
+                            600: '#059669',
+                            700: '#047857',
+                        },
+                        cyan: {
+                            500: '#06B6D4',
+                            600: '#0891B2',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+            color: #0F172A;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F1F5F9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printable-invoice-area, #printable-invoice-area * {
+                visibility: visible;
+            }
+            #printable-invoice-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-emerald-500 selection:text-white">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2.5 pointer-events-none"></div>
+
+    <!-- MAIN APP WRAPPER -->
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- SIDEBAR NAVIGATION -->
+        <aside id="sidebar" class="w-64 bg-navy-900 text-slate-300 flex flex-col justify-between transition-all duration-300 z-30 flex-shrink-0 border-r border-slate-800">
+            <div>
+                <!-- Brand Header -->
+                <div class="h-16 px-5 flex items-center justify-between border-b border-slate-800 bg-navy-950">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 font-bold">
+                            <i data-lucide="activity" class="w-5 h-5"></i>
+                        </div>
+                        <div class="sidebar-text">
+                            <h1 class="font-black text-base tracking-tight text-white leading-none">Pharma<span class="text-emerald-500">Pulse</span></h1>
+                            <span class="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">POS & Inventory CRM</span>
+                        </div>
+                    </div>
+                    <button onclick="toggleSidebarCollapse()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800/80 transition">
+                        <i data-lucide="chevron-left" id="sidebar-toggle-icon" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="p-3 space-y-1.5 text-xs font-semibold">
+                    <button onclick="switchTab('pos')" id="nav-pos" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-white bg-emerald-600 shadow-md shadow-emerald-600/20 transition group">
+                        <i data-lucide="shopping-cart" class="w-4 h-4 flex-shrink-0"></i>
+                        <span class="sidebar-text truncate">Billing & POS Terminal</span>
+                    </button>
+
+                    <button onclick="switchTab('inventory')" id="nav-inventory" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition group">
+                        <i data-lucide="package" class="w-4 h-4 flex-shrink-0"></i>
+                        <span class="sidebar-text truncate">Inventory & Medicine Catalog</span>
+                    </button>
+
+                    <button onclick="switchTab('analytics')" id="nav-analytics" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition group">
+                        <i data-lucide="bar-chart-3" class="w-4 h-4 flex-shrink-0"></i>
+                        <span class="sidebar-text truncate">Sales Ledger & Analytics</span>
+                    </button>
+
+                    <button onclick="switchTab('telemetry')" id="nav-telemetry" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition group relative">
+                        <i data-lucide="shield-alert" class="w-4 h-4 flex-shrink-0"></i>
+                        <span class="sidebar-text truncate">Expiry & Stock Radar</span>
+                        <span id="telemetry-badge" class="ml-auto bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+                    </button>
+
+                    <button onclick="switchTab('suppliers')" id="nav-suppliers" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition group">
+                        <i data-lucide="truck" class="w-4 h-4 flex-shrink-0"></i>
+                        <span class="sidebar-text truncate">Suppliers & Purchase Orders</span>
+                    </button>
+
+                    <button onclick="switchTab('ai-assistant')" id="nav-ai-assistant" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition group">
+                        <i data-lucide="cpu" class="w-4 h-4 flex-shrink-0 text-cyan-400"></i>
+                        <span class="sidebar-text truncate">AI Rx & Dosage Assistant</span>
+                        <span class="ml-auto bg-cyan-500/20 text-cyan-300 text-[9px] font-extrabold px-1.5 py-0.5 rounded uppercase border border-cyan-500/30">AI</span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Sidebar User Profile Footer -->
+            <div class="p-3 border-t border-slate-800 bg-navy-950">
+                <div class="flex items-center gap-3 px-2 py-2 rounded-xl bg-slate-800/40 border border-slate-800">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-xs border border-emerald-500/30">
+                        DR
+                    </div>
+                    <div class="sidebar-text min-w-0 flex-1">
+                        <p class="text-xs font-bold text-white truncate">Dr. Aris Thorne</p>
+                        <p class="text-[10px] text-slate-400 truncate">Chief Pharmacist • Shift A</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CONTENT AREA -->
+        <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-50">
+
+            <!-- TOP METRICS & QUICK ACTIONS BAR -->
+            <header class="h-16 bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between gap-4 z-20 flex-shrink-0 shadow-sm">
+                <!-- Status Badges -->
+                <div class="flex items-center gap-3 overflow-x-auto py-1">
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-xs text-slate-700 font-semibold whitespace-nowrap">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>Shift Status: Active</span>
+                    </div>
+
+                    <div onclick="switchTab('telemetry')" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-50 border border-rose-200 text-xs text-rose-700 font-semibold cursor-pointer hover:bg-rose-100 transition whitespace-nowrap">
+                        <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+                        <span id="top-bar-alert-count">0 Low Stock / Expiring Items</span>
+                    </div>
+
+                    <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-50 border border-cyan-200 text-xs text-cyan-700 font-semibold whitespace-nowrap">
+                        <i data-lucide="dollar-sign" class="w-3.5 h-3.5"></i>
+                        <span>Today's Sales: <strong id="top-bar-today-sales">$0.00</strong></span>
+                    </div>
+                </div>
+
+                <!-- Top Right Actions -->
+                <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                    <button onclick="switchTab('pos')" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-emerald-600/20 transition">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">New Billing POS</span>
+                    </button>
+                    <button onclick="openAddMedicineModal()" class="px-3.5 py-1.5 rounded-xl bg-navy-900 hover:bg-navy-800 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
+                        <i data-lucide="package-plus" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">+ Add SKU</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- MAIN TAB PANELS WRAPPER -->
+            <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+                <!-- 1. BILLING & POS TERMINAL MODULE -->
+                <section id="tab-pos" class="space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+                        <!-- POS Medicine Catalog Search & Quick Add Grid (7 Cols) -->
+                        <div class="lg:col-span-7 space-y-4">
+                            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+                                <div class="flex items-center justify-between gap-3">
+                                    <h2 class="text-base font-extrabold text-navy-900 flex items-center gap-2">
+                                        <i data-lucide="search" class="w-4 h-4 text-emerald-600"></i>
+                                        Instant Medicine Search & Barcode Lookup
+                                    </h2>
+                                    <span class="text-[11px] font-mono font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg border border-slate-200">Key: [Alt+S]</span>
+                                </div>
+
+                                <div class="relative">
+                                    <i data-lucide="barcode" class="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                                    <input type="text" id="pos-search-input" onkeyup="filterPOSCatalog(this.value)" placeholder="Search by Brand Name, Generic Formula, Batch #, or Rack..." class="w-full pl-11 pr-10 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 text-sm font-medium focus:outline-none bg-slate-50/50">
+                                    <button onclick="clearPOSSearch()" id="pos-clear-btn" class="hidden absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                                        <i data-lucide="x" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Category Pills -->
+                                <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs" id="pos-category-pills">
+                                    <!-- Dynamic Category Pills -->
+                                </div>
+                            </div>
+
+                            <!-- POS Search Results Grid -->
+                            <div id="pos-medicine-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[560px] overflow-y-auto pr-1">
+                                <!-- Dynamic Medicine Cards -->
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Billing Cart Ledger (5 Cols) -->
+                        <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[700px] sticky top-0">
+                            
+                            <!-- Cart Header -->
+                            <div class="p-4 bg-navy-900 text-white flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="shopping-bag" class="w-5 h-5 text-emerald-400"></i>
+                                    <div>
+                                        <h3 class="font-extrabold text-sm leading-tight">Patient Billing Cart</h3>
+                                        <p class="text-[10px] text-slate-400" id="cart-item-count-label">0 items added</p>
+                                    </div>
+                                </div>
+                                <button onclick="clearCart()" class="text-xs text-rose-300 hover:text-white font-semibold flex items-center gap-1 hover:underline">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear
+                                </button>
+                            </div>
+
+                            <!-- Customer & Prescription Info Header Inputs -->
+                            <div class="p-3 bg-slate-50 border-b border-slate-200 space-y-2 text-xs">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="text" id="pos-customer-name" placeholder="Customer Name *" class="px-3 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-500 font-medium">
+                                    <input type="text" id="pos-customer-phone" placeholder="Phone Number *" class="px-3 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-500 font-medium">
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 items-center">
+                                    <input type="text" id="pos-doctor-name" placeholder="Prescribing Doctor (Optional)" class="px-3 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-500 font-medium">
+                                    <label class="flex items-center gap-1.5 px-2 py-1.5 rounded-lg border border-slate-200 bg-white cursor-pointer hover:bg-slate-100 select-none">
+                                        <input type="checkbox" id="pos-rx-verified" class="accent-emerald-600 rounded">
+                                        <span class="text-[11px] font-semibold text-slate-700">Rx Verified <span class="text-rose-500">*</span></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Cart Items List Container -->
+                            <div id="pos-cart-items" class="flex-1 overflow-y-auto p-3 space-y-2.5">
+                                <!-- Cart Items Dynamically Populated -->
+                            </div>
+
+                            <!-- Cart Totals & Checkout Panel -->
+                            <div class="p-4 border-t border-slate-200 bg-slate-50 space-y-3">
+                                <!-- Financial Breakdown -->
+                                <div class="space-y-1.5 text-xs text-slate-600">
+                                    <div class="flex justify-between">
+                                        <span>Subtotal (MRP Total)</span>
+                                        <span id="pos-subtotal" class="font-mono font-semibold text-slate-800">$0.00</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="flex items-center gap-1">
+                                            Discount %
+                                            <input type="number" id="pos-discount-percent" oninput="updateCartTotals()" value="5" min="0" max="100" class="w-12 px-1 py-0.5 border border-slate-200 rounded text-center font-bold">
+                                        </span>
+                                        <span id="pos-discount-amount" class="font-mono text-emerald-600 font-semibold">-$0.00</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>EST GST / Medical Tax (12%)</span>
+                                        <span id="pos-tax-amount" class="font-mono font-semibold text-slate-800">$0.00</span>
+                                    </div>
+                                    <div class="flex justify-between text-base font-extrabold text-navy-900 pt-2 border-t border-slate-200">
+                                        <span>Total Payable</span>
+                                        <span id="pos-total-payable" class="font-mono text-emerald-600">$0.00</span>
+                                    </div>
+                                </div>
+
+                                <!-- Process Checkout CTA -->
+                                <button onclick="openCheckoutModal()" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                                    <span>Complete Checkout & Print Rx Invoice</span>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- 2. INVENTORY & STOCK CONTROL MODULE -->
+                <section id="tab-inventory" class="space-y-6 hidden">
+                    <!-- Inventory KPI Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Active SKUs</span>
+                                <h3 id="inv-stat-skus" class="text-2xl font-black text-navy-900 font-mono mt-1">0</h3>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Categorized in Pharmacy</p>
+                            </div>
+                            <div class="p-3 rounded-2xl bg-slate-100 text-slate-700">
+                                <i data-lucide="boxes" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-semibold text-amber-600 uppercase tracking-wider">Low Stock Threshold</span>
+                                <h3 id="inv-stat-lowstock" class="text-2xl font-black text-amber-600 font-mono mt-1">0</h3>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Below Reorder Level</p>
+                            </div>
+                            <div class="p-3 rounded-2xl bg-amber-50 text-amber-600">
+                                <i data-lucide="alert-circle" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-semibold text-rose-600 uppercase tracking-wider">Out of Stock</span>
+                                <h3 id="inv-stat-outofstock" class="text-2xl font-black text-rose-600 font-mono mt-1">0</h3>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Immediate Restock Needed</p>
+                            </div>
+                            <div class="p-3 rounded-2xl bg-rose-50 text-rose-600">
+                                <i data-lucide="package-x" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-semibold text-cyan-600 uppercase tracking-wider">Expiring in 60 Days</span>
+                                <h3 id="inv-stat-expiring" class="text-2xl font-black text-cyan-600 font-mono mt-1">0</h3>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Batch Telemetry Warning</p>
+                            </div>
+                            <div class="p-3 rounded-2xl bg-cyan-50 text-cyan-600">
+                                <i data-lucide="clock" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Inventory Table Controls & Search -->
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div class="relative flex-1 max-w-md">
+                                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                                <input type="text" id="inventory-search-input" onkeyup="filterInventoryTable()" placeholder="Search Medicine, Formula, Batch #, Supplier..." class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 focus:border-emerald-500 focus:outline-none text-xs font-medium bg-slate-50">
+                            </div>
+
+                            <!-- Filter Dropdowns & Add Button -->
+                            <div class="flex items-center gap-2 overflow-x-auto">
+                                <select id="inventory-filter-category" onchange="filterInventoryTable()" class="px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold bg-white text-slate-700 focus:outline-none">
+                                    <option value="ALL">All Categories</option>
+                                    <option value="Antibiotics">Antibiotics</option>
+                                    <option value="Analgesics">Analgesics & Pain</option>
+                                    <option value="Cardiovascular">Cardiovascular</option>
+                                    <option value="Diabetic">Diabetic Care</option>
+                                    <option value="OTC">OTC / General</option>
+                                    <option value="Schedule-H">Schedule-H / Rx</option>
+                                </select>
+
+                                <select id="inventory-filter-stock" onchange="filterInventoryTable()" class="px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold bg-white text-slate-700 focus:outline-none">
+                                    <option value="ALL">All Stock Status</option>
+                                    <option value="LOW">Low Stock</option>
+                                    <option value="OUT">Out of Stock</option>
+                                    <option value="EXPIRING">Expiring Soon</option>
+                                </select>
+
+                                <button onclick="openAddMedicineModal()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-emerald-600/20 whitespace-nowrap">
+                                    <i data-lucide="plus" class="w-4 h-4"></i> Add Medicine
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Inventory High-Density Data Table -->
+                        <div class="overflow-x-auto rounded-xl border border-slate-200">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-slate-100/80 text-[11px] font-extrabold uppercase text-slate-600 tracking-wider">
+                                    <tr>
+                                        <th class="p-3 border-b">Brand & Generic Name</th>
+                                        <th class="p-3 border-b">Batch & Expiry</th>
+                                        <th class="p-3 border-b">Rack/Shelf</th>
+                                        <th class="p-3 border-b">Stock Level</th>
+                                        <th class="p-3 border-b">Cost / MRP</th>
+                                        <th class="p-3 border-b">Category / Rx</th>
+                                        <th class="p-3 border-b text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventory-table-body" class="text-xs divide-y divide-slate-100 bg-white">
+                                    <!-- Dynamic Inventory Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. SALES LEDGER & ANALYTICS MODULE -->
+                <section id="tab-analytics" class="space-y-6 hidden">
+                    <!-- Sales Telemetry Overview Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Gross Sales Revenue</span>
+                            <h3 id="analytics-total-revenue" class="text-2xl font-black text-emerald-600 font-mono mt-1">$0.00</h3>
+                            <p class="text-[11px] text-slate-400 mt-1">Calculated across all transactions</p>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Completed Invoices</span>
+                            <h3 id="analytics-total-invoices" class="text-2xl font-black text-navy-900 font-mono mt-1">0 Orders</h3>
+                            <p class="text-[11px] text-slate-400 mt-1">Average Order Value: <strong id="analytics-aov" class="text-slate-700">$0.00</strong></p>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Est. Net Profit Margin</span>
+                            <h3 id="analytics-net-profit" class="text-2xl font-black text-cyan-600 font-mono mt-1">$0.00</h3>
+                            <p class="text-[11px] text-slate-400 mt-1">Avg 24% Retail Pharmacy Margin</p>
+                        </div>
+                    </div>
+
+                    <!-- SVG Charts Row -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <!-- Revenue Trend Line Chart (8 Cols) -->
+                        <div class="lg:col-span-8 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-extrabold text-sm text-navy-900">7-Day Sales Revenue Trajectory</h3>
+                                    <p class="text-[11px] text-slate-400">Daily gross performance telemetry</p>
+                                </div>
+                                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">+14.2% vs last week</span>
+                            </div>
+
+                            <!-- SVG Line Chart Canvas -->
+                            <div class="h-64 w-full flex items-end pt-4">
+                                <svg class="w-full h-full overflow-visible" viewBox="0 0 500 200">
+                                    <defs>
+                                        <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stop-color="#10B981" stop-opacity="0.3"/>
+                                            <stop offset="100%" stop-color="#10B981" stop-opacity="0.0"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <!-- Grid Lines -->
+                                    <line x1="0" y1="40" x2="500" y2="40" stroke="#E2E8F0" stroke-dasharray="4" />
+                                    <line x1="0" y1="90" x2="500" y2="90" stroke="#E2E8F0" stroke-dasharray="4" />
+                                    <line x1="0" y1="140" x2="500" y2="140" stroke="#E2E8F0" stroke-dasharray="4" />
+                                    <!-- Area Fill -->
+                                    <polygon points="0,180 0,110 80,130 160,80 240,100 320,50 400,70 480,30 480,180" fill="url(#chartGradient)" />
+                                    <!-- Trend Line -->
+                                    <polyline points="0,110 80,130 160,80 240,100 320,50 400,70 480,30" fill="none" stroke="#10B981" stroke-width="3.5" stroke-linecap="round" />
+                                    <!-- Data Points -->
+                                    <circle cx="80" cy="130" r="4" fill="#10B981" />
+                                    <circle cx="160" cy="80" r="4" fill="#10B981" />
+                                    <circle cx="240" cy="100" r="4" fill="#10B981" />
+                                    <circle cx="320" cy="50" r="4" fill="#10B981" />
+                                    <circle cx="400" cy="70" r="4" fill="#10B981" />
+                                    <circle cx="480" cy="30" r="5" fill="#059669" stroke="#ffffff" stroke-width="2" />
+                                </svg>
+                            </div>
+
+                            <div class="flex justify-between text-[11px] font-semibold text-slate-400 pt-2 border-t border-slate-100">
+                                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Today</span>
+                            </div>
+                        </div>
+
+                        <!-- Payment Method Breakdown Donut Chart (4 Cols) -->
+                        <div class="lg:col-span-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4 flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-extrabold text-sm text-navy-900">Payment Breakdown</h3>
+                                <p class="text-[11px] text-slate-400">Transactions by settlement channel</p>
+                            </div>
+
+                            <div class="relative flex items-center justify-center my-2">
+                                <svg class="w-40 h-40 transform -rotate-90" viewBox="0 0 36 36">
+                                    <!-- Cash (50%) -->
+                                    <path class="text-emerald-500" stroke-dasharray="50 100" stroke-width="5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <!-- UPI / Digital (30%) -->
+                                    <path class="text-cyan-500" stroke-dasharray="30 100" stroke-dashoffset="-50" stroke-width="5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <!-- Card / Insurance (20%) -->
+                                    <path class="text-navy-900" stroke-dasharray="20 100" stroke-dashoffset="-80" stroke-width="5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                </svg>
+                                <div class="absolute text-center">
+                                    <span class="text-xs font-bold text-slate-400 uppercase block">Settled</span>
+                                    <span class="text-base font-extrabold text-navy-900">100%</span>
+                                </div>
+                            </div>
+
+                            <div class="space-y-1.5 text-xs">
+                                <div class="flex items-center justify-between">
+                                    <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Cash Payments</span>
+                                    <span class="font-bold">50%</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-cyan-500"></span> UPI / Digital QR</span>
+                                    <span class="font-bold">30%</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-navy-900"></span> Card & Insurance Claim</span>
+                                    <span class="font-bold">20%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transaction Ledger Table -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <h3 class="font-extrabold text-base text-navy-900">Patient Sales Transaction History</h3>
+                            <input type="text" id="sales-search-input" onkeyup="renderSalesLedgerTable()" placeholder="Search Invoice # or Customer..." class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-emerald-500">
+                        </div>
+
+                        <div class="overflow-x-auto rounded-xl border border-slate-200">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-slate-100 text-[11px] font-extrabold uppercase text-slate-600 tracking-wider">
+                                    <tr>
+                                        <th class="p-3 border-b">Invoice ID</th>
+                                        <th class="p-3 border-b">Date & Time</th>
+                                        <th class="p-3 border-b">Customer & Doctor</th>
+                                        <th class="p-3 border-b">Items Count</th>
+                                        <th class="p-3 border-b">Total Paid</th>
+                                        <th class="p-3 border-b">Settlement Method</th>
+                                        <th class="p-3 border-b text-right">Invoice</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sales-table-body" class="text-xs divide-y divide-slate-100 bg-white">
+                                    <!-- Dynamic Sales Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. EXPIRY & STOCK TELEMETRY RADAR MODULE -->
+                <section id="tab-telemetry" class="space-y-6 hidden">
+                    <div class="bg-gradient-to-r from-navy-900 via-navy-800 to-slate-900 text-white p-6 rounded-3xl shadow-xl space-y-2">
+                        <div class="flex items-center gap-2 text-rose-400 font-bold text-xs uppercase tracking-wider">
+                            <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                            Critical Drug Safety & Compliance Telemetry
+                        </div>
+                        <h2 class="text-2xl font-black">Expiry & Stock Depletion Telemetry Radar</h2>
+                        <p class="text-slate-300 text-xs max-w-2xl">
+                            Real-time monitoring of pharmaceuticals reaching threshold reorder boundaries or batch expiry limits (< 60 days). Prevent stockouts and regulatory non-compliance.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                        <!-- Expiring Batch Radar List -->
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="p-2 rounded-xl bg-cyan-50 text-cyan-600">
+                                        <i data-lucide="clock" class="w-5 h-5"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-extrabold text-sm text-navy-900">Batches Expiring Soon (< 60 Days)</h3>
+                                        <p class="text-[11px] text-slate-400">Action: Return to Vendor or Discount</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs font-bold px-2 py-1 bg-cyan-100 text-cyan-800 rounded-lg" id="expiring-count-pill">0 Items</span>
+                            </div>
+
+                            <div id="expiring-items-list" class="space-y-2.5 max-h-[400px] overflow-y-auto pr-1">
+                                <!-- Populated Dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Low Stock Reorder Radar List -->
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="p-2 rounded-xl bg-amber-50 text-amber-600">
+                                        <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-extrabold text-sm text-navy-900">Stock Below Reorder Level</h3>
+                                        <p class="text-[11px] text-slate-400">Action: Issue Purchase Order</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs font-bold px-2 py-1 bg-amber-100 text-amber-800 rounded-lg" id="lowstock-count-pill">0 Items</span>
+                            </div>
+
+                            <div id="lowstock-items-list" class="space-y-2.5 max-h-[400px] overflow-y-auto pr-1">
+                                <!-- Populated Dynamically -->
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- 5. SUPPLIERS & PURCHASE ORDERS MODULE -->
+                <section id="tab-suppliers" class="space-y-6 hidden">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-lg font-extrabold text-navy-900">Pharma Distributors & Vendor Management</h2>
+                            <p class="text-xs text-slate-500">Manage active suppliers, contact details, and open purchase orders</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="openAddSupplierModal()" class="px-4 py-2 rounded-xl bg-navy-900 hover:bg-navy-800 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm">
+                                <i data-lucide="user-plus" class="w-4 h-4"></i> + Add Distributor
+                            </button>
+                            <button onclick="openPurchaseOrderModal()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-emerald-600/20">
+                                <i data-lucide="file-plus" class="w-4 h-4"></i> Create PO
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Vendor Roster Grid -->
+                    <div id="suppliers-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Populated dynamically -->
+                    </div>
+                </section>
+
+                <!-- 6. AI PRESCRIPTION READER & DOSAGE ASSISTANT MODULE -->
+                <section id="tab-ai-assistant" class="space-y-6 hidden">
+                    <div class="bg-gradient-to-r from-navy-900 via-slate-900 to-cyan-950 text-white p-6 rounded-3xl shadow-xl space-y-3">
+                        <div class="flex items-center gap-2 text-cyan-400 font-bold text-xs uppercase tracking-wider">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i>
+                            Clinical Safety Neural Cross-Matching
+                        </div>
+                        <h2 class="text-2xl font-black">AI Prescription & Contraindication Assistant</h2>
+                        <p class="text-slate-300 text-xs max-w-2xl">
+                            Type or paste doctor's prescription notes, clinical symptoms, or active drug combinations to perform cross-matching against potential drug interactions, generic formula alternatives, and standard dosage guidelines.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                        <!-- Input Note Area (6 Cols) -->
+                        <div class="lg:col-span-6 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                            <h3 class="font-extrabold text-sm text-navy-900 flex items-center gap-2">
+                                <i data-lucide="file-text" class="w-4 h-4 text-emerald-600"></i>
+                                Prescription Notes / Clinical Query Input
+                            </h3>
+
+                            <div class="space-y-2">
+                                <textarea id="ai-rx-input" rows="6" placeholder="Example: Patient prescribed Paracetamol 650mg + Amoxicillin 500mg. Also taking Warfarin 5mg daily. Please check for contraindications and suggested dosing schedule..." class="w-full p-3.5 rounded-xl border border-slate-200 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/10 text-xs font-medium focus:outline-none bg-slate-50 leading-relaxed"></textarea>
+                            </div>
+
+                            <!-- Preset Sample Prompts -->
+                            <div>
+                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Try Sample Scenarios:</span>
+                                <div class="flex flex-wrap gap-2">
+                                    <button onclick="setAISamplePrompt(1)" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold transition">💊 Paracetamol + Warfarin Check</button>
+                                    <button onclick="setAISamplePrompt(2)" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold transition">🦠 Amoxicillin Dosage & Allergy</button>
+                                    <button onclick="setAISamplePrompt(3)" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold transition">🩸 Metformin Diabetic Advice</button>
+                                </div>
+                            </div>
+
+                            <button onclick="analyzePrescriptionWithAI()" class="w-full py-3 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-cyan-600/20 transition flex items-center justify-center gap-2">
+                                <i data-lucide="cpu" class="w-4 h-4"></i>
+                                <span>Analyze Drug Interactions & Dosage Guidelines</span>
+                            </button>
+                        </div>
+
+                        <!-- AI Clinical Analysis Result Display (6 Cols) -->
+                        <div class="lg:col-span-6 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                <h3 class="font-extrabold text-sm text-navy-900 flex items-center gap-2">
+                                    <i data-lucide="check-square" class="w-4 h-4 text-cyan-600"></i>
+                                    AI Telemetry Diagnostics & Advisory
+                                </h3>
+                                <span id="ai-status-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">Ready</span>
+                            </div>
+
+                            <div id="ai-result-container" class="space-y-3 text-xs leading-relaxed text-slate-700 min-h-[220px]">
+                                <div class="text-center py-12 text-slate-400 space-y-2">
+                                    <i data-lucide="bot" class="w-10 h-10 mx-auto stroke-1 text-slate-300"></i>
+                                    <p class="font-medium">Enter prescription query above and click Analyze.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL 1: ADD / EDIT MEDICINE SKU MODAL -->
+    <div id="modal-add-medicine" class="fixed inset-0 z-50 bg-navy-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div class="p-5 bg-navy-900 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="package-plus" class="w-5 h-5 text-emerald-400"></i>
+                    <h3 class="font-extrabold text-base" id="modal-medicine-title">Add New Pharmaceutical SKU</h3>
+                </div>
+                <button onclick="closeModal('modal-add-medicine')" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="form-add-medicine" onsubmit="handleSaveMedicine(event)" class="p-6 space-y-4 text-xs max-h-[80vh] overflow-y-auto">
+                <input type="hidden" id="med-edit-id" value="">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">Brand Name *</label>
+                        <input type="text" id="med-brand-name" required placeholder="e.g., Augmentin 625 Duo" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 font-medium">
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">Generic Formula *</label>
+                        <input type="text" id="med-generic-name" required placeholder="e.g., Amoxicillin + Clavulanic Acid" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 font-medium">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">Category *</label>
+                        <select id="med-category" required class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 font-medium">
+                            <option value="Antibiotics">Antibiotics</option>
+                            <option value="Analgesics">Analgesics & Pain</option>
+                            <option value="Cardiovascular">Cardiovascular</option>
+                            <option value="Diabetic">Diabetic Care</option>
+                            <option value="OTC">OTC / General</option>
+                            <option value="Schedule-H">Schedule-H / Rx</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">Batch Number *</label>
+                        <input type="text" id="med-batch-no" required placeholder="e.g., B-2026-99" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 font-mono">
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">Expiry Date *</label>
+                        <input type="date" id="med-expiry-date" required class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 font-medium">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">Rack / Shelf Location *</label>
+                        <input type="text" id="med-rack" required placeholder="e.g., Rack A-3" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 font-medium">
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">Initial Stock Qty *</label>
+                        <input type="number" id="med-stock-qty" required min="0" placeholder="100" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 font-mono">
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">Reorder Level Threshold *</label>
+                        <input type="number" id="med-reorder-level" required min="1" placeholder="20" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 font-mono">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">Unit Cost Price ($) *</label>
+                        <input type="number" id="med-cost-price" step="0.01" required placeholder="12.50" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 font-mono">
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">Unit Selling MRP ($) *</label>
+                        <input type="number" id="med-mrp" step="0.01" required placeholder="18.00" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 font-mono">
+                    </div>
+                </div>
+
+                <div class="pt-2 flex items-center justify-between">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="med-requires-rx" class="accent-emerald-600 w-4 h-4 rounded">
+                        <span class="font-bold text-slate-700">Requires Doctor Prescription (Schedule-H / Rx)</span>
+                    </label>
+
+                    <div class="flex gap-2">
+                        <button type="button" onclick="closeModal('modal-add-medicine')" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 font-bold text-slate-700">Cancel</button>
+                        <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-md shadow-emerald-600/20">Save SKU Details</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: RESTOCK MEDICINE MODAL -->
+    <div id="modal-restock" class="fixed inset-0 z-50 bg-navy-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full shadow-2xl border border-slate-100 overflow-hidden">
+            <div class="p-4 bg-navy-900 text-white flex items-center justify-between">
+                <h3 class="font-extrabold text-sm">Quick Restock SKU</h3>
+                <button onclick="closeModal('modal-restock')" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div class="p-5 space-y-4 text-xs">
+                <div>
+                    <h4 id="restock-med-name" class="font-extrabold text-sm text-navy-900">Medicine Name</h4>
+                    <p id="restock-current-stock" class="text-slate-500">Current Stock: 0 units</p>
+                </div>
+
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">Add Units to Inventory *</label>
+                    <input type="number" id="restock-add-qty" min="1" value="50" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 font-mono font-bold text-sm">
+                </div>
+
+                <button onclick="saveRestockQuantity()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-sm">
+                    Confirm Restock & Update Stock
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: CHECKOUT PAYMENT MODAL -->
+    <div id="modal-checkout" class="fixed inset-0 z-50 bg-navy-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden">
+            <div class="p-5 bg-navy-900 text-white flex items-center justify-between">
+                <div>
+                    <h3 class="font-extrabold text-base">Complete Patient Settlement</h3>
+                    <p class="text-[11px] text-slate-400">Process payment and clear bill</p>
+                </div>
+                <button onclick="closeModal('modal-checkout')" class="p-1 rounded-lg text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-4 text-xs">
+                <!-- Total Display -->
+                <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex justify-between items-center">
+                    <span class="font-bold text-slate-700">Grand Total Payable</span>
+                    <span id="checkout-total-display" class="text-2xl font-black font-mono text-emerald-700">$0.00</span>
+                </div>
+
+                <!-- Payment Method Select -->
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1.5">Select Settlement Channel *</label>
+                    <div class="grid grid-cols-2 gap-2" id="payment-methods-grid">
+                        <button type="button" onclick="setPaymentMethod('Cash')" id="pm-Cash" class="p-3 rounded-xl border-2 border-emerald-600 bg-emerald-50/50 text-emerald-800 font-bold flex items-center gap-2">
+                            <i data-lucide="banknote" class="w-4 h-4"></i> Cash
+                        </button>
+                        <button type="button" onclick="setPaymentMethod('UPI')" id="pm-UPI" class="p-3 rounded-xl border border-slate-200 bg-white hover:border-emerald-500 font-bold flex items-center gap-2">
+                            <i data-lucide="qr-code" class="w-4 h-4"></i> UPI / Digital QR
+                        </button>
+                        <button type="button" onclick="setPaymentMethod('Card')" id="pm-Card" class="p-3 rounded-xl border border-slate-200 bg-white hover:border-emerald-500 font-bold flex items-center gap-2">
+                            <i data-lucide="credit-card" class="w-4 h-4"></i> Card Payment
+                        </button>
+                        <button type="button" onclick="setPaymentMethod('Insurance')" id="pm-Insurance" class="p-3 rounded-xl border border-slate-200 bg-white hover:border-emerald-500 font-bold flex items-center gap-2">
+                            <i data-lucide="shield-check" class="w-4 h-4"></i> Insurance Claim
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cash Tendered & Change Due Calculator -->
+                <div id="cash-tendered-box" class="space-y-2">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="font-bold text-slate-700 block mb-1">Cash Received ($)</label>
+                            <input type="number" id="checkout-cash-received" oninput="calculateChangeDue()" step="0.01" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 font-mono font-bold text-sm">
+                        </div>
+                        <div>
+                            <label class="font-bold text-slate-700 block mb-1">Change Due ($)</label>
+                            <input type="text" id="checkout-change-due" readonly value="$0.00" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-100 font-mono font-bold text-sm text-slate-800">
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="processFinalInvoice()" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                    <span>Confirm Sale & Print Digital Rx Invoice</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: PRINTABLE INVOICE VIEW MODAL -->
+    <div id="modal-invoice-view" class="fixed inset-0 z-50 bg-navy-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="p-4 bg-navy-900 text-white flex items-center justify-between flex-shrink-0">
+                <h3 class="font-extrabold text-sm">Official Pharmacy Tax Invoice</h3>
+                <div class="flex items-center gap-2">
+                    <button onclick="window.print()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg flex items-center gap-1">
+                        <i data-lucide="printer" class="w-3.5 h-3.5"></i> Print
+                    </button>
+                    <button onclick="closeModal('modal-invoice-view')" class="text-slate-400 hover:text-white">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Printable Invoice Content Area -->
+            <div id="printable-invoice-area" class="p-6 overflow-y-auto space-y-4 text-xs bg-white text-slate-800">
+                <!-- Dynamically Rendered Invoice Body -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 5: ADD SUPPLIER MODAL -->
+    <div id="modal-add-supplier" class="fixed inset-0 z-50 bg-navy-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden">
+            <div class="p-4 bg-navy-900 text-white flex items-center justify-between">
+                <h3 class="font-extrabold text-sm">Add Pharma Distributor</h3>
+                <button onclick="closeModal('modal-add-supplier')" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleSaveSupplier(event)" class="p-5 space-y-3 text-xs">
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">Distributor Agency Name *</label>
+                    <input type="text" id="supp-name" required placeholder="Apex Pharma Distributors Ltd" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 font-medium">
+                </div>
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">Contact Person & Phone *</label>
+                    <input type="text" id="supp-contact" required placeholder="John Doe (+1 555-0192)" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 font-medium">
+                </div>
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">Drug License / GST No *</label>
+                    <input type="text" id="supp-license" required placeholder="DL-2026-X8921" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 font-mono">
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-add-supplier')" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white font-bold rounded-xl shadow-sm">Save Distributor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 6: CREATE PURCHASE ORDER MODAL -->
+    <div id="modal-purchase-order" class="fixed inset-0 z-50 bg-navy-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden">
+            <div class="p-4 bg-navy-900 text-white flex items-center justify-between">
+                <h3 class="font-extrabold text-sm">Issue Vendor Purchase Order</h3>
+                <button onclick="closeModal('modal-purchase-order')" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleDispatchPO(event)" class="p-5 space-y-3 text-xs">
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">Select Supplier Distributor *</label>
+                    <select id="po-supplier-select" required class="w-full px-3 py-2 rounded-xl border border-slate-200 font-medium focus:outline-none">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">Medicine SKU to Reorder *</label>
+                    <select id="po-medicine-select" required class="w-full px-3 py-2 rounded-xl border border-slate-200 font-medium focus:outline-none">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">Order Quantity (Units) *</label>
+                    <input type="number" id="po-quantity" min="10" value="100" required class="w-full px-3 py-2 rounded-xl border border-slate-200 font-mono font-bold">
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-purchase-order')" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white font-bold rounded-xl shadow-sm">Dispatch Purchase Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- JAVASCRIPT STATE ENGINE & INTERACTIVE LOGIC -->
+    <script>
+        // INITIAL DEFAULT DATA SEEDS
+        const INITIAL_MEDICINES = [
+            { id: 'MED-101', brandName: 'Augmentin 625 Duo', genericName: 'Amoxicillin + Clavulanate', category: 'Antibiotics', batchNo: 'B-2026-88', expiryDate: '2027-08-15', rack: 'Rack A-1', stockQty: 85, costPrice: 12.00, mrp: 18.50, reorderLevel: 25, requiresRx: true },
+            { id: 'MED-102', brandName: 'Dolo 650mg', genericName: 'Paracetamol', category: 'Analgesics', batchNo: 'B-2026-12', expiryDate: '2026-11-30', rack: 'Rack A-3', stockQty: 18, costPrice: 1.20, mrp: 2.50, reorderLevel: 30, requiresRx: false },
+            { id: 'MED-103', brandName: 'Lipitor 20mg', genericName: 'Atorvastatin', category: 'Cardiovascular', batchNo: 'B-2025-99', expiryDate: '2026-04-10', rack: 'Rack C-2', stockQty: 42, costPrice: 15.00, mrp: 22.00, reorderLevel: 20, requiresRx: true },
+            { id: 'MED-104', brandName: 'Glycomet GP2', genericName: 'Metformin + Glimepiride', category: 'Diabetic', batchNo: 'B-2026-44', expiryDate: '2027-02-28', rack: 'Rack D-1', stockQty: 12, costPrice: 8.50, mrp: 14.00, reorderLevel: 25, requiresRx: true },
+            { id: 'MED-105', brandName: 'Benadryl Cough Syrup 100ml', genericName: 'Diphenhydramine HCl', category: 'OTC', batchNo: 'B-2026-05', expiryDate: '2028-01-01', rack: 'Rack E-4', stockQty: 60, costPrice: 3.80, mrp: 6.50, reorderLevel: 15, requiresRx: false },
+            { id: 'MED-106', brandName: 'Alprazolam 0.5mg', genericName: 'Alprazolam', category: 'Schedule-H', batchNo: 'B-2026-77', expiryDate: '2026-10-20', rack: 'Vault S-1', stockQty: 9, costPrice: 5.00, mrp: 9.00, reorderLevel: 15, requiresRx: true }
+        ];
+
+        const INITIAL_SALES = [
+            { invoiceId: 'INV-2026-1001', timestamp: '2026-10-15 14:32', customerName: 'Robert Vance', customerPhone: '+1 555-0199', doctorName: 'Dr. Smith', itemsCount: 3, totalPaid: 43.50, method: 'Cash', items: [ { name: 'Augmentin 625 Duo', qty: 2, price: 18.50 }, { name: 'Dolo 650mg', qty: 3, price: 2.50 } ] },
+            { invoiceId: 'INV-2026-1002', timestamp: '2026-10-15 11:15', customerName: 'Elena Rostova', customerPhone: '+1 555-0144', doctorName: 'Dr. Aris Thorne', itemsCount: 1, totalPaid: 22.00, method: 'UPI', items: [ { name: 'Lipitor 20mg', qty: 1, price: 22.00 } ] }
+        ];
+
+        const INITIAL_SUPPLIERS = [
+            { id: 'SUP-1', name: 'Apex Med Distributors', contact: 'Mark Vance (+1 555-8811)', license: 'DL-8821-X', activeOrders: 2, payable: 1250.00 },
+            { id: 'SUP-2', name: 'Global Pharma Logistics', contact: 'Sarah Jenkins (+1 555-4422)', license: 'DL-9943-Y', activeOrders: 0, payable: 0.00 }
+        ];
+
+        // STATE CONTAINERS WITH LOCALSTORAGE PERSISTENCE
+        let medicines = JSON.parse(localStorage.getItem('pharmapulse_medicines')) || INITIAL_MEDICINES;
+        let salesHistory = JSON.parse(localStorage.getItem('pharmapulse_sales')) || INITIAL_SALES;
+        let suppliers = JSON.parse(localStorage.getItem('pharmapulse_suppliers')) || INITIAL_SUPPLIERS;
+        let cart = [];
+        let activePosCategory = 'ALL';
+        let selectedPaymentMethod = 'Cash';
+        let lastGeneratedInvoice = null;
+
+        // INITIAL ONLOAD
+        window.onload = function() {
+            renderPOSCategoryPills();
+            renderPOSCatalog();
+            renderInventoryTable();
+            renderSalesLedgerTable();
+            renderTelemetryRadar();
+            renderSuppliersGrid();
+            updateTopMetricsBar();
+            lucide.createIcons();
+        };
+
+        // PERSIST STATE UTILITY
+        function saveState() {
+            localStorage.setItem('pharmapulse_medicines', JSON.stringify(medicines));
+            localStorage.setItem('pharmapulse_sales', JSON.stringify(salesHistory));
+            localStorage.setItem('pharmapulse_suppliers', JSON.stringify(suppliers));
+            updateTopMetricsBar();
+        }
+
+        // SIDEBAR COLLAPSE TOGGLE
+        function toggleSidebarCollapse() {
+            const sidebar = document.getElementById('sidebar');
+            const toggleIcon = document.getElementById('sidebar-toggle-icon');
+            const textElements = document.querySelectorAll('.sidebar-text');
+
+            if (sidebar.classList.contains('w-64')) {
+                sidebar.classList.remove('w-64');
+                sidebar.classList.add('w-20');
+                textElements.forEach(el => el.classList.add('hidden'));
+                toggleIcon.setAttribute('data-lucide', 'chevron-right');
+            } else {
+                sidebar.classList.remove('w-20');
+                sidebar.classList.add('w-64');
+                textElements.forEach(el => el.classList.remove('hidden'));
+                toggleIcon.setAttribute('data-lucide', 'chevron-left');
+            }
+            lucide.createIcons();
+        }
+
+        // NAVIGATION TAB SWITCHING
+        function switchTab(tabId) {
+            const tabs = ['pos', 'inventory', 'analytics', 'telemetry', 'suppliers', 'ai-assistant'];
+            tabs.forEach(t => {
+                const navBtn = document.getElementById(`nav-${t}`);
+                const tabSection = document.getElementById(`tab-${t}`);
+
+                if (t === tabId) {
+                    tabSection.classList.remove('hidden');
+                    navBtn.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-white bg-emerald-600 shadow-md shadow-emerald-600/20 transition group";
+                } else {
+                    tabSection.classList.add('hidden');
+                    navBtn.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition group";
+                }
+            });
+
+            if (tabId === 'inventory') renderInventoryTable();
+            if (tabId === 'analytics') renderSalesLedgerTable();
+            if (tabId === 'telemetry') renderTelemetryRadar();
+            if (tabId === 'suppliers') renderSuppliersGrid();
+
+            lucide.createIcons();
+        }
+
+        // UPDATE TOP METRICS BAR
+        function updateTopMetricsBar() {
+            const todaySales = salesHistory.reduce((acc, sale) => acc + sale.totalPaid, 0);
+            document.getElementById('top-bar-today-sales').innerText = `$${todaySales.toFixed(2)}`;
+
+            const lowStockCount = medicines.filter(m => m.stockQty <= m.reorderLevel).length;
+            const expiringCount = medicines.filter(m => isExpiringSoon(m.expiryDate)).length;
+            const totalAlerts = lowStockCount + expiringCount;
+
+            document.getElementById('top-bar-alert-count').innerText = `${totalAlerts} Critical Telemetry Alerts`;
+            document.getElementById('telemetry-badge').innerText = totalAlerts;
+        }
+
+        // DATE HELPER: Check if expiring within 60 days
+        function isExpiringSoon(dateStr) {
+            const expDate = new Date(dateStr);
+            const today = new Date();
+            const diffTime = expDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays <= 60;
+        }
+
+        // ==========================================
+        // 1. BILLING & POS TERMINAL LOGIC
+        // ==========================================
+        function renderPOSCategoryPills() {
+            const categories = ['ALL', 'Antibiotics', 'Analgesics', 'Cardiovascular', 'Diabetic', 'OTC', 'Schedule-H'];
+            const container = document.getElementById('pos-category-pills');
+            
+            container.innerHTML = categories.map(cat => `
+                <button onclick="setPOSCategory('${cat}')" class="px-3 py-1 rounded-lg font-bold whitespace-nowrap transition ${
+                    activePosCategory === cat 
+                    ? 'bg-navy-900 text-white shadow-sm' 
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }">
+                    ${cat}
+                </button>
+            `).join('');
+        }
+
+        function setPOSCategory(cat) {
+            activePosCategory = cat;
+            renderPOSCategoryPills();
+            renderPOSCatalog();
+        }
+
+        function filterPOSCatalog(query) {
+            document.getElementById('pos-clear-btn').classList.toggle('hidden', query.length === 0);
+            renderPOSCatalog(query);
+        }
+
+        function clearPOSSearch() {
+            document.getElementById('pos-search-input').value = '';
+            filterPOSCatalog('');
+        }
+
+        function renderPOSCatalog(query = '') {
+            const grid = document.getElementById('pos-medicine-grid');
+            const q = query.toLowerCase();
+
+            const filtered = medicines.filter(m => {
+                const matchesCat = activePosCategory === 'ALL' || m.category === activePosCategory;
+                const matchesQuery = m.brandName.toLowerCase().includes(q) || 
+                                     m.genericName.toLowerCase().includes(q) || 
+                                     m.batchNo.toLowerCase().includes(q) ||
+                                     m.rack.toLowerCase().includes(q);
+                return matchesCat && matchesQuery;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-2 text-center py-8 text-slate-400 font-semibold text-xs">No matching pharmaceuticals found.</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(m => {
+                const isLow = m.stockQty <= m.reorderLevel;
+                const isOut = m.stockQty === 0;
+
+                return `
+                    <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 hover:border-emerald-500 shadow-sm transition flex flex-col justify-between space-y-2 group">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">${m.category}</span>
+                                    ${m.requiresRx ? '<span class="text-[9px] font-bold text-rose-600 bg-rose-50 px-1 rounded ml-1">Rx Required</span>' : ''}
+                                    <h4 class="font-extrabold text-xs text-navy-900 mt-1 leading-tight">${m.brandName}</h4>
+                                </div>
+                                <span class="text-xs font-black font-mono text-emerald-600">$${m.mrp.toFixed(2)}</span>
+                            </div>
+                            <p class="text-[10px] text-slate-500 line-clamp-1 mt-0.5">${m.genericName}</p>
+                        </div>
+
+                        <div class="space-y-1.5 pt-1 border-t border-slate-100 text-[10px]">
+                            <div class="flex justify-between text-slate-500">
+                                <span>Batch: <strong class="font-mono text-slate-700">${m.batchNo}</strong></span>
+                                <span>Rack: <strong class="text-slate-700">${m.rack}</strong></span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold ${isOut ? 'text-rose-600' : isLow ? 'text-amber-600' : 'text-emerald-600'}">
+                                    Stock: ${m.stockQty} units
+                                </span>
+                                <button onclick="addToCart('${m.id}')" ${isOut ? 'disabled' : ''} class="px-3 py-1 rounded-lg bg-navy-900 hover:bg-emerald-600 text-white font-bold transition disabled:opacity-40 disabled:hover:bg-navy-900 flex items-center gap-1">
+                                    <i data-lucide="plus" class="w-3 h-3"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        // CART ACTIONS
+        function addToCart(medId) {
+            const med = medicines.find(m => m.id === medId);
+            if (!med || med.stockQty === 0) return;
+
+            const existing = cart.find(c => c.id === medId);
+            if (existing) {
+                if (existing.qty < med.stockQty) {
+                    existing.qty += 1;
+                } else {
+                    showToast("Maximum available batch stock reached!", "error");
+                }
+            } else {
+                cart.push({ ...med, qty: 1 });
+            }
+
+            renderCart();
+            showToast(`Added ${med.brandName} to billing cart.`);
+        }
+
+        function updateCartQty(medId, delta) {
+            const item = cart.find(c => c.id === medId);
+            const med = medicines.find(m => m.id === medId);
+
+            if (item) {
+                item.qty += delta;
+                if (item.qty > med.stockQty) {
+                    item.qty = med.stockQty;
+                    showToast("Cannot exceed available stock Qty", "error");
+                }
+                if (item.qty <= 0) {
+                    cart = cart.filter(c => c.id !== medId);
+                }
+            }
+            renderCart();
+        }
+
+        function removeFromCart(medId) {
+            cart = cart.filter(c => c.id !== medId);
+            renderCart();
+        }
+
+        function clearCart() {
+            cart = [];
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('pos-cart-items');
+            document.getElementById('cart-item-count-label').innerText = `${cart.length} unique items`;
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-16 text-slate-400 space-y-2">
+                        <i data-lucide="shopping-cart" class="w-10 h-10 mx-auto stroke-1 text-slate-300"></i>
+                        <p class="font-semibold text-xs">Patient Cart is currently empty.</p>
+                        <p class="text-[10px]">Select medicines from catalog or search barcode.</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = cart.map(item => `
+                    <div class="p-2.5 rounded-xl bg-white border border-slate-200/80 shadow-sm flex items-center justify-between gap-2 text-xs">
+                        <div class="min-w-0 flex-1">
+                            <h4 class="font-extrabold text-navy-900 truncate">${item.brandName}</h4>
+                            <p class="text-[10px] text-slate-400 font-mono">Batch: ${item.batchNo} • $${item.mrp.toFixed(2)}/u</p>
+                        </div>
+
+                        <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg">
+                            <button onclick="updateCartQty('${item.id}', -1)" class="w-5 h-5 rounded bg-white hover:bg-slate-200 font-bold flex items-center justify-center text-slate-700">-</button>
+                            <span class="font-mono font-bold px-1.5 text-xs">${item.qty}</span>
+                            <button onclick="updateCartQty('${item.id}', 1)" class="w-5 h-5 rounded bg-white hover:bg-slate-200 font-bold flex items-center justify-center text-slate-700">+</button>
+                        </div>
+
+                        <div class="text-right">
+                            <span class="font-mono font-black text-emerald-600 block">$${(item.mrp * item.qty).toFixed(2)}</span>
+                            <button onclick="removeFromCart('${item.id}')" class="text-[10px] text-rose-500 hover:underline">Remove</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            updateCartTotals();
+            lucide.createIcons();
+        }
+
+        function updateCartTotals() {
+            const subtotal = cart.reduce((acc, item) => acc + (item.mrp * item.qty), 0);
+            const discountPercent = parseFloat(document.getElementById('pos-discount-percent').value) || 0;
+            const discountAmount = subtotal * (discountPercent / 100);
+            const taxable = subtotal - discountAmount;
+            const taxAmount = taxable * 0.12; // 12% GST/Medical tax
+            const grandTotal = taxable + taxAmount;
+
+            document.getElementById('pos-subtotal').innerText = `$${subtotal.toFixed(2)}`;
+            document.getElementById('pos-discount-amount').innerText = `-$${discountAmount.toFixed(2)}`;
+            document.getElementById('pos-tax-amount').innerText = `$${taxAmount.toFixed(2)}`;
+            document.getElementById('pos-total-payable').innerText = `$${grandTotal.toFixed(2)}`;
+            document.getElementById('checkout-total-display').innerText = `$${grandTotal.toFixed(2)}`;
+        }
+
+        // CHECKOUT & PAYMENT MODAL
+        function openCheckoutModal() {
+            if (cart.length === 0) {
+                showToast("Cannot checkout with an empty cart!", "error");
+                return;
+            }
+
+            const custName = document.getElementById('pos-customer-name').value.trim();
+            const custPhone = document.getElementById('pos-customer-phone').value.trim();
+
+            if (!custName || !custPhone) {
+                showToast("Please provide Customer Name and Phone Number!", "error");
+                return;
+            }
+
+            document.getElementById('modal-checkout').classList.remove('hidden');
+            calculateChangeDue();
+        }
+
+        function setPaymentMethod(method) {
+            selectedPaymentMethod = method;
+            ['Cash', 'UPI', 'Card', 'Insurance'].forEach(m => {
+                const btn = document.getElementById(`pm-${m}`);
+                if (m === method) {
+                    btn.className = "p-3 rounded-xl border-2 border-emerald-600 bg-emerald-50/50 text-emerald-800 font-bold flex items-center gap-2";
+                } else {
+                    btn.className = "p-3 rounded-xl border border-slate-200 bg-white hover:border-emerald-500 font-bold flex items-center gap-2";
+                }
+            });
+
+            document.getElementById('cash-tendered-box').style.display = method === 'Cash' ? 'block' : 'none';
+        }
+
+        function calculateChangeDue() {
+            const totalText = document.getElementById('checkout-total-display').innerText.replace('$', '');
+            const total = parseFloat(totalText) || 0;
+            const cash = parseFloat(document.getElementById('checkout-cash-received').value) || total;
+            const change = Math.max(0, cash - total);
+            document.getElementById('checkout-change-due').value = `$${change.toFixed(2)}`;
+        }
+
+        function processFinalInvoice() {
+            const custName = document.getElementById('pos-customer-name').value.trim();
+            const custPhone = document.getElementById('pos-customer-phone').value.trim();
+            const docName = document.getElementById('pos-doctor-name').value.trim() || 'Dr. Self / OTC';
+            const totalPayableText = document.getElementById('pos-total-payable').innerText.replace('$', '');
+            const totalPayable = parseFloat(totalPayableText);
+
+            // Deduct inventory quantities
+            cart.forEach(cartItem => {
+                const med = medicines.find(m => m.id === cartItem.id);
+                if (med) {
+                    med.stockQty = Math.max(0, med.stockQty - cartItem.qty);
+                }
+            });
+
+            const newInvoice = {
+                invoiceId: `INV-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+                timestamp: new Date().toLocaleString(),
+                customerName: custName,
+                customerPhone: custPhone,
+                doctorName: docName,
+                itemsCount: cart.length,
+                totalPaid: totalPayable,
+                method: selectedPaymentMethod,
+                items: cart.map(c => ({ name: c.brandName, qty: c.qty, price: c.mrp, batch: c.batchNo }))
+            };
+
+            salesHistory.unshift(newInvoice);
+            lastGeneratedInvoice = newInvoice;
+            saveState();
+
+            // Reset Cart and inputs
+            cart = [];
+            renderCart();
+            renderPOSCatalog();
+            closeModal('modal-checkout');
+
+            // Show Printable Invoice
+            openInvoiceViewModal(newInvoice);
+            showToast("Transaction Completed & Recorded!");
+        }
+
+        function openInvoiceViewModal(inv) {
+            const area = document.getElementById('printable-invoice-area');
+            area.innerHTML = `
+                <div class="border-b border-slate-200 pb-4 text-center space-y-1">
+                    <h2 class="text-xl font-black text-navy-900 tracking-tight">PharmaPulse Retail Pharmacy</h2>
+                    <p class="text-[10px] text-slate-500">104 Health Avenue, Suite 2B • DL License: DL-99211-X</p>
+                    <p class="text-[10px] text-slate-500">GSTIN: 27AAAAA0000A1Z5 • Phone: +1 800-PHARMA</p>
+                </div>
+
+                <div class="flex justify-between text-[11px] pt-2">
+                    <div>
+                        <p><strong>Invoice ID:</strong> ${inv.invoiceId}</p>
+                        <p><strong>Date & Time:</strong> ${inv.timestamp}</p>
+                        <p><strong>Settlement:</strong> ${inv.method}</p>
+                    </div>
+                    <div class="text-right">
+                        <p><strong>Patient Name:</strong> ${inv.customerName}</p>
+                        <p><strong>Phone:</strong> ${inv.customerPhone}</p>
+                        <p><strong>Prescribing Doctor:</strong> ${inv.doctorName}</p>
+                    </div>
+                </div>
+
+                <table class="w-full text-left border-collapse my-3">
+                    <thead>
+                        <tr class="border-b border-slate-300 bg-slate-100 text-[10px] uppercase font-bold">
+                            <th class="py-1.5 px-2">Item Description</th>
+                            <th class="py-1.5 px-2">Batch</th>
+                            <th class="py-1.5 px-2 text-center">Qty</th>
+                            <th class="py-1.5 px-2 text-right">Price</th>
+                            <th class="py-1.5 px-2 text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-[11px]">
+                        ${inv.items.map(i => `
+                            <tr>
+                                <td class="py-1.5 px-2 font-semibold">${i.name}</td>
+                                <td class="py-1.5 px-2 font-mono text-[10px]">${i.batch || 'N/A'}</td>
+                                <td class="py-1.5 px-2 text-center font-bold">${i.qty}</td>
+                                <td class="py-1.5 px-2 text-right font-mono">$${i.price.toFixed(2)}</td>
+                                <td class="py-1.5 px-2 text-right font-mono font-bold">$${(i.price * i.qty).toFixed(2)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+
+                <div class="border-t border-slate-200 pt-3 space-y-1 text-right text-[11px]">
+                    <p>Subtotal: <strong class="font-mono">$${(inv.totalPaid / 1.12).toFixed(2)}</strong></p>
+                    <p>Estimated GST (12%): <strong class="font-mono">$${(inv.totalPaid - (inv.totalPaid / 1.12)).toFixed(2)}</strong></p>
+                    <p class="text-sm font-black text-navy-900 pt-1">Grand Total Paid: $${inv.totalPaid.toFixed(2)}</p>
+                </div>
+
+                <div class="text-center pt-6 text-[10px] text-slate-400 border-t border-dashed border-slate-200">
+                    <p>Thank you for trusting PharmaPulse. Wish you good health!</p>
+                    <p class="font-mono mt-0.5">Computer Generated Rx Invoice • No Signature Required</p>
+                </div>
+            `;
+
+            document.getElementById('modal-invoice-view').classList.remove('hidden');
+        }
+
+        // ==========================================
+        // 2. INVENTORY MANAGEMENT LOGIC
+        // ==========================================
+        function renderInventoryTable() {
+            const body = document.getElementById('inventory-table-body');
+            const query = document.getElementById('inventory-search-input').value.toLowerCase();
+            const catFilter = document.getElementById('inventory-filter-category').value;
+            const stockFilter = document.getElementById('inventory-filter-stock').value;
+
+            // Stats calculation
+            document.getElementById('inv-stat-skus').innerText = medicines.length;
+            const lowCount = medicines.filter(m => m.stockQty <= m.reorderLevel && m.stockQty > 0).length;
+            const outCount = medicines.filter(m => m.stockQty === 0).length;
+            const expCount = medicines.filter(m => isExpiringSoon(m.expiryDate)).length;
+
+            document.getElementById('inv-stat-lowstock').innerText = lowCount;
+            document.getElementById('inv-stat-outofstock').innerText = outCount;
+            document.getElementById('inv-stat-expiring').innerText = expCount;
+
+            const filtered = medicines.filter(m => {
+                const matchesQuery = m.brandName.toLowerCase().includes(query) || 
+                                     m.genericName.toLowerCase().includes(query) || 
+                                     m.batchNo.toLowerCase().includes(query);
+                const matchesCat = catFilter === 'ALL' || m.category === catFilter;
+                
+                let matchesStock = true;
+                if (stockFilter === 'LOW') matchesStock = m.stockQty <= m.reorderLevel && m.stockQty > 0;
+                if (stockFilter === 'OUT') matchesStock = m.stockQty === 0;
+                if (stockFilter === 'EXPIRING') matchesStock = isExpiringSoon(m.expiryDate);
+
+                return matchesQuery && matchesCat && matchesStock;
+            });
+
+            if (filtered.length === 0) {
+                body.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400 font-semibold">No medicines match filter criteria.</td></tr>`;
+                return;
+            }
+
+            body.innerHTML = filtered.map(m => {
+                const isExp = isExpiringSoon(m.expiryDate);
+                const isLow = m.stockQty <= m.reorderLevel;
+                const isOut = m.stockQty === 0;
+
+                return `
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="p-3">
+                            <h4 class="font-bold text-navy-900">${m.brandName}</h4>
+                            <p class="text-[10px] text-slate-500">${m.genericName}</p>
+                        </td>
+                        <td class="p-3">
+                            <span class="font-mono font-bold block text-slate-700">${m.batchNo}</span>
+                            <span class="text-[10px] ${isExp ? 'text-rose-600 font-bold' : 'text-slate-400'}">Exp: ${m.expiryDate}</span>
+                        </td>
+                        <td class="p-3 font-semibold text-slate-600">${m.rack}</td>
+                        <td class="p-3">
+                            <span class="px-2 py-0.5 rounded-full font-mono font-bold text-[11px] ${
+                                isOut ? 'bg-rose-100 text-rose-700' : isLow ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
+                            }">
+                                ${m.stockQty} units
+                            </span>
+                        </td>
+                        <td class="p-3">
+                            <span class="text-slate-400 text-[10px] block">Cost: $${m.costPrice.toFixed(2)}</span>
+                            <span class="font-mono font-bold text-slate-800">MRP: $${m.mrp.toFixed(2)}</span>
+                        </td>
+                        <td class="p-3">
+                            <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-bold text-[10px]">${m.category}</span>
+                            ${m.requiresRx ? '<span class="text-[9px] text-rose-600 font-bold block mt-0.5">Rx Req</span>' : ''}
+                        </td>
+                        <td class="p-3 text-right space-x-1">
+                            <button onclick="openRestockModal('${m.id}')" class="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-bold" title="Restock Qty">
+                                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="editMedicine('${m.id}')" class="p-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200" title="Edit SKU">
+                                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteMedicine('${m.id}')" class="p-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100" title="Delete SKU">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function filterInventoryTable() {
+            renderInventoryTable();
+        }
+
+        function openAddMedicineModal() {
+            document.getElementById('med-edit-id').value = '';
+            document.getElementById('modal-medicine-title').innerText = "Add New Pharmaceutical SKU";
+            document.getElementById('form-add-medicine').reset();
+            document.getElementById('modal-add-medicine').classList.remove('hidden');
+        }
+
+        function editMedicine(medId) {
+            const med = medicines.find(m => m.id === medId);
+            if (!med) return;
+
+            document.getElementById('med-edit-id').value = med.id;
+            document.getElementById('modal-medicine-title').innerText = `Edit SKU: ${med.brandName}`;
+            document.getElementById('med-brand-name').value = med.brandName;
+            document.getElementById('med-generic-name').value = med.genericName;
+            document.getElementById('med-category').value = med.category;
+            document.getElementById('med-batch-no').value = med.batchNo;
+            document.getElementById('med-expiry-date').value = med.expiryDate;
+            document.getElementById('med-rack').value = med.rack;
+            document.getElementById('med-stock-qty').value = med.stockQty;
+            document.getElementById('med-reorder-level').value = med.reorderLevel;
+            document.getElementById('med-cost-price').value = med.costPrice;
+            document.getElementById('med-mrp').value = med.mrp;
+            document.getElementById('med-requires-rx').checked = med.requiresRx;
+
+            document.getElementById('modal-add-medicine').classList.remove('hidden');
+        }
+
+        function handleSaveMedicine(e) {
+            e.preventDefault();
+            const editId = document.getElementById('med-edit-id').value;
+
+            const newMed = {
+                id: editId || `MED-${Math.floor(100 + Math.random() * 900)}`,
+                brandName: document.getElementById('med-brand-name').value.trim(),
+                genericName: document.getElementById('med-generic-name').value.trim(),
+                category: document.getElementById('med-category').value,
+                batchNo: document.getElementById('med-batch-no').value.trim(),
+                expiryDate: document.getElementById('med-expiry-date').value,
+                rack: document.getElementById('med-rack').value.trim(),
+                stockQty: parseInt(document.getElementById('med-stock-qty').value) || 0,
+                reorderLevel: parseInt(document.getElementById('med-reorder-level').value) || 10,
+                costPrice: parseFloat(document.getElementById('med-cost-price').value) || 0,
+                mrp: parseFloat(document.getElementById('med-mrp').value) || 0,
+                requiresRx: document.getElementById('med-requires-rx').checked
+            };
+
+            if (editId) {
+                const index = medicines.findIndex(m => m.id === editId);
+                if (index !== -1) medicines[index] = newMed;
+            } else {
+                medicines.unshift(newMed);
+            }
+
+            saveState();
+            closeModal('modal-add-medicine');
+            renderInventoryTable();
+            renderPOSCatalog();
+            showToast("Pharmaceutical SKU details saved!");
+        }
+
+        function deleteMedicine(medId) {
+            if (confirm("Are you sure you want to delete this pharmaceutical SKU?")) {
+                medicines = medicines.filter(m => m.id !== medId);
+                saveState();
+                renderInventoryTable();
+                renderPOSCatalog();
+                showToast("SKU removed from database.");
+            }
+        }
+
+        let selectedRestockId = null;
+        function openRestockModal(medId) {
+            selectedRestockId = medId;
+            const med = medicines.find(m => m.id === medId);
+            if (!med) return;
+
+            document.getElementById('restock-med-name').innerText = med.brandName;
+            document.getElementById('restock-current-stock').innerText = `Current Stock: ${med.stockQty} units`;
+            document.getElementById('modal-restock').classList.remove('hidden');
+        }
+
+        function saveRestockQuantity() {
+            const addQty = parseInt(document.getElementById('restock-add-qty').value) || 0;
+            const med = medicines.find(m => m.id === selectedRestockId);
+            if (med && addQty > 0) {
+                med.stockQty += addQty;
+                saveState();
+                renderInventoryTable();
+                renderPOSCatalog();
+                closeModal('modal-restock');
+                showToast(`Restocked ${addQty} units for ${med.brandName}`);
+            }
+        }
+
+        // ==========================================
+        // 3. SALES LEDGER & ANALYTICS
+        // ==========================================
+        function renderSalesLedgerTable() {
+            const body = document.getElementById('sales-table-body');
+            const query = document.getElementById('sales-search-input').value.toLowerCase();
+
+            const totalRev = salesHistory.reduce((acc, s) => acc + s.totalPaid, 0);
+            const totalOrders = salesHistory.length;
+            const aov = totalOrders > 0 ? totalRev / totalOrders : 0;
+            const estProfit = totalRev * 0.24; // 24% avg profit margin
+
+            document.getElementById('analytics-total-revenue').innerText = `$${totalRev.toFixed(2)}`;
+            document.getElementById('analytics-total-invoices').innerText = `${totalOrders} Orders`;
+            document.getElementById('analytics-aov').innerText = `$${aov.toFixed(2)}`;
+            document.getElementById('analytics-net-profit').innerText = `$${estProfit.toFixed(2)}`;
+
+            const filtered = salesHistory.filter(s => 
+                s.invoiceId.toLowerCase().includes(query) || 
+                s.customerName.toLowerCase().includes(query)
+            );
+
+            if (filtered.length === 0) {
+                body.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400 font-semibold">No transaction records found.</td></tr>`;
+                return;
+            }
+
+            body.innerHTML = filtered.map(s => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-3 font-mono font-bold text-navy-900">${s.invoiceId}</td>
+                    <td class="p-3 text-slate-500">${s.timestamp}</td>
+                    <td class="p-3">
+                        <span class="font-bold block text-slate-800">${s.customerName}</span>
+                        <span class="text-[10px] text-slate-400">Rx: ${s.doctorName}</span>
+                    </td>
+                    <td class="p-3 font-semibold">${s.itemsCount} items</td>
+                    <td class="p-3 font-mono font-black text-emerald-600">$${s.totalPaid.toFixed(2)}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-0.5 rounded-full font-bold text-[10px] bg-slate-100 text-slate-700">${s.method}</span>
+                    </td>
+                    <td class="p-3 text-right">
+                        <button onclick='openInvoiceViewModal(${JSON.stringify(s)})' class="px-2.5 py-1 rounded-lg bg-navy-900 text-white font-bold text-[11px] hover:bg-emerald-600 transition">
+                            View Rx Invoice
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ==========================================
+        // 4. EXPIRY & STOCK TELEMETRY RADAR
+        // ==========================================
+        function renderTelemetryRadar() {
+            const expContainer = document.getElementById('expiring-items-list');
+            const lowContainer = document.getElementById('lowstock-items-list');
+
+            const expiring = medicines.filter(m => isExpiringSoon(m.expiryDate));
+            const lowStock = medicines.filter(m => m.stockQty <= m.reorderLevel);
+
+            document.getElementById('expiring-count-pill').innerText = `${expiring.length} Items`;
+            document.getElementById('lowstock-count-pill').innerText = `${lowStock.length} Items`;
+
+            if (expiring.length === 0) {
+                expContainer.innerHTML = `<p class="text-slate-400 text-center py-6">No batches expiring within 60 days.</p>`;
+            } else {
+                expContainer.innerHTML = expiring.map(m => `
+                    <div class="p-3 rounded-xl bg-cyan-50/60 border border-cyan-200 flex items-center justify-between text-xs">
+                        <div>
+                            <h4 class="font-extrabold text-navy-900">${m.brandName}</h4>
+                            <p class="text-[10px] text-cyan-800 font-mono">Batch: ${m.batchNo} • Exp: ${m.expiryDate}</p>
+                        </div>
+                        <button onclick="openRestockModal('${m.id}')" class="px-3 py-1 bg-cyan-600 text-white font-bold rounded-lg text-[10px]">
+                            Restock Batch
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            if (lowStock.length === 0) {
+                lowContainer.innerHTML = `<p class="text-slate-400 text-center py-6">All SKU stock levels are healthy.</p>`;
+            } else {
+                lowContainer.innerHTML = lowStock.map(m => `
+                    <div class="p-3 rounded-xl bg-amber-50/60 border border-amber-200 flex items-center justify-between text-xs">
+                        <div>
+                            <h4 class="font-extrabold text-navy-900">${m.brandName}</h4>
+                            <p class="text-[10px] text-amber-800">Current Qty: <strong class="font-mono">${m.stockQty}</strong> (Reorder Threshold: ${m.reorderLevel})</p>
+                        </div>
+                        <button onclick="openPurchaseOrderModal('${m.id}')" class="px-3 py-1 bg-amber-600 text-white font-bold rounded-lg text-[10px]">
+                            Issue Vendor PO
+                        </button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // ==========================================
+        // 5. SUPPLIER & PURCHASE ORDER LOGIC
+        // ==========================================
+        function renderSuppliersGrid() {
+            const grid = document.getElementById('suppliers-grid');
+            grid.innerHTML = suppliers.map(s => `
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex justify-between items-start">
+                        <div class="p-2.5 rounded-xl bg-navy-900 text-white">
+                            <i data-lucide="truck" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-[10px] font-mono font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-600">${s.license}</span>
+                    </div>
+
+                    <div>
+                        <h3 class="font-extrabold text-sm text-navy-900">${s.name}</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">${s.contact}</p>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-100 flex justify-between text-xs font-semibold">
+                        <span class="text-slate-500">Payable Balance:</span>
+                        <span class="font-mono text-emerald-600 font-bold">$${s.payable.toFixed(2)}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function openAddSupplierModal() {
+            document.getElementById('modal-add-supplier').classList.remove('hidden');
+        }
+
+        function handleSaveSupplier(e) {
+            e.preventDefault();
+            const newSupp = {
+                id: `SUP-${suppliers.length + 1}`,
+                name: document.getElementById('supp-name').value.trim(),
+                contact: document.getElementById('supp-contact').value.trim(),
+                license: document.getElementById('supp-license').value.trim(),
+                activeOrders: 0,
+                payable: 0.00
+            };
+
+            suppliers.push(newSupp);
+            saveState();
+            closeModal('modal-add-supplier');
+            renderSuppliersGrid();
+            showToast("New Pharma Distributor registered!");
+        }
+
+        function openPurchaseOrderModal(preselectedMedId = null) {
+            const suppSelect = document.getElementById('po-supplier-select');
+            const medSelect = document.getElementById('po-medicine-select');
+
+            suppSelect.innerHTML = suppliers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+            medSelect.innerHTML = medicines.map(m => `<option value="${m.id}" ${m.id === preselectedMedId ? 'selected' : ''}>${m.brandName} (${m.stockQty} in stock)</option>`).join('');
+
+            document.getElementById('modal-purchase-order').classList.remove('hidden');
+        }
+
+        function handleDispatchPO(e) {
+            e.preventDefault();
+            const medId = document.getElementById('po-medicine-select').value;
+            const qty = parseInt(document.getElementById('po-quantity').value) || 100;
+
+            const med = medicines.find(m => m.id === medId);
+            if (med) {
+                med.stockQty += qty;
+                saveState();
+                closeModal('modal-purchase-order');
+                renderInventoryTable();
+                renderPOSCatalog();
+                showToast(`Purchase Order dispatched! Stock auto-updated (+${qty} units).`);
+            }
+        }
+
+        // ==========================================
+        // 6. SIMULATED AI Rx READER ASSISTANT
+        // ==========================================
+        function setAISamplePrompt(type) {
+            const input = document.getElementById('ai-rx-input');
+            if (type === 1) {
+                input.value = "Patient prescribed Paracetamol 650mg + Amoxicillin 500mg. Also concurrently taking Warfarin 5mg daily. Please check for contraindications and suggested dosing schedule.";
+            } else if (type === 2) {
+                input.value = "Prescription note: Amoxicillin 500mg TID for severe sinus infection. Patient has a reported mild Penicillin allergy. Evaluate safety.";
+            } else if (type === 3) {
+                input.value = "Patient with Type 2 Diabetes taking Metformin 500mg. Doctor prescribed Glimepiride 2mg. Advise on hypoglycemia risk and lifestyle notes.";
+            }
+        }
+
+        function analyzePrescriptionWithAI() {
+            const query = document.getElementById('ai-rx-input').value.trim();
+            const resultBox = document.getElementById('ai-result-container');
+            const badge = document.getElementById('ai-status-badge');
+
+            if (!query) {
+                showToast("Please enter prescription text or notes first!", "error");
+                return;
+            }
+
+            badge.innerText = "Analyzing Neural Data...";
+            badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-800 animate-pulse";
+
+            resultBox.innerHTML = `<div class="text-center py-10 text-cyan-600 font-bold">Cross-matching clinical database contraindications...</div>`;
+
+            setTimeout(() => {
+                badge.innerText = "Analysis Complete";
+                badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800";
+
+                let responseHtml = "";
+
+                if (query.toLowerCase().includes("warfarin")) {
+                    responseHtml = `
+                        <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 space-y-1.5">
+                            <h4 class="font-bold flex items-center gap-1 text-xs">⚠️ CONTRAINDICATION WARNING: Moderate Interaction</h4>
+                            <p class="text-[11px]">Concomitant use of <strong>Paracetamol (High Dose)</strong> with <strong>Warfarin</strong> may increase INR and enhance anticoagulant effects, elevating bleeding risk. Monitor Prothrombin time closely.</p>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                            <h4 class="font-bold text-navy-900">Suggested Generic Match in Stock:</h4>
+                            <p class="text-[11px] text-slate-600">Consider lower strength Paracetamol (325mg) or alternative pain management under clinical supervision.</p>
+                        </div>
+                    `;
+                } else if (query.toLowerCase().includes("penicillin") || query.toLowerCase().includes("amoxicillin")) {
+                    responseHtml = `
+                        <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 space-y-1.5">
+                            <h4 class="font-bold flex items-center gap-1 text-xs">⚠️ ALLERGY ALERT: Cross-Reactivity Risk</h4>
+                            <p class="text-[11px]"><strong>Amoxicillin</strong> belongs to the Aminopenicillin class. Patients with documented Penicillin allergies may experience hypersensitivity or anaphylaxis.</p>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 space-y-1">
+                            <h4 class="font-bold">Recommended Non-Beta-Lactam Alternatives in Catalog:</h4>
+                            <p class="text-[11px]">Macrolides such as <em>Azithromycin 500mg</em> or <em>Clarithromycin</em>.</p>
+                        </div>
+                    `;
+                } else {
+                    responseHtml = `
+                        <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 space-y-1.5">
+                            <h4 class="font-bold flex items-center gap-1 text-xs">✓ Clinical Compatibility Verified</h4>
+                            <p class="text-[11px]">No severe drug-drug contraindications detected in primary clinical database for the specified query.</p>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                            <h4 class="font-bold text-navy-900">Standard Dosage Protocol:</h4>
+                            <p class="text-[11px] text-slate-600">Administer after food. Ensure full course completion for antibiotic therapies.</p>
+                        </div>
+                    `;
+                }
+
+                resultBox.innerHTML = responseHtml;
+                showToast("AI Clinical Analysis Updated!");
+            }, 800);
+        }
+
+        // ==========================================
+        // UTILITY FUNCTIONS
+        // ==========================================
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function showToast(msg, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const isError = type === 'error';
+            toast.className = `px-4 py-3 rounded-2xl text-xs font-bold text-white shadow-xl flex items-center gap-2 pointer-events-auto transition-all duration-300 transform translate-x-full ${
+                isError ? 'bg-rose-600' : 'bg-navy-900 border border-slate-700'
+            }`;
+            
+            toast.innerHTML = `<i data-lucide="${isError ? 'alert-circle' : 'check-circle-2'}" class="w-4 h-4 text-emerald-400"></i> <span>${msg}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => toast.classList.remove('translate-x-full'), 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // KEYBOARD SHORTCUTS
+        document.addEventListener('keydown', function(e) {
+            if (e.altKey && e.key.toLowerCase() === 's') {
+                e.preventDefault();
+                switchTab('pos');
+                document.getElementById('pos-search-input').focus();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuraCorp Enterprise Systems | Next-Gen Enterprise Engine</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        obsidian: '#0b0f17',
+                        slateDark: '#0f172a',
+                        indigoGlow: '#6366f1',
+                        cyanGlow: '#0ea5e9',
+                        emeraldGlow: '#10b981',
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 3s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        glow: {
+                            '0%': { opacity: '0.4', filter: 'drop-shadow(0 0 15px rgba(99, 102, 241, 0.4))' },
+                            '100%': { opacity: '0.8', filter: 'drop-shadow(0 0 30px rgba(14, 165, 233, 0.7))' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* Custom Custom Scrollbar & Glassmorphism Utility Styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f17;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #6366f1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gradient-text-accent {
+            background: linear-gradient(135deg, #6366f1 0%, #0ea5e9 50%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            height: 8px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 22px;
+            width: 22px;
+            border-radius: 50%;
+            background: #6366f1;
+            cursor: pointer;
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.8);
+            border: 2px solid #ffffff;
+            transition: all 0.15s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: #0ea5e9;
+        }
+    </style>
+</head>
+<body class="bg-obsidian text-slate-200 font-sans antialiased selection:bg-indigoGlow selection:text-white min-h-screen relative overflow-x-hidden">
+
+    <!-- Background Ambient Glow Lights -->
+    <div class="fixed top-0 left-1/4 w-[500px] h-[500px] bg-indigoGlow/15 rounded-full blur-[140px] pointer-events-none -z-10 animate-pulse-slow"></div>
+    <div class="fixed bottom-1/3 right-1/4 w-[600px] h-[600px] bg-cyanGlow/10 rounded-full blur-[160px] pointer-events-none -z-10"></div>
+    <div class="fixed top-2/3 left-1/3 w-[400px] h-[400px] bg-emeraldGlow/10 rounded-full blur-[130px] pointer-events-none -z-10"></div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none"></div>
+
+    <!-- 1. Header & Navigation -->
+    <header class="sticky top-0 z-40 w-full glass-panel border-b border-slate-800/80 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- Logo -->
+                <a href="#" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigoGlow via-cyanGlow to-emeraldGlow p-[2px] transition-transform duration-300 group-hover:scale-105">
+                        <div class="w-full h-full bg-obsidian rounded-[10px] flex items-center justify-center">
+                            <i data-lucide="cpu" class="w-5 h-5 text-indigoGlow group-hover:text-cyanGlow transition-colors"></i>
+                        </div>
+                    </div>
+                    <span class="text-xl font-extrabold tracking-tight text-white flex items-center">
+                        Aura<span class="text-indigo-500 font-normal">Corp</span>
+                        <span class="ml-1.5 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">ENT</span>
+                    </span>
+                </a>
+
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+                    <a href="#solutions" class="hover:text-white transition-colors">Solutions</a>
+                    <a href="#roi-calculator" class="hover:text-white transition-colors flex items-center gap-1.5">
+                        <span>ROI Engine</span>
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    </a>
+                    <a href="#strategy-builder" class="hover:text-white transition-colors">Scope Builder</a>
+                    <a href="#case-studies" class="hover:text-white transition-colors">Impact</a>
+                    <a href="#pricing" class="hover:text-white transition-colors">Pricing</a>
+                    <a href="#contact" class="hover:text-white transition-colors">Contact</a>
+                </nav>
+
+                <!-- Action Button -->
+                <div class="hidden md:flex items-center gap-4">
+                    <button onclick="openDemoModal()" class="px-5 py-2.5 text-sm font-semibold text-white rounded-xl bg-gradient-to-r from-indigoGlow to-cyanGlow hover:opacity-95 shadow-lg shadow-indigo-500/25 transition-all duration-200 transform hover:-translate-y-0.5 flex items-center gap-2">
+                        <span>Request Live Demo</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer -->
+        <div id="mobile-menu" class="hidden md:hidden glass-panel border-b border-slate-800 px-4 pt-2 pb-6 space-y-3">
+            <a href="#solutions" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-slate-800">Solutions</a>
+            <a href="#roi-calculator" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-slate-800">ROI Engine</a>
+            <a href="#strategy-builder" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-slate-800">Strategy Builder</a>
+            <a href="#case-studies" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-slate-800">Case Studies</a>
+            <a href="#pricing" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-slate-800">Pricing</a>
+            <a href="#contact" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-slate-800">Contact</a>
+            <button onclick="toggleMobileMenu(); openDemoModal()" class="w-full mt-2 px-5 py-3 text-center font-semibold text-white rounded-xl bg-gradient-to-r from-indigoGlow to-cyanGlow">
+                Request Live Demo
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <!-- 2. Hero Section -->
+        <section class="relative pt-12 pb-20 md:pt-24 md:pb-32 overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+                
+                <!-- Dynamic Pill Badge -->
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel border border-indigo-500/30 text-xs sm:text-sm font-medium text-indigo-300 mb-8 shadow-inner hover:border-indigo-500/60 transition-colors cursor-default">
+                    <span class="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span class="tracking-wide">Next-Gen Enterprise Engine v4.2 Released</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400"></i>
+                </div>
+
+                <!-- Headline -->
+                <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white max-w-5xl mx-auto leading-[1.1] mb-6">
+                    Autonomous Infrastructure for <br class="hidden sm:inline"/>
+                    <span class="gradient-text-accent" id="typewriter-text">High-Scale Enterprises</span>
+                </h1>
+
+                <!-- Subtitle -->
+                <p class="text-lg sm:text-xl text-slate-400 max-w-3xl mx-auto font-normal leading-relaxed mb-10">
+                    AuraCorp unifies AI orchestration, zero-trust cloud architecture, and real-time telemetry into a single high-availability core engineered for complex enterprise operations.
+                </p>
+
+                <!-- CTAs -->
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto mb-16">
+                    <button onclick="openDemoModal()" class="w-full sm:w-auto px-8 py-4 text-base font-semibold text-white rounded-xl bg-gradient-to-r from-indigoGlow via-cyanGlow to-indigoGlow bg-[length:200%_auto] hover:bg-right transition-all duration-500 shadow-xl shadow-indigo-500/25 flex items-center justify-center gap-2 group">
+                        <i data-lucide="calendar" class="w-5 h-5 text-indigo-200 group-hover:scale-110 transition-transform"></i>
+                        <span>Schedule Strategy Call</span>
+                    </button>
+                    
+                    <a href="#roi-calculator" class="w-full sm:w-auto px-8 py-4 text-base font-semibold text-slate-200 rounded-xl glass-panel hover:bg-slate-800/80 border border-slate-700/80 hover:border-slate-500 transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="calculator" class="w-5 h-5 text-cyanGlow"></i>
+                        <span>Calculate Enterprise ROI</span>
+                    </a>
+                </div>
+
+                <!-- Live Trust Stats Bar -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-5xl mx-auto pt-8 border-t border-slate-800/80">
+                    <div class="glass-card p-4 sm:p-6 rounded-2xl text-left">
+                        <div class="text-2xl sm:text-4xl font-extrabold text-white mb-1 tracking-tight flex items-center">
+                            <span class="stat-counter" data-target="99.99">0</span>%
+                        </div>
+                        <div class="text-xs sm:text-sm text-slate-400 font-medium">Platform SLA Uptime</div>
+                    </div>
+
+                    <div class="glass-card p-4 sm:p-6 rounded-2xl text-left">
+                        <div class="text-2xl sm:text-4xl font-extrabold text-white mb-1 tracking-tight flex items-center">
+                            $<span class="stat-counter" data-target="1.8">0</span>B+
+                        </div>
+                        <div class="text-xs sm:text-sm text-slate-400 font-medium">Managed Revenue Core</div>
+                    </div>
+
+                    <div class="glass-card p-4 sm:p-6 rounded-2xl text-left">
+                        <div class="text-2xl sm:text-4xl font-extrabold text-white mb-1 tracking-tight flex items-center">
+                            <span class="stat-counter" data-target="480">0</span>+
+                        </div>
+                        <div class="text-xs sm:text-sm text-slate-400 font-medium">Global Enterprise Clients</div>
+                    </div>
+
+                    <div class="glass-card p-4 sm:p-6 rounded-2xl text-left">
+                        <div class="text-2xl sm:text-4xl font-extrabold text-emerald-400 mb-1 tracking-tight flex items-center">
+                            <span class="stat-counter" data-target="42">0</span>%
+                        </div>
+                        <div class="text-xs sm:text-sm text-slate-400 font-medium">Avg OPEX Reduction</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 3. Live Enterprise ROI & Cost-Savings Calculator -->
+        <section id="roi-calculator" class="py-20 relative bg-slate-900/40 border-y border-slate-800/60">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-3">
+                        Interactive Financial Simulator
+                    </div>
+                    <h2 class="text-3xl sm:text-5xl font-bold text-white tracking-tight">Quantify Your Operational Impact</h2>
+                    <p class="mt-4 text-slate-400 text-base sm:text-lg">Adjust your organization's parameters below to calculate direct annual savings, hours reclaimed, and payback projection.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    
+                    <!-- Sliders Side -->
+                    <div class="lg:col-span-7 glass-panel p-6 sm:p-8 rounded-3xl space-y-8 shadow-2xl">
+                        
+                        <!-- Slider 1: Revenue -->
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <label class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                                    <i data-lucide="dollar-sign" class="w-4 h-4 text-indigoGlow"></i>
+                                    Annual Operational Revenue
+                                </label>
+                                <span id="rev-val" class="text-lg font-bold text-indigo-400">$25M</span>
+                            </div>
+                            <input type="range" id="rev-slider" min="1" max="100" value="25" class="w-full">
+                            <div class="flex justify-between text-xs text-slate-500 mt-2">
+                                <span>$1M</span>
+                                <span>$50M</span>
+                                <span>$100M+</span>
+                            </div>
+                        </div>
+
+                        <!-- Slider 2: Team Size -->
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <label class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                                    <i data-lucide="users" class="w-4 h-4 text-cyanGlow"></i>
+                                    Engineering & Ops Headcount
+                                </label>
+                                <span id="team-val" class="text-lg font-bold text-cyan-400">150 employees</span>
+                            </div>
+                            <input type="range" id="team-slider" min="10" max="2000" step="10" value="150" class="w-full">
+                            <div class="flex justify-between text-xs text-slate-500 mt-2">
+                                <span>10</span>
+                                <span>1,000</span>
+                                <span>2,000</span>
+                            </div>
+                        </div>
+
+                        <!-- Slider 3: Legacy Friction Level -->
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <label class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                                    <i data-lucide="cpu" class="w-4 h-4 text-emeraldGlow"></i>
+                                    Legacy Tech Overhead & Inefficiency
+                                </label>
+                                <span id="overhead-val" class="text-lg font-bold text-emerald-400">30% Overhead</span>
+                            </div>
+                            <input type="range" id="overhead-slider" min="10" max="60" value="30" class="w-full">
+                            <div class="flex justify-between text-xs text-slate-500 mt-2">
+                                <span>10% (Modern)</span>
+                                <span>35% (Moderate)</span>
+                                <span>60% (Legacy Heavy)</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                            <span class="flex items-center gap-1.5">
+                                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+                                Validated against Gartner enterprise benchmarks
+                            </span>
+                            <button onclick="resetRoiCalculator()" class="text-indigo-400 hover:text-indigo-300 font-medium underline">Reset Defaults</button>
+                        </div>
+                    </div>
+
+                    <!-- Metrics Output Side -->
+                    <div class="lg:col-span-5 flex flex-col gap-4">
+                        <div class="glass-panel p-8 rounded-3xl border-2 border-indigo-500/30 bg-gradient-to-br from-slate-900/90 via-indigo-950/30 to-slate-900/90 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-indigoGlow/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                            <span class="text-xs font-bold uppercase tracking-widest text-indigo-400 mb-1 block">Projected Annual Savings</span>
+                            <div class="text-4xl sm:text-5xl font-black text-white tracking-tight mb-6" id="calc-savings">
+                                $1,125,000
+                            </div>
+
+                            <div class="space-y-4 pt-4 border-t border-slate-800">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-slate-400 flex items-center gap-2">
+                                        <i data-lucide="clock" class="w-4 h-4 text-cyan-400"></i>
+                                        Engineering Hours Saved / Year:
+                                    </span>
+                                    <span id="calc-hours" class="font-bold text-slate-200">28,800 hrs</span>
+                                </div>
+
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-slate-400 flex items-center gap-2">
+                                        <i data-lucide="trending-up" class="w-4 h-4 text-emerald-400"></i>
+                                        Estimated ROI Multiplier:
+                                    </span>
+                                    <span id="calc-roi" class="font-bold text-emerald-400">4.8x ROI</span>
+                                </div>
+
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-slate-400 flex items-center gap-2">
+                                        <i data-lucide="zap" class="w-4 h-4 text-indigo-400"></i>
+                                        Payback Period:
+                                    </span>
+                                    <span id="calc-payback" class="font-bold text-slate-200">2.4 Months</span>
+                                </div>
+                            </div>
+
+                            <button onclick="openDemoModal('ROI Calculation Export')" class="w-full mt-8 py-3.5 px-4 rounded-xl bg-gradient-to-r from-emeraldGlow to-cyanGlow text-slate-950 font-bold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20">
+                                <i data-lucide="download" class="w-4 h-4"></i>
+                                <span>Export Full Financial Impact Audit</span>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Interactive Product & Solutions Tabs -->
+        <section id="solutions" class="py-24 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center max-w-3xl mx-auto mb-14">
+                    <h2 class="text-3xl sm:text-5xl font-bold text-white tracking-tight">Engineered for Technical Mastery</h2>
+                    <p class="mt-4 text-slate-400 text-base sm:text-lg">Explore how our modular enterprise stack replaces fragmented tooling with unified execution.</p>
+                </div>
+
+                <!-- Tab Navigation Buttons -->
+                <div class="flex flex-wrap justify-center gap-2 sm:gap-4 mb-12">
+                    <button onclick="switchTab('ai-hub')" id="tab-btn-ai-hub" class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold transition-all glass-panel border-indigo-500/50 bg-indigo-500/20 text-white shadow-lg">
+                        <i data-lucide="bot" class="w-4 h-4 inline mr-2"></i>AI Automation Hub
+                    </button>
+                    <button onclick="switchTab('cloud-infra')" id="tab-btn-cloud-infra" class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold transition-all glass-panel border-slate-800 text-slate-400 hover:text-white">
+                        <i data-lucide="server" class="w-4 h-4 inline mr-2"></i>Cloud Infrastructure
+                    </button>
+                    <button onclick="switchTab('security')" id="tab-btn-security" class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold transition-all glass-panel border-slate-800 text-slate-400 hover:text-white">
+                        <i data-lucide="shield" class="w-4 h-4 inline mr-2"></i>Security & Compliance
+                    </button>
+                    <button onclick="switchTab('telemetry')" id="tab-btn-telemetry" class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold transition-all glass-panel border-slate-800 text-slate-400 hover:text-white">
+                        <i data-lucide="activity" class="w-4 h-4 inline mr-2"></i>Growth Telemetry
+                    </button>
+                </div>
+
+                <!-- Tab Panels Container -->
+                <div id="tab-content-container" class="glass-panel rounded-3xl p-6 sm:p-10 border border-slate-800">
+                    
+                    <!-- Content will be injected dynamically via JS -->
+                    <div id="tab-panel-inner" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                        <!-- Default Initial View (AI Hub) -->
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 5. Interactive Strategy & Tech Stack Estimator -->
+        <section id="strategy-builder" class="py-20 relative bg-slate-900/30 border-y border-slate-800/80">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center mb-12">
+                    <span class="px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-semibold uppercase tracking-wider">Custom Scope Engine</span>
+                    <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3">Build Your Transformation Roadmap</h2>
+                    <p class="text-slate-400 text-sm sm:text-base mt-2">Answer 3 quick questions to generate an estimated scope, architecture pattern, and delivery timeline.</p>
+                </div>
+
+                <div class="glass-panel p-6 sm:p-10 rounded-3xl border border-slate-800 shadow-2xl relative">
+                    
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-slate-800 rounded-full h-1.5 mb-8">
+                        <div id="wizard-progress" class="bg-gradient-to-r from-indigoGlow to-cyanGlow h-1.5 rounded-full transition-all duration-300 w-1/3"></div>
+                    </div>
+
+                    <!-- Step 1 -->
+                    <div id="wizard-step-1" class="wizard-step">
+                        <h3 class="text-xl font-bold text-white mb-2">1. Select Your Primary Industry Sector</h3>
+                        <p class="text-slate-400 text-sm mb-6">This helps us apply specific compliance frameworks and data standards.</p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                            <button onclick="selectWizardOption('industry', 'Fintech & Banking', this)" class="wiz-opt p-5 rounded-2xl glass-card text-left hover:border-indigo-500 border border-slate-800">
+                                <i data-lucide="landmark" class="w-8 h-8 text-indigo-400 mb-3"></i>
+                                <div class="font-bold text-white">Fintech & Banking</div>
+                                <div class="text-xs text-slate-400 mt-1">PCI-DSS, SOC2, Low Latency Core</div>
+                            </button>
+                            <button onclick="selectWizardOption('industry', 'Healthcare & Life Sciences', this)" class="wiz-opt p-5 rounded-2xl glass-card text-left hover:border-indigo-500 border border-slate-800">
+                                <i data-lucide="activity" class="w-8 h-8 text-cyan-400 mb-3"></i>
+                                <div class="font-bold text-white">Healthcare & Biotech</div>
+                                <div class="text-xs text-slate-400 mt-1">HIPAA, Protected Health Data</div>
+                            </button>
+                            <button onclick="selectWizardOption('industry', 'E-Commerce & Global Supply Chain', this)" class="wiz-opt p-5 rounded-2xl glass-card text-left hover:border-indigo-500 border border-slate-800">
+                                <i data-lucide="shopping-bag" class="w-8 h-8 text-emerald-400 mb-3"></i>
+                                <div class="font-bold text-white">Retail & Logistics</div>
+                                <div class="text-xs text-slate-400 mt-1">High Concurrency, Omni-channel</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div id="wizard-step-2" class="wizard-step hidden">
+                        <h3 class="text-xl font-bold text-white mb-2">2. What is your largest operational bottleneck?</h3>
+                        <p class="text-slate-400 text-sm mb-6">Select the key issue you need our architecture to resolve.</p>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                            <button onclick="selectWizardOption('challenge', 'Cloud Cost Escalation & Slow Builds', this)" class="wiz-opt p-5 rounded-2xl glass-card text-left hover:border-indigo-500 border border-slate-800">
+                                <i data-lucide="trending-down" class="w-8 h-8 text-indigo-400 mb-3"></i>
+                                <div class="font-bold text-white">Cost & Build Slowness</div>
+                                <div class="text-xs text-slate-400 mt-1">Bloated cloud bills & long deployments</div>
+                            </button>
+                            <button onclick="selectWizardOption('challenge', 'Manual Workflow & Data Silos', this)" class="wiz-opt p-5 rounded-2xl glass-card text-left hover:border-indigo-500 border border-slate-800">
+                                <i data-lucide="layers" class="w-8 h-8 text-cyan-400 mb-3"></i>
+                                <div class="font-bold text-white">Manual Workflows</div>
+                                <div class="text-xs text-slate-400 mt-1">Human overhead and fragmented data</div>
+                            </button>
+                            <button onclick="selectWizardOption('challenge', 'Security Risks & Regulatory Compliance', this)" class="wiz-opt p-5 rounded-2xl glass-card text-left hover:border-indigo-500 border border-slate-800">
+                                <i data-lucide="shield-alert" class="w-8 h-8 text-emerald-400 mb-3"></i>
+                                <div class="font-bold text-white">Security Vulnerabilities</div>
+                                <div class="text-xs text-slate-400 mt-1">Audit failures & threat exposure</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div id="wizard-step-3" class="wizard-step hidden">
+                        <h3 class="text-xl font-bold text-white mb-2">3. Preferred Implementation Speed</h3>
+                        <p class="text-slate-400 text-sm mb-6">How fast are you looking to execute this deployment?</p>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                            <button onclick="selectWizardOption('timeline', 'Accelerated (4-6 Weeks)', this)" class="wiz-opt p-5 rounded-2xl glass-card text-left hover:border-indigo-500 border border-slate-800">
+                                <i data-lucide="zap" class="w-8 h-8 text-indigo-400 mb-3"></i>
+                                <div class="font-bold text-white">Accelerated Sprint</div>
+                                <div class="text-xs text-slate-400 mt-1">4 - 6 Weeks Dedicated Team</div>
+                            </button>
+                            <button onclick="selectWizardOption('timeline', 'Standard Enterprise (8-12 Weeks)', this)" class="wiz-opt p-5 rounded-2xl glass-card text-left hover:border-indigo-500 border border-slate-800">
+                                <i data-lucide="calendar" class="w-8 h-8 text-cyan-400 mb-3"></i>
+                                <div class="font-bold text-white">Standard Deployment</div>
+                                <div class="text-xs text-slate-400 mt-1">8 - 12 Weeks Phased Migration</div>
+                            </button>
+                            <button onclick="selectWizardOption('timeline', 'Multi-Year Global Roadmap', this)" class="wiz-opt p-5 rounded-2xl glass-card text-left hover:border-indigo-500 border border-slate-800">
+                                <i data-lucide="globe" class="w-8 h-8 text-emerald-400 mb-3"></i>
+                                <div class="font-bold text-white">Global Roadmap</div>
+                                <div class="text-xs text-slate-400 mt-1">Multi-stage Enterprise Rollout</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 (Results Summary) -->
+                    <div id="wizard-step-4" class="wizard-step hidden">
+                        <div class="p-6 rounded-2xl bg-indigo-950/30 border border-indigo-500/30">
+                            <div class="flex items-center gap-3 text-emerald-400 font-semibold mb-3">
+                                <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+                                <span>Custom Implementation Blueprint Generated</span>
+                            </div>
+                            
+                            <h3 class="text-2xl font-bold text-white mb-4" id="wiz-result-title">Tailored Enterprise Core</h3>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm mb-6">
+                                <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+                                    <div class="text-slate-400 text-xs mb-1">Target Sector</div>
+                                    <div id="wiz-res-sector" class="font-bold text-white">Fintech</div>
+                                </div>
+                                <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+                                    <div class="text-slate-400 text-xs mb-1">Primary Focus</div>
+                                    <div id="wiz-res-focus" class="font-bold text-white">Automation</div>
+                                </div>
+                                <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+                                    <div class="text-slate-400 text-xs mb-1">Est. Rollout Time</div>
+                                    <div id="wiz-res-time" class="font-bold text-cyan-400">4-6 Weeks</div>
+                                </div>
+                            </div>
+
+                            <p class="text-slate-300 text-sm mb-6 leading-relaxed">
+                                Based on your selections, we recommend our <strong class="text-white">AuraCorp Quantum Architecture Pattern</strong> paired with automated SOC2 compliance monitoring and low-latency micro-tiering.
+                            </p>
+
+                            <button onclick="openDemoModal('Generated Scope Blueprint')" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-indigoGlow to-cyanGlow text-white font-semibold text-sm hover:opacity-90 transition-opacity">
+                                Book Review Strategy Session for this Scope
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Navigation controls -->
+                    <div class="flex justify-between items-center mt-8 pt-4 border-t border-slate-800" id="wizard-nav-buttons">
+                        <button id="wiz-prev-btn" onclick="navWizard(-1)" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-400 hover:text-white transition-colors disabled:opacity-30 disabled:pointer-events-none" disabled>
+                            Back
+                        </button>
+                        <button id="wiz-next-btn" onclick="navWizard(1)" class="px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition-colors flex items-center gap-2">
+                            <span>Next Step</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 6. Interactive Client Case Studies & Results Grid -->
+        <section id="case-studies" class="py-24 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+                    <div>
+                        <span class="text-cyan-400 text-xs font-semibold uppercase tracking-wider">Proven Client Outcomes</span>
+                        <h2 class="text-3xl sm:text-5xl font-bold text-white tracking-tight mt-2">Enterprise Case Studies</h2>
+                    </div>
+
+                    <!-- Category Filter Buttons -->
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="filterCases('all')" class="case-filter-btn px-4 py-2 rounded-xl text-xs font-semibold glass-panel border-indigo-500/50 bg-indigo-500/20 text-white">All Sectors</button>
+                        <button onclick="filterCases('fintech')" class="case-filter-btn px-4 py-2 rounded-xl text-xs font-semibold glass-panel border-slate-800 text-slate-400 hover:text-white">Fintech</button>
+                        <button onclick="filterCases('healthcare')" class="case-filter-btn px-4 py-2 rounded-xl text-xs font-semibold glass-panel border-slate-800 text-slate-400 hover:text-white">Healthcare</button>
+                        <button onclick="filterCases('ecommerce')" class="case-filter-btn px-4 py-2 rounded-xl text-xs font-semibold glass-panel border-slate-800 text-slate-400 hover:text-white">E-Commerce</button>
+                    </div>
+                </div>
+
+                <!-- Case Studies Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="case-studies-grid">
+                    
+                    <!-- Case 1 -->
+                    <div class="case-card glass-card rounded-3xl p-6 sm:p-8 flex flex-col justify-between" data-category="fintech">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-semibold">Fintech Core</span>
+                                <span class="text-xs text-slate-500">Global Payments Corp</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Modernizing High-Frequency Settlement Infrastructure</h3>
+                            <p class="text-slate-400 text-sm mb-6 line-clamp-3">Migrated legacy mainframe architecture into an autonomous multi-region micro-cluster handling $800M+ daily transactions.</p>
+                        </div>
+                        <div>
+                            <div class="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 mb-6">
+                                <div>
+                                    <div class="text-2xl font-black text-emerald-400">-78%</div>
+                                    <div class="text-[11px] text-slate-400">Latency Drop</div>
+                                </div>
+                                <div>
+                                    <div class="text-2xl font-black text-cyan-400">100%</div>
+                                    <div class="text-[11px] text-slate-400">Zero Downtime</div>
+                                </div>
+                            </div>
+                            <button onclick="openCaseModal(0)" class="w-full py-2.5 rounded-xl border border-slate-700 hover:border-indigo-500 text-xs font-semibold text-slate-200 hover:text-white transition-all flex items-center justify-center gap-2">
+                                <span>View Full Case Breakdown</span>
+                                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Case 2 -->
+                    <div class="case-card glass-card rounded-3xl p-6 sm:p-8 flex flex-col justify-between" data-category="healthcare">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-semibold">Healthcare</span>
+                                <span class="text-xs text-slate-500">AuraHealth Bio</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">HIPAA-Compliant AI Patient Data Mesh</h3>
+                            <p class="text-slate-400 text-sm mb-6 line-clamp-3">Unified patient telemetry across 140+ hospital centers with end-to-end zero trust encryption and real-time clinical predictive analytics.</p>
+                        </div>
+                        <div>
+                            <div class="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 mb-6">
+                                <div>
+                                    <div class="text-2xl font-black text-emerald-400">3.4x</div>
+                                    <div class="text-[11px] text-slate-400">Diagnosis Speed</div>
+                                </div>
+                                <div>
+                                    <div class="text-2xl font-black text-indigo-400">$14M</div>
+                                    <div class="text-[11px] text-slate-400">Annual Overhead Saved</div>
+                                </div>
+                            </div>
+                            <button onclick="openCaseModal(1)" class="w-full py-2.5 rounded-xl border border-slate-700 hover:border-indigo-500 text-xs font-semibold text-slate-200 hover:text-white transition-all flex items-center justify-center gap-2">
+                                <span>View Full Case Breakdown</span>
+                                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Case 3 -->
+                    <div class="case-card glass-card rounded-3xl p-6 sm:p-8 flex flex-col justify-between" data-category="ecommerce">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">E-Commerce</span>
+                                <span class="text-xs text-slate-500">OmniLogistics Global</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Black Friday Peak Traffic Auto-Scaling Engine</h3>
+                            <p class="text-slate-400 text-sm mb-6 line-clamp-3">Engineered a multi-cloud serverless auto-scaler handling peak traffic surges up to 4.2 Million concurrent checkouts effortlessly.</p>
+                        </div>
+                        <div>
+                            <div class="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 mb-6">
+                                <div>
+                                    <div class="text-2xl font-black text-emerald-400">99.999%</div>
+                                    <div class="text-[11px] text-slate-400">Uptime Attained</div>
+                                </div>
+                                <div>
+                                    <div class="text-2xl font-black text-cyan-400">+42%</div>
+                                    <div class="text-[11px] text-slate-400">Conversion Growth</div>
+                                </div>
+                            </div>
+                            <button onclick="openCaseModal(2)" class="w-full py-2.5 rounded-xl border border-slate-700 hover:border-indigo-500 text-xs font-semibold text-slate-200 hover:text-white transition-all flex items-center justify-center gap-2">
+                                <span>View Full Case Breakdown</span>
+                                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 7. Dynamic Pricing & Engagement Models -->
+        <section id="pricing" class="py-20 relative bg-slate-900/40 border-y border-slate-800/60">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center max-w-3xl mx-auto mb-12">
+                    <span class="text-indigo-400 text-xs font-semibold uppercase tracking-wider">Predictable Enterprise Models</span>
+                    <h2 class="text-3xl sm:text-5xl font-bold text-white tracking-tight mt-2">Transparent Engagement Plans</h2>
+                    <p class="text-slate-400 text-base mt-4">Scalable pricing structured for high-growth engineering and operations teams.</p>
+
+                    <!-- Billing Toggle Switch -->
+                    <div class="flex items-center justify-center gap-4 mt-8">
+                        <span id="billing-monthly-label" class="text-sm font-medium text-white">Monthly Billing</span>
+                        <button onclick="toggleBilling()" id="billing-toggle" class="w-14 h-8 rounded-full bg-indigo-600 p-1 transition-colors relative flex items-center">
+                            <div id="billing-toggle-dot" class="w-6 h-6 rounded-full bg-white transition-transform translate-x-6"></div>
+                        </button>
+                        <span id="billing-annual-label" class="text-sm font-medium text-slate-400 flex items-center gap-1.5">
+                            Annual Billing
+                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Save 20%</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    
+                    <!-- Tier 1 -->
+                    <div class="glass-card rounded-3xl p-8 flex flex-col justify-between border border-slate-800">
+                        <div>
+                            <div class="text-lg font-bold text-white mb-2">Growth Enterprise</div>
+                            <div class="text-xs text-slate-400 mb-6">For expanding teams needing scalable cloud & AI automation core.</div>
+                            <div class="flex items-baseline gap-1 mb-6">
+                                <span class="text-4xl font-extrabold text-white price-val" data-monthly="$2,499" data-annual="$1,999">$1,999</span>
+                                <span class="text-slate-400 text-sm">/ month</span>
+                            </div>
+                            <ul class="space-y-3.5 text-sm text-slate-300 mb-8">
+                                <li class="flex items-center gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                    <span>Up to 50 Microservice Nodes</span>
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                    <span>AI Workflow Orchestration (1M ops)</span>
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                    <span>SOC2 & ISO Ready Security Core</span>
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                    <span>Standard 99.9% SLA Support</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <button onclick="openDemoModal('Growth Tier Enrollment')" class="w-full py-3 rounded-xl glass-panel border border-slate-700 hover:border-indigo-500 text-sm font-semibold text-white transition-all">
+                            Select Growth Plan
+                        </button>
+                    </div>
+
+                    <!-- Tier 2 (Featured) -->
+                    <div class="glass-card rounded-3xl p-8 flex flex-col justify-between border-2 border-indigo-500/80 bg-gradient-to-b from-indigo-950/30 via-slate-900/60 to-slate-900/80 relative shadow-2xl scale-105">
+                        <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-indigoGlow to-cyanGlow text-white text-[11px] font-bold uppercase tracking-wider shadow-md">
+                            Most Popular Framework
+                        </div>
+                        <div>
+                            <div class="text-lg font-bold text-white mb-2 mt-2">Scaling Enterprise</div>
+                            <div class="text-xs text-slate-400 mb-6">Full multi-region autonomy with dedicated DevOps acceleration.</div>
+                            <div class="flex items-baseline gap-1 mb-6">
+                                <span class="text-4xl font-extrabold text-white price-val" data-monthly="$5,999" data-annual="$4,799">$4,799</span>
+                                <span class="text-slate-400 text-sm">/ month</span>
+                            </div>
+                            <ul class="space-y-3.5 text-sm text-slate-200 mb-8">
+                                <li class="flex items-center gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                    <span>Unlimited Microservice Clusters</span>
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                    <span>Autonomous AI Telemetry & Auto-Healing</span>
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                    <span>Zero-Trust Microsegmentation Core</span>
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                    <span>Guaranteed 99.99% SLA Uptime</span>
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                    <span>Dedicated TAM & 15-Min Response</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <button onclick="openDemoModal('Scaling Tier Enrollment')" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-indigoGlow to-cyanGlow text-white font-bold text-sm shadow-lg shadow-indigo-500/25 hover:opacity-95 transition-opacity">
+                            Start Enterprise Trial
+                        </button>
+                    </div>
+
+                    <!-- Tier 3 -->
+                    <div class="glass-card rounded-3xl p-8 flex flex-col justify-between border border-slate-800">
+                        <div>
+                            <div class="text-lg font-bold text-white mb-2">Global Custom</div>
+                            <div class="text-xs text-slate-400 mb-6">Bespoke air-gapped deployments & custom hardware acceleration.</div>
+                            <div class="flex items-baseline gap-1 mb-6">
+                                <span class="text-4xl font-extrabold text-white">Custom</span>
+                            </div>
+                            <ul class="space-y-3.5 text-sm text-slate-300 mb-8">
+                                <li class="flex items-center gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                    <span>Air-Gapped & On-Prem Hybrid Deployment</span>
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                    <span>Custom LLM Fine-Tuning & Data Pipelines</span>
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                    <span>99.999% SLA with Financial Indemnity</span>
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                    <span>24/7/365 Dedicated Engineering Pod</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <button onclick="openDemoModal('Custom Enterprise Architecture')" class="w-full py-3 rounded-xl glass-panel border border-slate-700 hover:border-indigo-500 text-sm font-semibold text-white transition-all">
+                            Contact Solutions Architect
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 8. Contact & Interactive Lead Experience -->
+        <section id="contact" class="py-24 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+                    
+                    <!-- Left: Contact Info & FAQ -->
+                    <div class="lg:col-span-5 space-y-8">
+                        <div>
+                            <span class="text-emerald-400 text-xs font-semibold uppercase tracking-wider">Direct Engagement</span>
+                            <h2 class="text-3xl sm:text-5xl font-bold text-white tracking-tight mt-2">Let's Engineer Your Core</h2>
+                            <p class="text-slate-400 text-base mt-4">Connect directly with our solutions architecture team to discuss custom integrations, compliance audits, or platform migration timelines.</p>
+                        </div>
+
+                        <!-- FAQ Accordion -->
+                        <div class="space-y-3 pt-4">
+                            <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-2">Frequently Asked Questions</h3>
+                            
+                            <!-- FAQ 1 -->
+                            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+                                <button onclick="toggleFaq(this)" class="w-full p-4 text-left font-semibold text-sm text-slate-200 hover:text-white flex justify-between items-center">
+                                    <span>How fast can AuraCorp be integrated into our legacy stack?</span>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200"></i>
+                                </button>
+                                <div class="faq-ans hidden p-4 pt-0 text-xs text-slate-400 leading-relaxed border-t border-slate-800/50">
+                                    Most enterprise clients complete baseline microservice proxying and telemetry integration in under 14 business days using our zero-downtime shadow pipeline technology.
+                                </div>
+                            </div>
+
+                            <!-- FAQ 2 -->
+                            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+                                <button onclick="toggleFaq(this)" class="w-full p-4 text-left font-semibold text-sm text-slate-200 hover:text-white flex justify-between items-center">
+                                    <span>Are on-premises and air-gapped deployments supported?</span>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200"></i>
+                                </button>
+                                <div class="faq-ans hidden p-4 pt-0 text-xs text-slate-400 leading-relaxed border-t border-slate-800/50">
+                                    Yes, our Global Custom tier includes full containerized Kubernetes and Bare-Metal deployments for defense, banking, and strict air-gapped security mandates.
+                                </div>
+                            </div>
+
+                            <!-- FAQ 3 -->
+                            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+                                <button onclick="toggleFaq(this)" class="w-full p-4 text-left font-semibold text-sm text-slate-200 hover:text-white flex justify-between items-center">
+                                    <span>What SLAs do you guarantee for enterprise workloads?</span>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200"></i>
+                                </button>
+                                <div class="faq-ans hidden p-4 pt-0 text-xs text-slate-400 leading-relaxed border-t border-slate-800/50">
+                                    We offer contractual uptime guarantees up to 99.999% backed by automatic financial SLA credits and sub-15-minute high-priority engineering response windows.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Lead Capture Form -->
+                    <div class="lg:col-span-7 glass-panel p-8 sm:p-10 rounded-3xl border border-slate-800 relative shadow-2xl">
+                        
+                        <!-- Form Container -->
+                        <form id="contact-form" onsubmit="handleContactSubmit(event)" class="space-y-6">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">First Name *</label>
+                                    <input type="text" required placeholder="Alexander" class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-slate-700/80 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Last Name *</label>
+                                    <input type="text" required placeholder="Vance" class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-slate-700/80 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Work Email *</label>
+                                    <input type="email" required placeholder="a.vance@enterprise.com" class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-slate-700/80 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Organization Name *</label>
+                                    <input type="text" required placeholder="Apex Global Systems" class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-slate-700/80 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Primary Area of Interest</label>
+                                <select class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-slate-700/80 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                                    <option>AI Automation & Orchestration</option>
+                                    <option>Zero-Trust Cloud Infrastructure</option>
+                                    <option>Compliance & Security Core</option>
+                                    <option>Growth Telemetry & Real-Time Analytics</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Project Brief / Key Requirements</label>
+                                <textarea rows="4" placeholder="Briefly detail your core infrastructure challenges or goals..." class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-slate-700/80 text-white focus:outline-none focus:border-indigo-500 text-sm"></textarea>
+                            </div>
+
+                            <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-indigoGlow via-cyanGlow to-emeraldGlow font-bold text-white text-sm hover:opacity-95 transition-opacity shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-2">
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                                <span>Submit Inquiry & Request Strategy Consultation</span>
+                            </button>
+                        </form>
+
+                        <!-- Post-submission Success Ticket State -->
+                        <div id="contact-success-state" class="hidden text-center py-12 space-y-6">
+                            <div class="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto border border-emerald-500/40">
+                                <i data-lucide="check-circle-2" class="w-8 h-8"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white">Consultation Request Received</h3>
+                            <p class="text-slate-300 text-sm max-w-md mx-auto">Your inquiry has been routed directly to an Enterprise Principal Architect. A confirmation ticket has been logged below.</p>
+                            
+                            <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 max-w-sm mx-auto text-left space-y-2 text-xs">
+                                <div class="flex justify-between"><span class="text-slate-500">Ticket ID:</span> <span id="ticket-id" class="font-mono text-cyan-400 font-bold">#AUR-8829-X</span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Priority Level:</span> <span class="text-emerald-400 font-bold">High (Tier 1)</span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Est. Response:</span> <span class="text-white font-medium">&lt; 2 Hours</span></div>
+                            </div>
+
+                            <button onclick="resetContactForm()" class="text-xs font-semibold text-indigo-400 hover:text-indigo-300 underline">
+                                Submit Another Inquiry
+                            </button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 py-12 bg-obsidian">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-3">
+                <div class="w-7 h-7 rounded-lg bg-indigoGlow/20 flex items-center justify-center text-indigo400 border border-indigo-500/30">
+                    <i data-lucide="cpu" class="w-4 h-4 text-indigo-400"></i>
+                </div>
+                <span class="text-sm font-bold text-white">AuraCorp Enterprise Systems Inc.</span>
+            </div>
+            <div class="text-xs text-slate-500">
+                © 2026 AuraCorp Systems Inc. All rights reserved. Built for Next-Gen Scale.
+            </div>
+            <div class="flex gap-6 text-xs text-slate-400">
+                <a href="#" class="hover:text-white">Privacy Policy</a>
+                <a href="#" class="hover:text-white">Security Disclosures</a>
+                <a href="#" class="hover:text-white">SOC2 Compliance</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Demo Modal Component -->
+    <div id="demo-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
+        <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-700 max-w-lg w-full relative shadow-2xl">
+            <button onclick="closeDemoModal()" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-lg">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="flex items-center gap-3 mb-4">
+                <div class="p-2.5 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                    <i data-lucide="calendar" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-white">Request Live Technical Demo</h3>
+                    <p class="text-xs text-slate-400" id="modal-subtitle">Interactive Architecture Deep-Dive</p>
+                </div>
+            </div>
+
+            <form onsubmit="handleModalSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Full Name</label>
+                    <input type="text" required placeholder="Sarah Jenkins" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Corporate Email</label>
+                    <input type="email" required placeholder="s.jenkins@company.com" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Estimated Infrastructure Scale</label>
+                    <select class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500">
+                        <option>10 - 50 Microservices</option>
+                        <option>50 - 250 Microservices</option>
+                        <option>250+ Enterprise Microservices</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-indigoGlow to-cyanGlow font-bold text-white text-sm hover:opacity-90 transition-opacity">
+                    Confirm & Schedule Session
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Case Breakdown Modal Component -->
+    <div id="case-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
+        <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-700 max-w-2xl w-full relative shadow-2xl max-h-[90vh] overflow-y-auto">
+            <button onclick="closeCaseModal()" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-lg">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div id="case-modal-body">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Module Logic -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // 1. Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // 2. Typewriter Effect for Hero Headline
+        const typewriterPhrases = [
+            "High-Scale Enterprises",
+            "Autonomous Cloud Stacks",
+            "Zero-Trust Enterprise Data",
+            "Mission-Critical Workloads"
+        ];
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        const typewriterElement = document.getElementById('typewriter-text');
+
+        function typeWriter() {
+            const currentPhrase = typewriterPhrases[phraseIndex];
+            if (isDeleting) {
+                typewriterElement.textContent = currentPhrase.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                typewriterElement.textContent = currentPhrase.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            let typeSpeed = isDeleting ? 40 : 80;
+
+            if (!isDeleting && charIndex === currentPhrase.length) {
+                typeSpeed = 2200; // Pause at top
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                phraseIndex = (phraseIndex + 1) % typewriterPhrases.length;
+                typeSpeed = 400;
+            }
+
+            setTimeout(typeWriter, typeSpeed);
+        }
+        window.addEventListener('DOMContentLoaded', typeWriter);
+
+        // 3. Stats Increment Counter Animation
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stat-counter');
+            counters.forEach(counter => {
+                const target = parseFloat(counter.getAttribute('data-target'));
+                const isDecimal = target % 1 !== 0;
+                let current = 0;
+                const increment = target / 60;
+                
+                const updateCount = () => {
+                    current += increment;
+                    if (current < target) {
+                        counter.innerText = isDecimal ? current.toFixed(2) : Math.ceil(current);
+                        requestAnimationFrame(updateCount);
+                    } else {
+                        counter.innerText = target;
+                    }
+                };
+                updateCount();
+            });
+        }
+        // Trigger counter animation once in viewport
+        let animatedStats = false;
+        window.addEventListener('scroll', () => {
+            if (!animatedStats && window.scrollY > 100) {
+                animateCounters();
+                animatedStats = true;
+            }
+        });
+
+        // 4. ROI & Cost Savings Interactive Calculator Engine
+        const revSlider = document.getElementById('rev-slider');
+        const teamSlider = document.getElementById('team-slider');
+        const overheadSlider = document.getElementById('overhead-slider');
+
+        function updateRoiCalc() {
+            const rev = parseInt(revSlider.value); // in Millions
+            const team = parseInt(teamSlider.value);
+            const overhead = parseInt(overheadSlider.value);
+
+            // Update UI Labels
+            document.getElementById('rev-val').innerText = `$${rev}M`;
+            document.getElementById('team-val').innerText = `${team} employees`;
+            document.getElementById('overhead-val').innerText = `${overhead}% Overhead`;
+
+            // Calculate Projected Savings & Metrics
+            const baseOperationalSpend = (rev * 1000000) * 0.18;
+            const wasteRatio = (overhead / 100) * 0.35;
+            const annualSavings = Math.round(baseOperationalSpend * wasteRatio);
+            
+            const hoursSaved = Math.round(team * 16 * 12); // ~16 hrs/month per employee
+            const roiMult = (3.2 + (overhead * 0.05)).toFixed(1);
+            const paybackMonths = (3.8 - (overhead * 0.03)).toFixed(1);
+
+            // Render Outputs with smooth transition
+            document.getElementById('calc-savings').innerText = `$${annualSavings.toLocaleString()}`;
+            document.getElementById('calc-hours').innerText = `${hoursSaved.toLocaleString()} hrs`;
+            document.getElementById('calc-roi').innerText = `${roiMult}x ROI`;
+            document.getElementById('calc-payback').innerText = `${paybackMonths} Months`;
+        }
+
+        [revSlider, teamSlider, overheadSlider].forEach(slider => {
+            slider.addEventListener('input', updateRoiCalc);
+        });
+        updateRoiCalc(); // initial calculation
+
+        function resetRoiCalculator() {
+            revSlider.value = 25;
+            teamSlider.value = 150;
+            overheadSlider.value = 30;
+            updateRoiCalc();
+            showToast('ROI Calculator reset to baseline parameters');
+        }
+
+        // 5. Product & Solutions Dynamic Tab Engine
+        const tabData = {
+            'ai-hub': {
+                title: "Autonomous AI Orchestration Core",
+                subtitle: "Eliminate repetitive DevOps bottlenecks with self-healing AI agents.",
+                features: [
+                    "Automated root-cause analysis & instant metric triage",
+                    "Predictive workload scaling prior to peak surges",
+                    "Natural language enterprise knowledge search pipeline",
+                    "Autonomous agentic workflow execution with audit logs"
+                ],
+                metricLabel: "Autonomous Healing Rate",
+                metricValue: "94.8%",
+                badge: "AI Powered v4.2"
+            },
+            'cloud-infra': {
+                title: "Zero-Trust Cloud Infrastructure",
+                subtitle: "Multi-region hybrid deployment mesh with zero vendor lock-in.",
+                features: [
+                    "Multi-cloud deployment across AWS, Azure & GCP",
+                    "Automated zero-downtime canary deployment pipelines",
+                    "Sub-10ms global edge network latency distribution",
+                    "Declarative infrastructure-as-code state management"
+                ],
+                metricLabel: "Global Network Latency",
+                metricValue: "< 8.4ms",
+                badge: "Multi-Region Mesh"
+            },
+            'security': {
+                title: "Continuous Security & Compliance Engine",
+                subtitle: "Automated real-time SOC2, HIPAA, and ISO27001 posture tracking.",
+                features: [
+                    "Real-time vulnerability scanning & automated micro-patching",
+                    "End-to-end AES-256 and quantum-resistant encryption",
+                    "Granular Role-Based Access Control (RBAC) & SAML/SSO",
+                    "Automated compliance audit generation with 1-click export"
+                ],
+                metricLabel: "Compliance Audit Score",
+                metricValue: "100%",
+                badge: "SOC2 Type II Certified"
+            },
+            'telemetry': {
+                title: "Real-Time Growth & Operational Telemetry",
+                subtitle: "Sub-second observability into complex distributed systems.",
+                features: [
+                    "High-cardinality metrics processing engine",
+                    "Customizable executive & engineering dashboards",
+                    "Distributed tracing across microservice calls",
+                    "Anomalous transaction detection and alert routing"
+                ],
+                metricLabel: "Data Ingestion Speed",
+                metricValue: "2.4M ops/sec",
+                badge: "Sub-Second Ingestion"
+            }
+        };
+
+        function renderTabContent(key) {
+            const data = tabData[key];
+            const container = document.getElementById('tab-panel-inner');
+            
+            container.innerHTML = `
+                <div class="lg:col-span-7 space-y-6">
+                    <span class="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-bold border border-indigo-500/20 uppercase tracking-wider">${data.badge}</span>
+                    <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">${data.title}</h3>
+                    <p class="text-slate-400 text-base leading-relaxed">${data.subtitle}</p>
+                    
+                    <ul class="space-y-3.5 pt-2">
+                        ${data.features.map(f => `
+                            <li class="flex items-center gap-3 text-sm text-slate-200">
+                                <div class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 flex-shrink-0">
+                                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span>${f}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+
+                    <div class="pt-4 flex flex-wrap gap-4">
+                        <button onclick="openDemoModal('${data.title} Demo')" class="px-6 py-3 rounded-xl bg-gradient-to-r from-indigoGlow to-cyanGlow text-white text-sm font-semibold hover:opacity-90 transition-opacity">
+                            Schedule Deep-Dive Demo
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5">
+                    <div class="glass-card p-6 rounded-2xl border border-slate-700/80 bg-slate-900/80 relative overflow-hidden">
+                        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Live Metric Indicator</div>
+                        <div class="text-4xl font-black text-emerald-400 mb-4">${data.metricValue}</div>
+                        <div class="text-xs text-slate-400 mb-6">${data.metricLabel} across global nodes</div>
+
+                        <!-- Mock Live Chart Graphic -->
+                        <div class="h-28 flex items-end gap-2 pt-4 border-t border-slate-800">
+                            <div class="w-1/6 bg-indigo-500/30 h-[40%] rounded-t"></div>
+                            <div class="w-1/6 bg-indigo-500/50 h-[65%] rounded-t"></div>
+                            <div class="w-1/6 bg-indigo-500/40 h-[50%] rounded-t"></div>
+                            <div class="w-1/6 bg-indigo-500/70 h-[85%] rounded-t"></div>
+                            <div class="w-1/6 bg-indigo-500/60 h-[70%] rounded-t"></div>
+                            <div class="w-1/6 bg-emerald-400 h-[98%] rounded-t shadow-lg shadow-emerald-400/50"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function switchTab(key) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-indigo-500/50', 'bg-indigo-500/20', 'text-white');
+                btn.classList.add('border-slate-800', 'text-slate-400');
+            });
+
+            const activeBtn = document.getElementById(`tab-btn-${key}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('border-slate-800', 'text-slate-400');
+                activeBtn.classList.add('border-indigo-500/50', 'bg-indigo-500/20', 'text-white');
+            }
+
+            renderTabContent(key);
+        }
+        renderTabContent('ai-hub'); // render default
+
+        // 6. Interactive Strategy & Tech Stack Estimator Wizard
+        let wizardCurrentStep = 1;
+        const wizardSelections = {
+            industry: 'Fintech & Banking',
+            challenge: 'Cloud Cost Escalation & Slow Builds',
+            timeline: 'Accelerated (4-6 Weeks)'
+        };
+
+        function selectWizardOption(key, val, element) {
+            wizardSelections[key] = val;
+            const parent = element.parentElement;
+            parent.querySelectorAll('.wiz-opt').forEach(opt => {
+                opt.classList.remove('border-indigo-500', 'bg-indigo-500/10');
+            });
+            element.classList.add('border-indigo-500', 'bg-indigo-500/10');
+        }
+
+        function navWizard(dir) {
+            wizardCurrentStep += dir;
+            if (wizardCurrentStep < 1) wizardCurrentStep = 1;
+            if (wizardCurrentStep > 4) wizardCurrentStep = 4;
+
+            // Render step visibility
+            for (let i = 1; i <= 4; i++) {
+                const stepEl = document.getElementById(`wizard-step-${i}`);
+                if (i === wizardCurrentStep) {
+                    stepEl.classList.remove('hidden');
+                } else {
+                    stepEl.classList.add('hidden');
+                }
+            }
+
+            // Update Progress bar
+            const progress = document.getElementById('wizard-progress');
+            progress.style.width = `${(wizardCurrentStep / 4) * 100}%`;
+
+            // Update Nav Buttons
+            const prevBtn = document.getElementById('wiz-prev-btn');
+            const nextBtn = document.getElementById('wiz-next-btn');
+
+            prevBtn.disabled = wizardCurrentStep === 1;
+
+            if (wizardCurrentStep === 3) {
+                nextBtn.innerHTML = `<span>Generate Architecture Scope</span> <i data-lucide="check" class="w-4 h-4"></i>`;
+            } else if (wizardCurrentStep === 4) {
+                document.getElementById('wizard-nav-buttons').classList.add('hidden');
+                // Fill Result Summary
+                document.getElementById('wiz-res-sector').innerText = wizardSelections.industry;
+                document.getElementById('wiz-res-focus').innerText = wizardSelections.challenge.split('&')[0];
+                document.getElementById('wiz-res-time').innerText = wizardSelections.timeline;
+            } else {
+                nextBtn.innerHTML = `<span>Next Step</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+            }
+            lucide.createIcons();
+        }
+
+        // 7. Case Studies Filtering & Detailed Modal Data
+        const caseDetails = [
+            {
+                client: "Global Payments Corp",
+                title: "Modernizing High-Frequency Settlement Infrastructure",
+                industry: "Fintech Core",
+                before: "Legacy mainframe latency averaging 450ms per batch settlement with $4.2M annual maintenance overhead.",
+                after: "Autonomous multi-region micro-cluster delivering sub-90ms execution and 100% SLA compliance across $800M daily volume.",
+                quote: "AuraCorp transformed our transaction throughput overnight without a single second of operational downtime."
+            },
+            {
+                client: "AuraHealth Bio",
+                title: "HIPAA-Compliant AI Patient Data Mesh",
+                industry: "Healthcare",
+                before: "Fragmented electronic health records across 140+ medical centers with manual data compliance checks.",
+                after: "Unified zero-trust data pipeline enabling real-time clinical prediction and sub-second patient record lookup.",
+                quote: "The security framework passed rigorous regulatory audits effortlessly while accelerating diagnostic workflows."
+            },
+            {
+                client: "OmniLogistics Global",
+                title: "Black Friday Peak Traffic Auto-Scaling Engine",
+                industry: "E-Commerce",
+                before: "Frequent server crashes during peak traffic spikes causing an estimated $8M in abandoned cart revenues.",
+                after: "Multi-cloud serverless auto-scaler seamlessly sustaining 4.2 Million concurrent transactions during peak surges.",
+                quote: "We handled our largest peak event in company history with zero performance degradation."
+            }
+        ];
+
+        function filterCases(category) {
+            document.querySelectorAll('.case-filter-btn').forEach(btn => {
+                btn.classList.remove('border-indigo-500/50', 'bg-indigo-500/20', 'text-white');
+                btn.classList.add('border-slate-800', 'text-slate-400');
+            });
+            event.currentTarget.classList.remove('border-slate-800', 'text-slate-400');
+            event.currentTarget.classList.add('border-indigo-500/50', 'bg-indigo-500/20', 'text-white');
+
+            const cards = document.querySelectorAll('.case-card');
+            cards.forEach(card => {
+                if (category === 'all' || card.getAttribute('data-category') === category) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        function openCaseModal(index) {
+            const data = caseDetails[index];
+            const modalBody = document.getElementById('case-modal-body');
+            
+            modalBody.innerHTML = `
+                <span class="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-bold border border-indigo-500/20 uppercase tracking-wider">${data.industry}</span>
+                <h3 class="text-2xl font-bold text-white mt-3 mb-2">${data.title}</h3>
+                <div class="text-xs text-slate-400 mb-6">Client: ${data.client}</div>
+
+                <div class="space-y-4 mb-6">
+                    <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+                        <div class="text-xs font-bold text-rose-400 uppercase tracking-wider mb-1">The Challenge (Before)</div>
+                        <p class="text-xs sm:text-sm text-slate-300">${data.before}</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+                        <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">AuraCorp Solution (After)</div>
+                        <p class="text-xs sm:text-sm text-slate-300">${data.after}</p>
+                    </div>
+                </div>
+
+                <blockquote class="p-4 rounded-xl bg-indigo-950/30 border-l-4 border-indigo-500 text-xs sm:text-sm italic text-slate-200 mb-6">
+                    "${data.quote}"
+                </blockquote>
+
+                <button onclick="closeCaseModal(); openDemoModal('Case Study Audit Request')" class="w-full py-3 rounded-xl bg-gradient-to-r from-indigoGlow to-cyanGlow text-white font-semibold text-sm">
+                    Request Architecture Blueprint for this Case
+                </button>
+            `;
+
+            const modal = document.getElementById('case-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+            lucide.createIcons();
+        }
+
+        function closeCaseModal() {
+            const modal = document.getElementById('case-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        // 8. Dynamic Pricing Switcher
+        let isAnnual = true;
+        function toggleBilling() {
+            isAnnual = !isAnnual;
+            const dot = document.getElementById('billing-toggle-dot');
+            const toggle = document.getElementById('billing-toggle');
+            const monthlyLabel = document.getElementById('billing-monthly-label');
+            const annualLabel = document.getElementById('billing-annual-label');
+
+            if (isAnnual) {
+                dot.classList.add('translate-x-6');
+                toggle.classList.remove('bg-slate-700');
+                toggle.classList.add('bg-indigo-600');
+                monthlyLabel.className = "text-sm font-medium text-slate-400";
+                annualLabel.className = "text-sm font-medium text-white flex items-center gap-1.5";
+            } else {
+                dot.classList.remove('translate-x-6');
+                toggle.classList.remove('bg-indigo-600');
+                toggle.classList.add('bg-slate-700');
+                monthlyLabel.className = "text-sm font-medium text-white";
+                annualLabel.className = "text-sm font-medium text-slate-400 flex items-center gap-1.5";
+            }
+
+            document.querySelectorAll('.price-val').forEach(el => {
+                const val = isAnnual ? el.getAttribute('data-annual') : el.getAttribute('data-monthly');
+                el.innerText = val;
+            });
+        }
+
+        // 9. Lead Capture Form Submission & Success Ticket Generator
+        function handleContactSubmit(event) {
+            event.preventDefault();
+            
+            // Generate Random Ticket ID
+            const ticket = '#AUR-' + Math.floor(1000 + Math.random() * 9000) + '-X';
+            document.getElementById('ticket-id').innerText = ticket;
+
+            document.getElementById('contact-form').classList.add('hidden');
+            document.getElementById('contact-success-state').classList.remove('hidden');
+
+            showToast('Consultation request submitted successfully!');
+        }
+
+        function resetContactForm() {
+            document.getElementById('contact-form').reset();
+            document.getElementById('contact-form').classList.remove('hidden');
+            document.getElementById('contact-success-state').classList.add('hidden');
+        }
+
+        // FAQ Accordion Toggle
+        function toggleFaq(btn) {
+            const answer = btn.nextElementSibling;
+            const icon = btn.querySelector('i');
+            
+            answer.classList.toggle('hidden');
+            if (answer.classList.contains('hidden')) {
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        // Modal Controls
+        function openDemoModal(context) {
+            if (context) {
+                document.getElementById('modal-subtitle').innerText = `Context: ${context}`;
+            } else {
+                document.getElementById('modal-subtitle').innerText = `Interactive Architecture Deep-Dive`;
+            }
+
+            const modal = document.getElementById('demo-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+
+        function closeDemoModal() {
+            const modal = document.getElementById('demo-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function handleModalSubmit(e) {
+            e.preventDefault();
+            closeDemoModal();
+            showToast('Demo request confirmed! Our architecture team will reach out shortly.');
+        }
+
+        // Global Toast Notification System
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            toast.className = 'glass-panel p-4 rounded-2xl border border-indigo-500/40 text-white text-xs font-semibold shadow-2xl flex items-center gap-3 transform translate-y-4 opacity-0 transition-all duration-300 pointer-events-auto';
+            toast.innerHTML = `
+                <div class="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                </div>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-4', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veda Ethnic - Royal Heritage Collection</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts (Playfair Display & Plus Jakarta Sans) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        peacock: {
+                            950: '#071d1e',
+                            900: '#0b3c3d',
+                            800: '#0a4d4e',
+                            700: '#116162',
+                            600: '#197c7e',
+                        },
+                        copper: {
+                            300: '#f4b896',
+                            400: '#e08b58',
+                            500: '#d47a47',
+                            600: '#b85d2d',
+                            700: '#94441f',
+                        },
+                        champagne: {
+                            100: '#fbf9f4',
+                            200: '#f5eee6',
+                            300: '#e8dbcd',
+                            400: '#d1baa3',
+                        },
+                        obsidian: {
+                            950: '#0a0e14',
+                            900: '#0f171e',
+                            800: '#1e293b',
+                            700: '#334155',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #071d1e; }
+        ::-webkit-scrollbar-thumb { background: #116162; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #d47a47; }
+
+        .peacock-card {
+            background: rgba(11, 60, 61, 0.55);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(220, 139, 88, 0.25);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .peacock-card:hover {
+            border-color: rgba(224, 139, 88, 0.6);
+            box-shadow: 0 12px 35px -10px rgba(212, 122, 71, 0.25);
+        }
+
+        .copper-gradient-text {
+            background: linear-gradient(135deg, #f4b896 0%, #e08b58 50%, #d47a47 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-obsidian-950 text-champagne-100 antialiased min-h-screen flex flex-col selection:bg-copper-500 selection:text-obsidian-950">
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-24 right-5 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- ANNOUNCEMENT BANNER -->
+    <div class="bg-gradient-to-r from-peacock-900 via-copper-600 to-peacock-900 text-champagne-100 text-[11px] font-mono py-2 px-4 text-center border-b border-copper-500/20 flex justify-between items-center tracking-widest uppercase shadow-md">
+        <span class="hidden sm:inline text-champagne-200">✦ Festive Heritage Edit 2026 ✦</span>
+        <span class="mx-auto sm:mx-0 font-bold">Use Code <span class="bg-obsidian-950/60 text-copper-300 px-2.5 py-0.5 rounded border border-copper-400/40">ROYAL15</span> for 15% VIP Discount</span>
+        <span class="hidden sm:inline text-champagne-200">✦ Express Worldwide Shipping ✦</span>
+    </div>
+
+    <!-- HEADER / NAVIGATION BAR -->
+    <header class="sticky top-0 z-40 w-full bg-peacock-950/90 backdrop-blur-md border-b border-copper-500/20 shadow-2xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+
+                <!-- Brand Logo -->
+                <div class="flex items-center gap-3 cursor-pointer group" onclick="resetFilters(); window.scrollTo({top: 0, behavior: 'smooth'});">
+                    <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-copper-600 via-copper-400 to-champagne-200 p-0.5 shadow-lg shadow-copper-500/20 group-hover:scale-105 transition-transform">
+                        <div class="w-full h-full bg-peacock-950 rounded-full flex items-center justify-center">
+                            <i data-lucide="sparkles" class="w-5 h-5 text-copper-400"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="text-xl sm:text-2xl font-serif font-extrabold tracking-wider text-white block leading-none">VEDA <span class="copper-gradient-text">ETHNIC</span></span>
+                        <span class="text-[9px] text-copper-400 tracking-[0.25em] uppercase font-mono block mt-1">Peacock & Copper Luxury</span>
+                    </div>
+                </div>
+
+                <!-- Live Search Bar -->
+                <div class="hidden md:flex items-center relative w-80">
+                    <i data-lucide="search" class="w-4 h-4 text-copper-400/70 absolute left-3.5"></i>
+                    <input type="text" id="nav-search-input" oninput="handleSearch(this.value)" placeholder="Search lehengas, sarees, sherwanis..." class="w-full bg-peacock-900/80 border border-copper-500/30 rounded-full pl-10 pr-9 py-2 text-xs text-champagne-100 placeholder-champagne-400/60 focus:outline-none focus:border-copper-400 transition-all">
+                    <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-3 text-champagne-400 hover:text-white">
+                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+
+                <!-- Action Controls -->
+                <div class="flex items-center gap-3">
+                    <!-- Book Fitting CTA -->
+                    <button onclick="openStylistModal()" class="hidden lg:flex items-center gap-2 bg-gradient-to-r from-copper-500 to-copper-600 hover:from-copper-400 hover:to-copper-500 text-obsidian-950 font-bold text-xs px-4 py-2.5 rounded-full shadow-lg shadow-copper-500/20 transition-all hover:scale-[1.02] active:scale-95">
+                        <i data-lucide="scissors" class="w-4 h-4"></i>
+                        <span>Custom Fitting</span>
+                    </button>
+
+                    <!-- Wishlist Toggle -->
+                    <button onclick="toggleWishlistDrawer(true)" class="relative p-2.5 rounded-full bg-peacock-900/80 border border-copper-500/30 text-champagne-200 hover:text-copper-300 hover:border-copper-400/60 transition-all">
+                        <i data-lucide="heart" class="w-5 h-5"></i>
+                        <span id="nav-wishlist-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-copper-500 text-obsidian-950 font-bold text-[10px] rounded-full flex items-center justify-center shadow-md">0</span>
+                    </button>
+
+                    <!-- Cart Toggle -->
+                    <button onclick="toggleCartDrawer(true)" class="relative p-2.5 rounded-full bg-peacock-900/80 border border-copper-500/30 text-champagne-200 hover:text-copper-300 hover:border-copper-400/60 transition-all">
+                        <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                        <span id="nav-cart-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-copper-500 text-obsidian-950 font-bold text-[10px] rounded-full flex items-center justify-center shadow-md">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Search Input -->
+        <div class="md:hidden px-4 pb-3">
+            <div class="relative w-full">
+                <i data-lucide="search" class="w-4 h-4 text-copper-400/70 absolute left-3.5 top-2.5"></i>
+                <input type="text" id="mobile-search-input" oninput="handleSearch(this.value)" placeholder="Search royal attires..." class="w-full bg-peacock-900/80 border border-copper-500/30 rounded-full pl-10 pr-8 py-2 text-xs text-champagne-100 placeholder-champagne-400/60 focus:outline-none focus:border-copper-400">
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO BANNER SECTION -->
+    <section class="relative py-16 sm:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-b from-peacock-950 via-peacock-900 to-obsidian-950 border-b border-copper-500/15">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[320px] bg-copper-500/10 rounded-full blur-[140px] pointer-events-none"></div>
+
+        <div class="relative z-10 max-w-5xl mx-auto text-center space-y-6">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-copper-500/10 border border-copper-500/30 text-copper-300 text-xs font-mono uppercase tracking-widest">
+                <i data-lucide="crown" class="w-4 h-4 text-copper-400"></i> Royal Peacock & Rose-Gold Craftsmanship
+            </div>
+
+            <h1 class="text-4xl sm:text-6xl lg:text-7xl font-serif font-bold tracking-tight text-white leading-tight">
+                Traditional Heritage In <br>
+                <span class="copper-gradient-text">Jewel Peacock & Copper</span>
+            </h1>
+
+            <p class="text-champagne-300 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+                Hand-loomed Pure Kanjivarams, Zardozi Velvet Lehengas, Royal Cut-dana Sherwanis, and Antique Copper Kundan Jewelry tailored for modern royalty.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                <a href="#catalog-section" class="w-full sm:w-auto bg-gradient-to-r from-copper-500 to-copper-600 text-obsidian-950 font-bold text-xs uppercase tracking-wider px-8 py-4 rounded-full shadow-xl shadow-copper-500/20 hover:scale-105 transition-transform flex items-center justify-center gap-2">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    <span>Explore Collection</span>
+                </a>
+                <button onclick="openStylistModal()" class="w-full sm:w-auto bg-peacock-900 hover:bg-peacock-800 border border-copper-500/40 text-champagne-200 font-bold text-xs uppercase tracking-wider px-8 py-4 rounded-full transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="scissors" class="w-4 h-4 text-copper-400"></i>
+                    <span>Book Custom Fitting</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- CATALOG & FILTERS SECTION -->
+    <section id="catalog-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 flex-1">
+        
+        <!-- Category Navigation Tabs -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar border-b border-copper-500/15" id="category-tabs">
+            <!-- Rendered by JS -->
+        </div>
+
+        <!-- Filter & Sorting Toolbar -->
+        <div class="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4 bg-peacock-900/40 p-5 rounded-2xl border border-copper-500/20 shadow-lg">
+            <div class="flex flex-wrap items-center gap-3">
+                <!-- Gender Filter -->
+                <select id="gender-filter" onchange="applyFilters()" class="bg-obsidian-900 border border-copper-500/30 text-xs text-champagne-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-copper-400 cursor-pointer">
+                    <option value="All">All Genders</option>
+                    <option value="Women">Women's Couture</option>
+                    <option value="Men">Men's Apparel</option>
+                    <option value="Jewelry">Jewelry & Accessories</option>
+                </select>
+
+                <!-- Fabric Filter -->
+                <select id="fabric-filter" onchange="applyFilters()" class="bg-obsidian-900 border border-copper-500/30 text-xs text-champagne-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-copper-400 cursor-pointer">
+                    <option value="All">All Materials</option>
+                    <option value="Silk">Pure Silk</option>
+                    <option value="Velvet">Royal Velvet</option>
+                    <option value="Organza">Organza</option>
+                    <option value="Georgette">Georgette</option>
+                    <option value="Chiffon">Chiffon</option>
+                </select>
+
+                <!-- Price Slider Filter -->
+                <div class="flex items-center gap-3 bg-obsidian-900/80 px-3.5 py-2 rounded-xl border border-copper-500/30">
+                    <span class="text-xs font-mono text-champagne-300">Max Price:</span>
+                    <input type="range" id="price-range" min="150" max="1500" step="50" value="1500" oninput="updatePriceSlider(this.value)" class="w-24 sm:w-32 accent-copper-500 cursor-pointer">
+                    <span id="price-slider-value" class="text-xs font-mono font-bold text-copper-400">$1500</span>
+                </div>
+
+                <button onclick="resetFilters()" class="text-xs text-copper-400 hover:underline font-mono px-2">Reset Filters</button>
+            </div>
+
+            <div class="flex items-center gap-3 justify-end">
+                <span class="text-xs font-mono text-champagne-400">Sort By:</span>
+                <select id="sort-filter" onchange="applyFilters()" class="bg-obsidian-900 border border-copper-500/30 text-xs text-champagne-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-copper-400 cursor-pointer">
+                    <option value="featured">Featured Collection</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="rating">Highest Rated</option>
+                    <option value="newest">New Arrivals</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Product Cards Grid -->
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Dynamically populated product cards -->
+        </div>
+
+        <!-- Empty Filter State -->
+        <div id="empty-catalog-state" class="hidden text-center py-16 peacock-card rounded-3xl space-y-4">
+            <i data-lucide="sparkles" class="w-12 h-12 text-copper-400/50 mx-auto"></i>
+            <h3 class="text-xl font-serif text-white">No traditional attire matched your criteria</h3>
+            <p class="text-xs text-champagne-400">Try adjusting your filters or price slider.</p>
+            <button onclick="resetFilters()" class="bg-copper-500 text-obsidian-950 font-bold text-xs px-6 py-2.5 rounded-full hover:bg-copper-400 transition-all">
+                Clear Filters
+            </button>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-obsidian-950 border-t border-copper-500/20 text-champagne-400 text-xs font-mono mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="space-y-3">
+                    <span class="text-white font-serif font-bold text-2xl block tracking-wider">VEDA <span class="copper-gradient-text">ETHNIC</span></span>
+                    <p class="text-champagne-400 text-[11px] leading-relaxed">Preserving heritage loom weaves, zardozi needlework, and bespoke royal Indian couture.</p>
+                </div>
+                <div>
+                    <h4 class="text-copper-400 font-bold mb-3 uppercase tracking-wider">Flagship Boutiques</h4>
+                    <p class="text-champagne-400 text-[11px] leading-relaxed">
+                        South Extension II, New Delhi<br>
+                        Mon - Sun: 10:30 AM - 8:30 PM
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-copper-400 font-bold mb-3 uppercase tracking-wider">Patron Services</h4>
+                    <ul class="space-y-2">
+                        <li><a onclick="openStylistModal()" class="hover:text-copper-300 cursor-pointer">Bespoke Custom Fitting</a></li>
+                        <li><a onclick="toggleWishlistDrawer(true)" class="hover:text-copper-300 cursor-pointer">Saved Wishlist</a></li>
+                        <li><a onclick="toggleCartDrawer(true)" class="hover:text-copper-300 cursor-pointer">Shopping Bag</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-copper-400 font-bold mb-3 uppercase tracking-wider">VIP Royal Club</h4>
+                    <div class="flex gap-2">
+                        <input type="email" placeholder="Patron email address..." class="bg-peacock-900 border border-copper-500/30 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-copper-400 flex-1">
+                        <button onclick="showToast('Subscribed to VIP Royal Club!', 'success')" class="bg-copper-500 text-obsidian-950 font-bold px-3 py-2 rounded-xl hover:bg-copper-400 transition-colors">Join</button>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-copper-500/10 mt-8 pt-6 text-center text-champagne-400/60 text-[11px]">
+                © 2026 Veda Ethnic Luxury Couture. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- SLIDE-OVER CART DRAWER -->
+    <div id="cart-drawer" class="fixed inset-0 z-50 pointer-events-none transition-opacity duration-300 opacity-0">
+        <div onclick="toggleCartDrawer(false)" class="absolute inset-0 bg-black/80 backdrop-blur-sm pointer-events-auto"></div>
+        <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
+            <div class="w-screen max-w-md bg-peacock-950 border-l border-copper-500/30 p-6 flex flex-col pointer-events-auto shadow-2xl">
+                
+                <div class="flex items-center justify-between pb-4 border-b border-copper-500/20">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="shopping-bag" class="w-5 h-5 text-copper-400"></i>
+                        <h3 class="font-serif font-bold text-white text-lg">Your Royal Selection</h3>
+                    </div>
+                    <button onclick="toggleCartDrawer(false)" class="text-champagne-400 hover:text-white">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Free Shipping Progress -->
+                <div class="py-4 border-b border-copper-500/10 font-mono text-xs space-y-2">
+                    <div class="flex justify-between text-champagne-300">
+                        <span id="shipping-progress-text">Free Worldwide Shipping Status</span>
+                        <span id="shipping-progress-target" class="text-copper-400 font-bold">$500 Goal</span>
+                    </div>
+                    <div class="w-full bg-obsidian-900 rounded-full h-2 overflow-hidden border border-copper-500/20">
+                        <div id="shipping-progress-bar" class="bg-gradient-to-r from-copper-600 to-copper-400 h-full w-0 transition-all duration-500"></div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Cart Items Container -->
+                <div id="cart-items-container" class="flex-1 overflow-y-auto py-4 space-y-4">
+                    <!-- Rendered by JS -->
+                </div>
+
+                <!-- Drawer Summary -->
+                <div class="border-t border-copper-500/20 pt-4 space-y-3 font-mono text-xs">
+                    
+                    <!-- Coupon Input -->
+                    <div class="flex gap-2">
+                        <input type="text" id="coupon-input" placeholder="Promo code (ROYAL15)" class="bg-obsidian-900 border border-copper-500/30 rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-copper-400 flex-1">
+                        <button onclick="applyCoupon()" class="bg-peacock-800 hover:bg-peacock-700 text-copper-300 font-bold px-4 py-2 rounded-xl transition-colors border border-copper-500/30">Apply</button>
+                    </div>
+
+                    <div class="space-y-1.5 pt-2 text-champagne-400">
+                        <div class="flex justify-between">
+                            <span>Subtotal</span>
+                            <span id="cart-subtotal" class="text-white">$0.00</span>
+                        </div>
+                        <div id="discount-row" class="hidden justify-between text-copper-400">
+                            <span id="discount-label">Discount</span>
+                            <span id="cart-discount">-$0.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Estimated Tax (8%)</span>
+                            <span id="cart-tax" class="text-white">$0.00</span>
+                        </div>
+                        <div class="flex justify-between text-sm font-bold text-white pt-2 border-t border-copper-500/20">
+                            <span>Total</span>
+                            <span id="cart-total" class="text-copper-400">$0.00</span>
+                        </div>
+                    </div>
+
+                    <button onclick="openCheckoutModal()" class="w-full bg-gradient-to-r from-copper-500 to-copper-600 hover:from-copper-400 hover:to-copper-500 text-obsidian-950 font-bold py-3.5 rounded-xl uppercase tracking-wider shadow-lg shadow-copper-500/20 transition-all text-xs flex items-center justify-center gap-2">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                        <span>Proceed to Royal Checkout</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WISHLIST DRAWER -->
+    <div id="wishlist-drawer" class="fixed inset-0 z-50 pointer-events-none transition-opacity duration-300 opacity-0">
+        <div onclick="toggleWishlistDrawer(false)" class="absolute inset-0 bg-black/80 backdrop-blur-sm pointer-events-auto"></div>
+        <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
+            <div class="w-screen max-w-md bg-peacock-950 border-l border-copper-500/30 p-6 flex flex-col pointer-events-auto shadow-2xl">
+                
+                <div class="flex items-center justify-between pb-4 border-b border-copper-500/20">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="heart" class="w-5 h-5 text-copper-400"></i>
+                        <h3 class="font-serif font-bold text-white text-lg">Saved Wishlist</h3>
+                    </div>
+                    <button onclick="toggleWishlistDrawer(false)" class="text-champagne-400 hover:text-white">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <div id="wishlist-items-container" class="flex-1 overflow-y-auto py-4 space-y-4">
+                    <!-- Dynamic Wishlist Items -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUICK VIEW DETAIL MODAL -->
+    <div id="quickview-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div onclick="closeQuickView()" class="fixed inset-0 bg-black/85 backdrop-blur-md"></div>
+        <div class="relative bg-peacock-950 border border-copper-500/30 rounded-3xl max-w-4xl w-full overflow-hidden shadow-2xl z-10 max-h-[92vh] flex flex-col">
+            <button onclick="closeQuickView()" class="absolute top-4 right-4 z-20 p-2.5 bg-obsidian-900/80 text-white rounded-full hover:bg-copper-500 hover:text-obsidian-950 transition-all">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="overflow-y-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2">
+                    
+                    <!-- Gallery & Main Image -->
+                    <div class="p-6 space-y-4 bg-obsidian-900/40">
+                        <div class="relative aspect-[3/4] rounded-2xl overflow-hidden border border-copper-500/20">
+                            <img id="qv-main-image" class="w-full h-full object-cover transition-all duration-300">
+                        </div>
+                        <div class="flex gap-3 overflow-x-auto no-scrollbar" id="qv-thumbnails">
+                            <!-- Thumbnails JS -->
+                        </div>
+                    </div>
+
+                    <!-- Details Column -->
+                    <div class="p-6 sm:p-8 space-y-6 flex flex-col justify-between">
+                        <div class="space-y-4">
+                            <div>
+                                <span id="qv-category" class="text-copper-400 text-xs font-mono uppercase tracking-widest block mb-1">Category</span>
+                                <h3 id="qv-title" class="text-2xl font-serif font-bold text-white">Product Title</h3>
+                                <div class="flex items-center gap-3 mt-2">
+                                    <span id="qv-price" class="text-2xl font-serif font-bold text-copper-400">$0.00</span>
+                                    <span id="qv-original-price" class="text-sm font-mono text-champagne-400/60 line-through"></span>
+                                    <span id="qv-badge" class="bg-copper-500/20 text-copper-300 border border-copper-400/40 text-[10px] font-mono px-2.5 py-0.5 rounded-full uppercase">Bestseller</span>
+                                </div>
+                            </div>
+
+                            <p id="qv-description" class="text-champagne-300 text-xs sm:text-sm leading-relaxed">Description...</p>
+
+                            <!-- Size Selector -->
+                            <div class="space-y-2">
+                                <label class="text-xs font-mono text-copper-400 uppercase tracking-wider block">Select Size / Custom Fitting</label>
+                                <div class="flex flex-wrap gap-2" id="qv-size-options">
+                                    <button onclick="selectSize('XS')" class="qv-size-btn border border-copper-500/30 bg-obsidian-900 text-xs text-white px-3 py-2 rounded-xl">XS</button>
+                                    <button onclick="selectSize('S')" class="qv-size-btn border border-copper-500/30 bg-obsidian-900 text-xs text-white px-3 py-2 rounded-xl">S</button>
+                                    <button onclick="selectSize('M')" class="qv-size-btn border border-copper-500/30 bg-obsidian-900 text-xs text-white px-3 py-2 rounded-xl active-size">M</button>
+                                    <button onclick="selectSize('L')" class="qv-size-btn border border-copper-500/30 bg-obsidian-900 text-xs text-white px-3 py-2 rounded-xl">L</button>
+                                    <button onclick="selectSize('XL')" class="qv-size-btn border border-copper-500/30 bg-obsidian-900 text-xs text-white px-3 py-2 rounded-xl">XL</button>
+                                    <button onclick="selectSize('Custom Fitting')" class="qv-size-btn border border-copper-400 bg-copper-500/20 text-xs text-copper-300 px-3 py-2 rounded-xl font-bold">★ Custom Fitting</button>
+                                </div>
+                            </div>
+
+                            <!-- Color Swatches -->
+                            <div class="space-y-2">
+                                <label class="text-xs font-mono text-copper-400 uppercase tracking-wider block">Palette Tone</label>
+                                <div class="flex gap-3" id="qv-color-swatches">
+                                    <button onclick="selectColor('Deep Peacock')" class="w-7 h-7 rounded-full bg-[#0b3c3d] border-2 border-copper-400 ring-2 ring-copper-400/50" title="Deep Peacock Teal"></button>
+                                    <button onclick="selectColor('Rose Gold')" class="w-7 h-7 rounded-full bg-[#e08b58] border-2 border-transparent hover:border-copper-400" title="Rose Gold Copper"></button>
+                                    <button onclick="selectColor('Midnight Slate')" class="w-7 h-7 rounded-full bg-[#1e293b] border-2 border-transparent hover:border-copper-400" title="Midnight Slate"></button>
+                                </div>
+                            </div>
+
+                            <!-- Care & Delivery Accordion Box -->
+                            <div class="bg-obsidian-900/60 p-4 rounded-2xl border border-copper-500/20 text-xs space-y-2 font-mono text-champagne-300">
+                                <div class="flex justify-between items-center text-copper-400 font-bold">
+                                    <span class="flex items-center gap-2"><i data-lucide="sparkles" class="w-4 h-4"></i> Craftsmanship & Care</span>
+                                    <span id="qv-fabric-tag" class="text-champagne-200">Silk</span>
+                                </div>
+                                <p class="text-[11px] text-champagne-400 leading-relaxed">Handwoven by master artisans. Dry Clean Only. Includes Silk Mark Authenticity Guarantee.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3 pt-4">
+                            <button id="qv-wish-btn" class="p-3.5 rounded-xl border border-copper-500/30 bg-obsidian-900 text-champagne-200 hover:text-copper-400 hover:border-copper-400">
+                                <i data-lucide="heart" class="w-5 h-5"></i>
+                            </button>
+                            <button id="qv-add-btn" class="flex-1 bg-gradient-to-r from-copper-500 to-copper-600 text-obsidian-950 font-bold py-3.5 rounded-xl uppercase tracking-wider shadow-lg shadow-copper-500/20 hover:bg-copper-400 transition-all text-xs flex items-center justify-center gap-2">
+                                <i data-lucide="shopping-bag" class="w-4 h-4"></i> Add to Royal Bag
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHECKOUT MODAL -->
+    <div id="checkout-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div onclick="closeCheckoutModal()" class="fixed inset-0 bg-black/85 backdrop-blur-md"></div>
+        <div class="relative bg-peacock-950 border border-copper-500/30 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl z-10 space-y-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-copper-500/20 pb-4">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="crown" class="w-5 h-5 text-copper-400"></i>
+                    <h3 class="font-serif font-bold text-white text-xl">Royal Order Checkout</h3>
+                </div>
+                <button onclick="closeCheckoutModal()" class="text-champagne-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleCheckoutSubmit(event)" class="space-y-4 text-xs font-mono">
+                <div>
+                    <label class="text-champagne-300 block mb-1">Full Name</label>
+                    <input type="text" required placeholder="Highness / Patron Name" class="w-full bg-obsidian-900 border border-copper-500/30 rounded-xl p-3 text-white focus:outline-none focus:border-copper-400">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-champagne-300 block mb-1">Contact Phone</label>
+                        <input type="tel" required placeholder="+1 (555) 000-1122" class="w-full bg-obsidian-900 border border-copper-500/30 rounded-xl p-3 text-white focus:outline-none focus:border-copper-400">
+                    </div>
+                    <div>
+                        <label class="text-champagne-300 block mb-1">Zip / Pincode</label>
+                        <input type="text" required placeholder="110049" class="w-full bg-obsidian-900 border border-copper-500/30 rounded-xl p-3 text-white focus:outline-none focus:border-copper-400">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-champagne-300 block mb-1">Delivery Address</label>
+                    <textarea required rows="2" placeholder="Estate Villa, Royal Avenue..." class="w-full bg-obsidian-900 border border-copper-500/30 rounded-xl p-3 text-white focus:outline-none focus:border-copper-400"></textarea>
+                </div>
+
+                <div>
+                    <label class="text-champagne-300 block mb-1">Custom Measurement Instructions</label>
+                    <input type="text" placeholder="e.g. Blouse length 15.5 inches, sleeve length 11 inches..." class="w-full bg-obsidian-900 border border-copper-500/30 rounded-xl p-3 text-white focus:outline-none focus:border-copper-400">
+                </div>
+
+                <div>
+                    <label class="text-champagne-300 block mb-1">Payment Options</label>
+                    <select class="w-full bg-obsidian-900 border border-copper-500/30 rounded-xl p-3 text-white focus:outline-none focus:border-copper-400 cursor-pointer">
+                        <option value="card">Credit / Debit Card (Visa, Mastercard, Amex)</option>
+                        <option value="upi">UPI / GPay / Net Banking</option>
+                        <option value="paypal">PayPal Express International</option>
+                        <option value="cod">Cash on VIP Delivery</option>
+                    </select>
+                </div>
+
+                <div class="border-t border-copper-500/20 pt-3 flex justify-between items-center text-sm">
+                    <span class="text-champagne-400">Total Payable Amount:</span>
+                    <span id="checkout-total-display" class="font-bold text-copper-400 text-lg">$0.00</span>
+                </div>
+
+                <button type="submit" id="checkout-submit-btn" class="w-full bg-gradient-to-r from-copper-500 to-copper-600 hover:from-copper-400 hover:to-copper-500 text-obsidian-950 font-bold py-3.5 rounded-xl uppercase tracking-wider shadow-lg shadow-copper-500/20 transition-all text-xs flex items-center justify-center gap-2">
+                    <span>Place Royal Order</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ORDER CONFIRMATION MODAL -->
+    <div id="confirmation-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div onclick="closeConfirmationModal()" class="fixed inset-0 bg-black/85 backdrop-blur-md"></div>
+        <div class="relative bg-peacock-950 border border-copper-500/30 rounded-3xl max-w-md w-full p-8 shadow-2xl z-10 text-center space-y-5">
+            <div class="w-16 h-16 rounded-full bg-copper-500/10 border border-copper-500/40 text-copper-400 flex items-center justify-center mx-auto shadow-lg shadow-copper-500/20">
+                <i data-lucide="crown" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-2xl font-serif font-bold text-white">Royal Order Confirmed!</h3>
+            <p class="text-champagne-300 text-xs sm:text-sm leading-relaxed">
+                Your order has been assigned to master loom weavers. Our custom fitting specialist will reach out shortly.
+            </p>
+            <div class="bg-obsidian-900 p-4 rounded-2xl border border-copper-500/20 font-mono text-xs text-left space-y-1.5">
+                <div class="flex justify-between"><span class="text-champagne-400">Order ID:</span> <span id="confirm-order-id" class="text-copper-400 font-bold">#VEDA-8821</span></div>
+                <div class="flex justify-between"><span class="text-champagne-400">Estimated Dispatch:</span> <span class="text-white font-bold">3 - 5 Business Days</span></div>
+            </div>
+            <button onclick="closeConfirmationModal()" class="w-full bg-copper-500 hover:bg-copper-400 text-obsidian-950 font-bold py-3 rounded-xl uppercase tracking-wider text-xs transition-colors">
+                Continue Exploring
+            </button>
+        </div>
+    </div>
+
+    <!-- CUSTOM FITTING & STYLIST MODAL -->
+    <div id="stylist-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div onclick="closeStylistModal()" class="fixed inset-0 bg-black/85 backdrop-blur-md"></div>
+        <div class="relative bg-peacock-950 border border-copper-500/30 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl z-10 space-y-5">
+            <div class="flex justify-between items-center border-b border-copper-500/20 pb-4">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="scissors" class="w-5 h-5 text-copper-400"></i>
+                    <h3 class="font-serif font-bold text-white text-lg">Bespoke Custom Fitting</h3>
+                </div>
+                <button onclick="closeStylistModal()" class="text-champagne-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleStylistSubmit(event)" class="space-y-4 text-xs font-mono">
+                <div>
+                    <label class="text-champagne-300 block mb-1">Appointment Type</label>
+                    <select class="w-full bg-obsidian-900 border border-copper-500/30 rounded-xl p-3 text-white focus:outline-none focus:border-copper-400">
+                        <option value="virtual">Virtual Video Styling Session</option>
+                        <option value="doorstep">Doorstep Master Measurement Service</option>
+                        <option value="instore">In-Store Boutique Consultation</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-champagne-300 block mb-1">Your Full Name</label>
+                    <input type="text" required placeholder="Patron Name" class="w-full bg-obsidian-900 border border-copper-500/30 rounded-xl p-3 text-white focus:outline-none focus:border-copper-400">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-champagne-300 block mb-1">Preferred Date</label>
+                        <input type="date" required id="stylist-date" class="w-full bg-obsidian-900 border border-copper-500/30 rounded-xl p-3 text-white focus:outline-none focus:border-copper-400">
+                    </div>
+                    <div>
+                        <label class="text-champagne-300 block mb-1">Time Slot</label>
+                        <select class="w-full bg-obsidian-900 border border-copper-500/30 rounded-xl p-3 text-white focus:outline-none focus:border-copper-400">
+                            <option>11:00 AM - 1:00 PM</option>
+                            <option>02:00 PM - 04:00 PM</option>
+                            <option>05:00 PM - 07:00 PM</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-champagne-300 block mb-1">Occasion / Specific Requirements</label>
+                    <input type="text" placeholder="Bridal Lehenga, Groom Sherwani..." class="w-full bg-obsidian-900 border border-copper-500/30 rounded-xl p-3 text-white focus:outline-none focus:border-copper-400">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-copper-500 to-copper-600 text-obsidian-950 font-bold py-3.5 rounded-xl uppercase tracking-wider text-xs transition-all shadow-lg shadow-copper-500/20">
+                    Confirm VIP Fitting Request
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APP ENGINE -->
+    <script>
+        // PRODUCTS DATASET
+        const PRODUCTS = [
+            {
+                id: 1,
+                title: "Peacock Blue Pure Kanjivaram Silk Saree",
+                category: "Royal Sarees",
+                gender: "Women",
+                fabric: "Silk",
+                price: 490.00,
+                originalPrice: 620.00,
+                rating: 4.9,
+                reviewsCount: 142,
+                image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80",
+                gallery: [
+                    "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=800&q=80"
+                ],
+                badge: "Silk Mark Handloom",
+                description: "Handwoven pure Kanjivaram silk saree in deep peacock teal tones, highlighted with intricate copper zari temple borders."
+            },
+            {
+                id: 2,
+                title: "Midnight Slate Cut-Dana Groom Sherwani",
+                category: "Designer Kurtas",
+                gender: "Men",
+                fabric: "Velvet",
+                price: 720.00,
+                originalPrice: 890.00,
+                rating: 5.0,
+                reviewsCount: 89,
+                image: "https://images.unsplash.com/photo-1597983073493-88cd35cf03b0?auto=format&fit=crop&w=800&q=80",
+                gallery: [
+                    "https://images.unsplash.com/photo-1597983073493-88cd35cf03b0?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80"
+                ],
+                badge: "Groom Edit",
+                description: "Deep obsidian velvet sherwani hand-embroidered with rose-gold cut-dana needlework and inner raw silk kurta."
+            },
+            {
+                id: 3,
+                title: "Rose Gold Zardozi Bridal Lehenga",
+                category: "Bridal Lehengas",
+                gender: "Women",
+                fabric: "Velvet",
+                price: 1280.00,
+                originalPrice: 1550.00,
+                rating: 4.9,
+                reviewsCount: 204,
+                image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80",
+                gallery: [
+                    "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80"
+                ],
+                badge: "Masterpiece",
+                description: "Heavy zardozi bridal lehenga with metallic copper foil threading, intricate peacock motifs, and organza dupatta."
+            },
+            {
+                id: 4,
+                title: "Emerald Teal Chikankari Anarkali Suit",
+                category: "Anarkali & Suits",
+                gender: "Women",
+                fabric: "Georgette",
+                price: 360.00,
+                originalPrice: 440.00,
+                rating: 4.8,
+                reviewsCount: 96,
+                image: "https://images.unsplash.com/photo-1563178406-4cdc2923acbc?auto=format&fit=crop&w=800&q=80",
+                gallery: [
+                    "https://images.unsplash.com/photo-1563178406-4cdc2923acbc?auto=format&fit=crop&w=800&q=80"
+                ],
+                badge: "Hand-Threaded",
+                description: "Floor-length georgette Anarkali with fine Lucknowi threadwork and shimmering copper sequins."
+            },
+            {
+                id: 5,
+                title: "Antique Copper Kundan Choker & Earrings",
+                category: "Accessories & Jewelry",
+                gender: "Jewelry",
+                fabric: "Copper Polish",
+                price: 210.00,
+                originalPrice: 270.00,
+                rating: 4.9,
+                reviewsCount: 178,
+                image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80",
+                gallery: [
+                    "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80"
+                ],
+                badge: "Designer Piece",
+                description: "Handcrafted choker necklace embedded with uncut Kundan crystals and freshwater pearl drops in warm rose-copper finish."
+            },
+            {
+                id: 6,
+                title: "Teal Tissue Organza Banarasi Saree",
+                category: "Royal Sarees",
+                gender: "Women",
+                fabric: "Organza",
+                price: 380.00,
+                originalPrice: 460.00,
+                rating: 4.7,
+                reviewsCount: 65,
+                image: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=800&q=80",
+                gallery: [
+                    "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=800&q=80"
+                ],
+                badge: "New Arrival",
+                description: "Translucent organza tissue saree with woven copper Kadwa motifs and scalloped borders."
+            },
+            {
+                id: 7,
+                title: "Ivory Silk Kurta Set with Jacquard Jacket",
+                category: "Designer Kurtas",
+                gender: "Men",
+                fabric: "Silk",
+                price: 290.00,
+                originalPrice: 350.00,
+                rating: 4.8,
+                reviewsCount: 71,
+                image: "https://images.unsplash.com/photo-1609357605129-26f69add5d6e?auto=format&fit=crop&w=800&q=80",
+                gallery: [
+                    "https://images.unsplash.com/photo-1609357605129-26f69add5d6e?auto=format&fit=crop&w=800&q=80"
+                ],
+                badge: "Festive Edit",
+                description: "Pure raw silk ivory kurta pyjama set paired with a copper jacquard woven waist jacket."
+            },
+            {
+                id: 8,
+                title: "Chiffon Hand-Embroidered Gharara Suit",
+                category: "Anarkali & Suits",
+                gender: "Women",
+                fabric: "Chiffon",
+                price: 410.00,
+                originalPrice: 500.00,
+                rating: 4.9,
+                reviewsCount: 118,
+                image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80",
+                gallery: [
+                    "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80"
+                ],
+                badge: "Royal Ensemble",
+                description: "Flowing chiffon gharara suit featuring intricate gota patti hand embroidery and peacock blue drape."
+            }
+        ];
+
+        const CATEGORIES = ["All", "Royal Sarees", "Anarkali & Suits", "Bridal Lehengas", "Designer Kurtas", "Accessories & Jewelry"];
+
+        // APP STATE
+        let state = {
+            category: "All",
+            gender: "All",
+            fabric: "All",
+            maxPrice: 1500,
+            sort: "featured",
+            searchQuery: "",
+            cart: [],
+            wishlist: [],
+            selectedSize: "M",
+            selectedColor: "Deep Peacock",
+            appliedCoupon: null,
+            activeQuickViewId: null
+        };
+
+        // INITIALIZATION
+        document.addEventListener("DOMContentLoaded", () => {
+            renderCategories();
+            renderProducts();
+            updateCartUI();
+            updateWishlistUI();
+            lucide.createIcons();
+
+            // Set tomorrow's date for custom fitting picker
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById("stylist-date").value = tomorrow.toISOString().split('T')[0];
+        });
+
+        // CATEGORIES RENDER
+        function renderCategories() {
+            const container = document.getElementById("category-tabs");
+            container.innerHTML = CATEGORIES.map(cat => `
+                <button onclick="setCategory('${cat}')" class="px-5 py-2 rounded-full text-xs font-bold font-mono transition-all whitespace-nowrap ${state.category === cat ? 'bg-copper-500 text-obsidian-950 shadow-md shadow-copper-500/20' : 'bg-peacock-900/60 border border-copper-500/20 text-champagne-300 hover:text-white hover:border-copper-400'}">
+                    ${cat}
+                </button>
+            `).join("");
+        }
+
+        function setCategory(cat) {
+            state.category = cat;
+            renderCategories();
+            renderProducts();
+        }
+
+        // SEARCH ENGINE
+        function handleSearch(query) {
+            state.searchQuery = query.toLowerCase().trim();
+            const clearBtn = document.getElementById("clear-search-btn");
+            if (state.searchQuery.length > 0) clearBtn.classList.remove("hidden");
+            else clearBtn.classList.add("hidden");
+            renderProducts();
+        }
+
+        function clearSearch() {
+            state.searchQuery = "";
+            document.getElementById("nav-search-input").value = "";
+            document.getElementById("mobile-search-input").value = "";
+            document.getElementById("clear-search-btn").classList.add("hidden");
+            renderProducts();
+        }
+
+        // FILTER ENGINE
+        function updatePriceSlider(val) {
+            state.maxPrice = parseFloat(val);
+            document.getElementById("price-slider-value").textContent = `$${val}`;
+            renderProducts();
+        }
+
+        function applyFilters() {
+            state.gender = document.getElementById("gender-filter").value;
+            state.fabric = document.getElementById("fabric-filter").value;
+            state.sort = document.getElementById("sort-filter").value;
+            renderProducts();
+        }
+
+        function resetFilters() {
+            state.category = "All";
+            state.gender = "All";
+            state.fabric = "All";
+            state.maxPrice = 1500;
+            state.sort = "featured";
+            state.searchQuery = "";
+
+            document.getElementById("gender-filter").value = "All";
+            document.getElementById("fabric-filter").value = "All";
+            document.getElementById("price-range").value = 1500;
+            document.getElementById("price-slider-value").textContent = "$1500";
+            document.getElementById("sort-filter").value = "featured";
+            clearSearch();
+
+            renderCategories();
+            renderProducts();
+            showToast("All filters reset", "info");
+        }
+
+        // PRODUCT GRID RENDER
+        function renderProducts() {
+            const grid = document.getElementById("product-grid");
+            const emptyState = document.getElementById("empty-catalog-state");
+
+            let filtered = PRODUCTS.filter(p => {
+                const matchesCat = state.category === "All" || p.category === state.category;
+                const matchesGender = state.gender === "All" || p.gender === state.gender;
+                const matchesFabric = state.fabric === "All" || p.fabric === state.fabric;
+                const matchesPrice = p.price <= state.maxPrice;
+                const matchesSearch = p.title.toLowerCase().includes(state.searchQuery) || p.description.toLowerCase().includes(state.searchQuery) || p.fabric.toLowerCase().includes(state.searchQuery);
+
+                return matchesCat && matchesGender && matchesFabric && matchesPrice && matchesSearch;
+            });
+
+            // Sorting
+            if (state.sort === "price-low") filtered.sort((a,b) => a.price - b.price);
+            else if (state.sort === "price-high") filtered.sort((a,b) => b.price - a.price);
+            else if (state.sort === "rating") filtered.sort((a,b) => b.rating - a.rating);
+            else if (state.sort === "newest") filtered.sort((a,b) => b.id - a.id);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = "";
+                emptyState.classList.remove("hidden");
+                return;
+            }
+
+            emptyState.classList.add("hidden");
+            grid.innerHTML = filtered.map(p => {
+                const isWished = state.wishlist.includes(p.id);
+                return `
+                    <div class="peacock-card rounded-3xl overflow-hidden group flex flex-col justify-between">
+                        <div>
+                            <div class="relative aspect-[3/4] overflow-hidden cursor-pointer" onclick="openQuickView(${p.id})">
+                                <img src="${p.image}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                                <div class="absolute inset-0 bg-gradient-to-t from-peacock-950 via-transparent to-transparent opacity-80"></div>
+                                
+                                <div class="absolute top-3 left-3">
+                                    <span class="bg-peacock-950/90 text-copper-300 border border-copper-500/30 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full uppercase">
+                                        ${p.badge}
+                                    </span>
+                                </div>
+
+                                <button onclick="event.stopPropagation(); toggleWishlist(${p.id});" class="absolute top-3 right-3 p-2.5 rounded-full bg-peacock-950/80 text-champagne-300 hover:text-copper-400 transition-colors border border-copper-500/30">
+                                    <i data-lucide="heart" class="w-4 h-4 ${isWished ? 'fill-copper-400 text-copper-400' : ''}"></i>
+                                </button>
+
+                                <div class="absolute bottom-3 left-3 right-3 flex justify-between items-end">
+                                    <span class="text-[11px] font-mono text-champagne-300">Fabric: ${p.fabric}</span>
+                                    <span class="text-xs font-mono text-copper-400 font-bold flex items-center gap-1">★ ${p.rating}</span>
+                                </div>
+                            </div>
+
+                            <div class="p-5 space-y-2">
+                                <h3 onclick="openQuickView(${p.id})" class="font-serif font-bold text-white text-base hover:text-copper-300 cursor-pointer transition-colors line-clamp-1">${p.title}</h3>
+                                <p class="text-champagne-400/80 text-xs leading-relaxed line-clamp-2">${p.description}</p>
+                                
+                                <div class="flex items-baseline gap-2 pt-1">
+                                    <span class="text-xl font-serif font-bold text-copper-400">$${p.price.toFixed(2)}</span>
+                                    <span class="text-xs font-mono text-champagne-400/50 line-through">$${p.originalPrice.toFixed(2)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-5 pt-0 flex gap-2">
+                            <button onclick="openQuickView(${p.id})" class="flex-1 bg-peacock-900 hover:bg-peacock-800 text-champagne-200 text-xs font-bold py-2.5 rounded-xl border border-copper-500/30 transition-colors">
+                                Quick View
+                            </button>
+                            <button onclick="addToCart(${p.id})" class="bg-gradient-to-r from-copper-500 to-copper-600 hover:from-copper-400 hover:to-copper-500 text-obsidian-950 font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md shadow-copper-500/10 flex items-center gap-1">
+                                <i data-lucide="shopping-bag" class="w-4 h-4"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+
+            lucide.createIcons();
+        }
+
+        // QUICK VIEW MODAL LOGIC
+        function openQuickView(id) {
+            const product = PRODUCTS.find(p => p.id === id);
+            if (!product) return;
+
+            state.activeQuickViewId = id;
+            document.getElementById("qv-main-image").src = product.image;
+            document.getElementById("qv-category").textContent = product.category;
+            document.getElementById("qv-title").textContent = product.title;
+            document.getElementById("qv-price").textContent = `$${product.price.toFixed(2)}`;
+            document.getElementById("qv-original-price").textContent = `$${product.originalPrice.toFixed(2)}`;
+            document.getElementById("qv-description").textContent = product.description;
+            document.getElementById("qv-badge").textContent = product.badge;
+            document.getElementById("qv-fabric-tag").textContent = product.fabric;
+
+            // Gallery Thumbnails
+            const thumbsContainer = document.getElementById("qv-thumbnails");
+            thumbsContainer.innerHTML = product.gallery.map(img => `
+                <button onclick="document.getElementById('qv-main-image').src='${img}'" class="w-14 h-18 flex-shrink-0 rounded-lg overflow-hidden border border-copper-500/30 hover:border-copper-400">
+                    <img src="${img}" class="w-full h-full object-cover">
+                </button>
+            `).join("");
+
+            // Add button binding
+            document.getElementById("qv-add-btn").onclick = () => {
+                addToCart(product.id, state.selectedSize, state.selectedColor);
+                closeQuickView();
+            };
+
+            const isWished = state.wishlist.includes(product.id);
+            const wishBtn = document.getElementById("qv-wish-btn");
+            wishBtn.onclick = () => toggleWishlist(product.id);
+            wishBtn.innerHTML = `<i data-lucide="heart" class="w-5 h-5 ${isWished ? 'fill-copper-400 text-copper-400' : ''}"></i>`;
+
+            document.getElementById("quickview-modal").classList.remove("hidden");
+            lucide.createIcons();
+        }
+
+        function closeQuickView() {
+            document.getElementById("quickview-modal").classList.add("hidden");
+        }
+
+        function selectSize(size) {
+            state.selectedSize = size;
+            document.querySelectorAll(".qv-size-btn").forEach(btn => {
+                btn.classList.remove("bg-copper-500", "text-obsidian-950", "font-bold");
+                if (btn.textContent.includes(size)) {
+                    btn.classList.add("bg-copper-500", "text-obsidian-950", "font-bold");
+                }
+            });
+            showToast(`Selected Fit: ${size}`, "info");
+        }
+
+        function selectColor(color) {
+            state.selectedColor = color;
+            showToast(`Selected Palette Tone: ${color}`, "info");
+        }
+
+        // WISHLIST ENGINE
+        function toggleWishlist(id) {
+            const index = state.wishlist.indexOf(id);
+            const product = PRODUCTS.find(p => p.id === id);
+
+            if (index > -1) {
+                state.wishlist.splice(index, 1);
+                showToast(`Removed "${product.title}" from Wishlist`, "info");
+            } else {
+                state.wishlist.push(id);
+                showToast(`Saved "${product.title}" to Wishlist!`, "success");
+            }
+
+            updateWishlistUI();
+            renderProducts();
+
+            if (state.activeQuickViewId === id) {
+                openQuickView(id);
+            }
+        }
+
+        function updateWishlistUI() {
+            document.getElementById("nav-wishlist-badge").textContent = state.wishlist.length;
+            const container = document.getElementById("wishlist-items-container");
+
+            if (state.wishlist.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 space-y-3">
+                        <i data-lucide="heart" class="w-10 h-10 text-champagne-400/40 mx-auto"></i>
+                        <p class="text-xs text-champagne-400 font-mono">Your saved wishlist is empty.</p>
+                    </div>
+                `;
+            } else {
+                const wishedProducts = PRODUCTS.filter(p => state.wishlist.includes(p.id));
+                container.innerHTML = wishedProducts.map(p => `
+                    <div class="flex items-center gap-3 p-3 rounded-2xl bg-peacock-900 border border-copper-500/20">
+                        <img src="${p.image}" class="w-14 h-14 object-cover rounded-xl">
+                        <div class="flex-1">
+                            <h4 class="text-xs font-serif font-bold text-white line-clamp-1">${p.title}</h4>
+                            <span class="text-xs text-copper-400 font-mono block">$${p.price.toFixed(2)}</span>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <button onclick="addToCart(${p.id}); toggleWishlist(${p.id});" class="bg-copper-500 hover:bg-copper-400 text-obsidian-950 font-bold px-3 py-1.5 rounded-lg text-[10px]">
+                                Move to Bag
+                            </button>
+                            <button onclick="toggleWishlist(${p.id})" class="text-champagne-400/60 hover:text-white text-[10px] font-mono text-center">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                `).join("");
+            }
+            lucide.createIcons();
+        }
+
+        function toggleWishlistDrawer(open) {
+            const drawer = document.getElementById("wishlist-drawer");
+            if (open) drawer.classList.remove("opacity-0", "pointer-events-none");
+            else drawer.classList.add("opacity-0", "pointer-events-none");
+        }
+
+        // CART ENGINE
+        function addToCart(id, size = "M", color = "Deep Peacock") {
+            const product = PRODUCTS.find(p => p.id === id);
+            if (!product) return;
+
+            const existing = state.cart.find(item => item.id === id && item.size === size && item.color === color);
+            if (existing) {
+                existing.qty++;
+            } else {
+                state.cart.push({ ...product, qty: 1, size, color });
+            }
+
+            updateCartUI();
+            showToast(`Added "${product.title}" to Shopping Bag`, "success");
+        }
+
+        function updateCartQty(index, delta) {
+            state.cart[index].qty += delta;
+            if (state.cart[index].qty <= 0) {
+                state.cart.splice(index, 1);
+            }
+            updateCartUI();
+        }
+
+        function removeFromCart(index) {
+            state.cart.splice(index, 1);
+            updateCartUI();
+            showToast("Item removed from bag", "info");
+        }
+
+        function updateCartUI() {
+            const totalItems = state.cart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById("nav-cart-badge").textContent = totalItems;
+
+            const container = document.getElementById("cart-items-container");
+
+            if (state.cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 space-y-3">
+                        <i data-lucide="shopping-bag" class="w-10 h-10 text-champagne-400/40 mx-auto"></i>
+                        <p class="text-xs text-champagne-400 font-mono">Your royal shopping bag is empty.</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = state.cart.map((item, idx) => `
+                    <div class="flex items-center gap-3 p-3 rounded-2xl bg-peacock-900 border border-copper-500/20">
+                        <img src="${item.image}" class="w-14 h-14 object-cover rounded-xl">
+                        <div class="flex-1">
+                            <h4 class="text-xs font-serif font-bold text-white line-clamp-1">${item.title}</h4>
+                            <span class="text-[10px] text-champagne-400 font-mono block">Fit: ${item.size} | Tone: ${item.color}</span>
+                            <span class="text-xs text-copper-400 font-mono block">$${(item.price * item.qty).toFixed(2)}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 bg-peacock-950 p-1 rounded-xl border border-copper-500/20 font-mono text-xs">
+                            <button onclick="updateCartQty(${idx}, -1)" class="w-5 h-5 text-champagne-400 hover:text-white">-</button>
+                            <span class="text-white font-bold px-1">${item.qty}</span>
+                            <button onclick="updateCartQty(${idx}, 1)" class="w-5 h-5 text-champagne-400 hover:text-white">+</button>
+                        </div>
+                        <button onclick="removeFromCart(${idx})" class="text-champagne-400/50 hover:text-red-400 p-1">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `).join("");
+            }
+
+            // Calculations
+            const subtotal = state.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            
+            let discountRate = 0;
+            if (state.appliedCoupon === "ROYAL15") discountRate = 0.15;
+            else if (state.appliedCoupon === "WELCOME10") discountRate = 0.10;
+
+            const discount = subtotal * discountRate;
+            const tax = (subtotal - discount) * 0.08;
+            const total = subtotal - discount + tax;
+
+            document.getElementById("cart-subtotal").textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById("cart-discount").textContent = `-$${discount.toFixed(2)}`;
+            document.getElementById("cart-tax").textContent = `$${tax.toFixed(2)}`;
+            document.getElementById("cart-total").textContent = `$${total.toFixed(2)}`;
+            document.getElementById("checkout-total-display").textContent = `$${total.toFixed(2)}`;
+
+            // Shipping Progress Calculation
+            const goal = 500;
+            const progress = Math.min((subtotal / goal) * 100, 100);
+            document.getElementById("shipping-progress-bar").style.width = `${progress}%`;
+            
+            if (subtotal >= goal) {
+                document.getElementById("shipping-progress-text").textContent = "✓ Unlocked Free Worldwide Shipping!";
+            } else {
+                document.getElementById("shipping-progress-text").textContent = `Add $${(goal - subtotal).toFixed(2)} for Free Shipping`;
+            }
+
+            if (state.appliedCoupon) {
+                document.getElementById("discount-label").textContent = `Discount (${state.appliedCoupon})`;
+                document.getElementById("discount-row").classList.remove("hidden");
+                document.getElementById("discount-row").classList.add("flex");
+            } else {
+                document.getElementById("discount-row").classList.add("hidden");
+                document.getElementById("discount-row").classList.remove("flex");
+            }
+
+            lucide.createIcons();
+        }
+
+        function toggleCartDrawer(open) {
+            const drawer = document.getElementById("cart-drawer");
+            if (open) drawer.classList.remove("opacity-0", "pointer-events-none");
+            else drawer.classList.add("opacity-0", "pointer-events-none");
+        }
+
+        function applyCoupon() {
+            const code = document.getElementById("coupon-input").value.trim().toUpperCase();
+            if (code === "ROYAL15" || code === "WELCOME10") {
+                state.appliedCoupon = code;
+                updateCartUI();
+                showToast(`Coupon ${code} Applied Successfully!`, "success");
+            } else {
+                showToast("Invalid Coupon Code. Try ROYAL15 or WELCOME10", "error");
+            }
+        }
+
+        // CHECKOUT & PAYMENT FLOW
+        function openCheckoutModal() {
+            if (state.cart.length === 0) {
+                showToast("Your bag is empty!", "error");
+                return;
+            }
+            toggleCartDrawer(false);
+            document.getElementById("checkout-modal").classList.remove("hidden");
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById("checkout-modal").classList.add("hidden");
+        }
+
+        function handleCheckoutSubmit(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById("checkout-submit-btn");
+            submitBtn.innerHTML = `<span>Processing Royal Payment...</span>`;
+            submitBtn.disabled = true;
+
+            setTimeout(() => {
+                closeCheckoutModal();
+                submitBtn.innerHTML = `<span>Place Royal Order</span>`;
+                submitBtn.disabled = false;
+
+                const orderRef = "#VEDA-" + Math.floor(1000 + Math.random() * 9000);
+                document.getElementById("confirm-order-id").textContent = orderRef;
+
+                state.cart = [];
+                state.appliedCoupon = null;
+                updateCartUI();
+
+                document.getElementById("confirmation-modal").classList.remove("hidden");
+                showToast("Order placed successfully!", "success");
+            }, 1200);
+        }
+
+        function closeConfirmationModal() {
+            document.getElementById("confirmation-modal").classList.add("hidden");
+        }
+
+        // STYLIST & BESPOKE FITTING MODAL
+        function openStylistModal() {
+            document.getElementById("stylist-modal").classList.remove("hidden");
+        }
+
+        function closeStylistModal() {
+            document.getElementById("stylist-modal").classList.add("hidden");
+        }
+
+        function handleStylistSubmit(e) {
+            e.preventDefault();
+            closeStylistModal();
+            showToast("Bespoke Fitting Request Logged! Master tailor will contact you.", "success");
+        }
+
+        // DYNAMIC TOAST NOTIFICATIONS
+        function showToast(msg, type = "info") {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            toast.className = `bg-peacock-900 border border-copper-500/40 text-champagne-100 shadow-2xl rounded-2xl px-4 py-3 text-xs font-mono flex items-center gap-2.5 pointer-events-auto backdrop-blur-md transition-all transform duration-300 translate-y-2 opacity-0`;
+            
+            const icon = type === 'success' ? 'crown' : 'sparkles';
+            toast.innerHTML = `
+                <i data-lucide="${icon}" class="w-4 h-4 text-copper-400"></i>
+                <span>${msg}</span>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.remove("translate-y-2", "opacity-0");
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add("opacity-0", "translate-y-2");
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

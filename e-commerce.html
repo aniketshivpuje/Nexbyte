@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ApexZone MegaStore | Great India Festival & Big Billion Savings</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        apexNavy: '#131921',
+                        apexNavyLight: '#232f3e',
+                        apexYellow: '#febd69',
+                        apexOrange: '#ff9900',
+                        apexOrangeHover: '#e68a00',
+                        flipBlue: '#2874f0',
+                        flipYellow: '#ffe500',
+                        assuredBlue: '#007185',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 7px; height: 7px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Smooth UI transitions */
+        .drawer-slide { transition: transform 0.3s ease-in-out; }
+        .badge-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Banner Carousel Transitions */
+        .banner-slide { display: none; }
+        .banner-slide.active { display: block; }
+
+        /* Range Input Styling */
+        input[type=range] {
+            accent-color: #2874f0;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col relative selection:bg-apexYellow selection:text-apexNavy">
+
+    <!-- Toast Notifications Floating Container -->
+    <div id="toast-container" class="fixed top-20 right-4 sm:right-6 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+    <!-- 1. TOP HEADER & NAVIGATION -->
+    <header class="sticky top-0 z-40 bg-apexNavy text-white shadow-md">
+        
+        <!-- Main Upper Header -->
+        <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+            <div class="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-4">
+                
+                <!-- Logo -->
+                <a href="#" onclick="resetCatalogFilters(); return false;" class="flex items-center gap-1.5 flex-shrink-0 group">
+                    <div class="bg-gradient-to-tr from-flipBlue to-apexOrange p-2 rounded-xl text-white font-black text-xl tracking-tighter shadow-lg group-hover:scale-105 transition-transform">
+                        AZ
+                    </div>
+                    <div class="flex flex-col leading-none">
+                        <span class="text-lg sm:text-xl font-extrabold tracking-tight text-white flex items-center gap-1">
+                            Apex<span class="text-apexYellow">Zone</span>
+                        </span>
+                        <span class="text-[10px] text-slate-400 tracking-wider uppercase font-semibold flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> MegaStore
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Location Selector Widget -->
+                <button onclick="openLocationModal()" class="hidden md:flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-slate-800 border border-transparent hover:border-slate-700 text-left transition-all flex-shrink-0">
+                    <i data-lucide="map-pin" class="w-5 h-5 text-apexYellow"></i>
+                    <div class="text-xs">
+                        <div class="text-slate-400 text-[11px] leading-tight">Deliver to</div>
+                        <div class="font-bold text-white leading-tight truncate max-w-[110px]" id="current-pincode-display">Mumbai 400001</div>
+                    </div>
+                </button>
+
+                <!-- Big Omnibox Search Bar -->
+                <div class="flex-1 max-w-3xl relative">
+                    <form onsubmit="handleSearch(event)" class="flex items-center">
+                        <div class="relative w-full flex rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-apexYellow">
+                            <!-- Category Dropdown -->
+                            <select id="search-category" class="bg-slate-200 text-slate-800 text-xs font-semibold px-2 sm:px-3 border-r border-slate-300 focus:outline-none cursor-pointer hidden sm:block">
+                                <option value="All">All Categories</option>
+                                <option value="Mobiles">Mobiles & Tech</option>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Fashion">Fashion</option>
+                                <option value="Home">Home & Kitchen</option>
+                                <option value="Appliances">Appliances</option>
+                            </select>
+
+                            <!-- Search Input -->
+                            <input type="text" id="search-input" placeholder="Search for products, brands, smartphones, laptops..." oninput="onSearchInput(this.value)" autocomplete="off" class="w-full py-2 sm:py-2.5 px-3 sm:px-4 text-sm text-slate-900 bg-white focus:outline-none">
+                            
+                            <!-- Search Submit Button -->
+                            <button type="submit" class="bg-apexOrange hover:bg-apexOrangeHover text-apexNavy px-4 sm:px-5 flex items-center justify-center font-bold transition-colors">
+                                <i data-lucide="search" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Auto Suggestions Dropdown -->
+                    <div id="search-suggestions" class="absolute left-0 right-0 top-full mt-1 bg-white text-slate-800 rounded-lg shadow-2xl border border-slate-200 hidden z-50 overflow-hidden text-sm">
+                    </div>
+                </div>
+
+                <!-- Right Nav Links & Account / Cart -->
+                <div class="flex items-center gap-1 sm:gap-3 flex-shrink-0">
+                    
+                    <!-- Language Switcher -->
+                    <div class="hidden lg:flex items-center gap-1 text-xs font-semibold px-2 py-1.5 hover:bg-slate-800 rounded-lg cursor-pointer">
+                        <span class="text-base">🇮🇳</span>
+                        <span>EN</span>
+                    </div>
+
+                    <!-- Orders / Account -->
+                    <button onclick="openOrdersDrawer()" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-slate-800 rounded-lg text-left transition-all">
+                        <i data-lucide="user" class="w-5 h-5 text-slate-300"></i>
+                        <div class="text-xs">
+                            <div class="text-slate-400 text-[10px] leading-tight">Hello, Sign In</div>
+                            <div class="font-bold text-white leading-tight flex items-center gap-0.5">
+                                Orders & Account <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+                            </div>
+                        </div>
+                    </button>
+
+                    <!-- Wishlist Button -->
+                    <button onclick="openWishlistDrawer()" class="relative p-2 hover:bg-slate-800 rounded-lg text-white transition-all">
+                        <i data-lucide="heart" class="w-6 h-6"></i>
+                        <span id="wishlist-badge" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-extrabold w-5 h-5 rounded-full flex items-center justify-center border-2 border-apexNavy hidden">0</span>
+                    </button>
+
+                    <!-- Cart Trigger Button -->
+                    <button onclick="openCartDrawer()" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-apexYellow font-bold px-3 py-2 rounded-xl transition-all border border-slate-700">
+                        <div class="relative">
+                            <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+                            <span id="cart-badge" class="absolute -top-2 -right-2 bg-apexOrange text-apexNavy text-[11px] font-black w-5 h-5 rounded-full flex items-center justify-center border border-apexNavy">0</span>
+                        </div>
+                        <span class="hidden md:inline text-xs font-bold text-white">Cart</span>
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 2. SUB-HEADER / CATEGORIES MEGA BAR -->
+        <nav class="bg-apexNavyLight text-slate-200 border-t border-slate-800 text-xs font-medium overflow-x-auto no-scrollbar">
+            <div class="max-w-7xl mx-auto px-4 flex items-center whitespace-nowrap gap-1 sm:gap-6 py-2.5">
+                
+                <button onclick="resetCatalogFilters()" class="flex items-center gap-1.5 font-extrabold text-apexYellow hover:text-white transition-colors py-1 px-2 rounded hover:bg-slate-800">
+                    <i data-lucide="grid" class="w-4 h-4"></i> All Categories
+                </button>
+
+                <button onclick="filterByCategory('Mobiles')" class="hover:text-apexYellow transition-colors py-1 px-2 rounded hover:bg-slate-800 flex items-center gap-1">
+                    <i data-lucide="smartphone" class="w-3.5 h-3.5 text-sky-400"></i> Mobiles & Tech
+                </button>
+
+                <button onclick="filterByCategory('Electronics')" class="hover:text-apexYellow transition-colors py-1 px-2 rounded hover:bg-slate-800 flex items-center gap-1">
+                    <i data-lucide="laptop" class="w-3.5 h-3.5 text-indigo-400"></i> Electronics & Laptops
+                </button>
+
+                <button onclick="filterByCategory('Fashion')" class="hover:text-apexYellow transition-colors py-1 px-2 rounded hover:bg-slate-800 flex items-center gap-1">
+                    <i data-lucide="shirt" class="w-3.5 h-3.5 text-pink-400"></i> Fashion & Apparel
+                </button>
+
+                <button onclick="filterByCategory('Home')" class="hover:text-apexYellow transition-colors py-1 px-2 rounded hover:bg-slate-800 flex items-center gap-1">
+                    <i data-lucide="home" class="w-3.5 h-3.5 text-emerald-400"></i> Home & Kitchen
+                </button>
+
+                <button onclick="filterByCategory('Appliances')" class="hover:text-apexYellow transition-colors py-1 px-2 rounded hover:bg-slate-800 flex items-center gap-1">
+                    <i data-lucide="tv" class="w-3.5 h-3.5 text-amber-400"></i> TV & Appliances
+                </button>
+
+                <button onclick="filterByCategory('Beauty')" class="hover:text-apexYellow transition-colors py-1 px-2 rounded hover:bg-slate-800 flex items-center gap-1">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-purple-400"></i> Beauty & Personal Care
+                </button>
+
+                <div class="ml-auto flex items-center gap-2 pl-4 border-l border-slate-700 font-bold text-flipYellow">
+                    <span class="flex h-2 w-2 rounded-full bg-flipYellow animate-ping"></span>
+                    <span>GREAT FESTIVAL SALE LIVE!</span>
+                </div>
+
+            </div>
+        </nav>
+    </header>
+
+    <!-- MAIN BODY CONTENT -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-2 sm:px-4 lg:px-6 py-4 space-y-6">
+
+        <!-- 3. SEASONAL HERO CAROUSEL BANNER & SALE HIGHLIGHTS -->
+        <section class="relative rounded-2xl overflow-hidden shadow-xl bg-gradient-to-r from-indigo-900 via-blue-900 to-apexNavy text-white">
+            
+            <div id="carousel-slides">
+                
+                <!-- Slide 1 -->
+                <div class="banner-slide active p-6 sm:p-10 md:p-12 relative min-h-[220px] sm:min-h-[280px] flex items-center">
+                    <div class="max-w-xl space-y-3 z-10">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-flipYellow text-apexNavy text-xs font-black uppercase tracking-wider shadow">
+                            <i data-lucide="zap" class="w-3.5 h-3.5 fill-apexNavy"></i> Big Billion Mega Sale
+                        </span>
+                        <h1 class="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none text-white">
+                            Next-Gen Tech & Flagship Phones
+                        </h1>
+                        <p class="text-slate-300 text-xs sm:text-base font-medium line-clamp-2">
+                            Get up to <strong class="text-flipYellow font-extrabold">60% OFF</strong> + Extra 10% Instant Discount on HDFC & SBI Credit Cards. Limited Time Deals!
+                        </p>
+                        <div class="pt-2 flex flex-wrap items-center gap-3">
+                            <button onclick="filterByCategory('Mobiles')" class="bg-apexOrange hover:bg-apexOrangeHover text-apexNavy font-black text-xs sm:text-sm px-6 py-3 rounded-xl shadow-lg transition-transform hover:scale-105">
+                                Shop Mobiles Now
+                            </button>
+                            <div class="text-xs bg-slate-900/80 backdrop-blur px-3 py-2 rounded-xl border border-slate-700 flex items-center gap-2">
+                                <i data-lucide="clock" class="w-4 h-4 text-apexYellow"></i>
+                                <span>Sale Ends in: <strong id="countdown-timer" class="text-flipYellow font-mono font-bold">04h 12m 30s</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80" alt="Flagship Smartphones" class="absolute right-0 bottom-0 top-0 w-1/2 object-cover opacity-30 md:opacity-80 mask-radial hover:scale-105 transition-transform duration-700 pointer-events-none hidden sm:block">
+                </div>
+
+                <!-- Slide 2 -->
+                <div class="banner-slide p-6 sm:p-10 md:p-12 relative min-h-[220px] sm:min-h-[280px] flex items-center">
+                    <div class="max-w-xl space-y-3 z-10">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500 text-white text-xs font-black uppercase tracking-wider shadow">
+                            Fashion Week Special
+                        </span>
+                        <h2 class="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none text-white">
+                            Trending Apparel & Accessories
+                        </h2>
+                        <p class="text-slate-200 text-xs sm:text-base font-medium">
+                            Up to <strong class="text-apexYellow font-extrabold">75% OFF</strong> top streetwear brands, luxury watches, and sneaker collections.
+                        </p>
+                        <div class="pt-2">
+                            <button onclick="filterByCategory('Fashion')" class="bg-apexYellow hover:bg-amber-400 text-apexNavy font-black text-xs sm:text-sm px-6 py-3 rounded-xl shadow-lg">
+                                Explore Fashion Deals
+                            </button>
+                        </div>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=600&q=80" alt="Fashion Deals" class="absolute right-0 bottom-0 top-0 w-1/2 object-cover opacity-30 md:opacity-80 mask-radial hidden sm:block">
+                </div>
+
+            </div>
+
+            <!-- Carousel Nav Controls -->
+            <button onclick="prevBanner()" class="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-900/60 text-white hover:bg-slate-900 transition-all z-20">
+                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+            </button>
+            <button onclick="nextBanner()" class="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-900/60 text-white hover:bg-slate-900 transition-all z-20">
+                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+            </button>
+        </section>
+
+        <!-- Bank Offers & Assurance Banner Strip -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
+                <div class="p-2.5 rounded-lg bg-blue-50 text-flipBlue">
+                    <i data-lucide="credit-card" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <div class="text-xs font-bold text-slate-900">10% Bank Discount</div>
+                    <div class="text-[11px] text-slate-500">Instant on HDFC & SBI Cards</div>
+                </div>
+            </div>
+
+            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
+                <div class="p-2.5 rounded-lg bg-emerald-50 text-emerald-600">
+                    <i data-lucide="truck" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <div class="text-xs font-bold text-slate-900">Free Express Delivery</div>
+                    <div class="text-[11px] text-slate-500">On all orders above ₹499</div>
+                </div>
+            </div>
+
+            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
+                <div class="p-2.5 rounded-lg bg-purple-50 text-purple-600">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <div class="text-xs font-bold text-slate-900">ApexAssured Guarantee</div>
+                    <div class="text-[11px] text-slate-500">100% Genuine Products</div>
+                </div>
+            </div>
+
+            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
+                <div class="p-2.5 rounded-lg bg-amber-50 text-amber-600">
+                    <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <div class="text-xs font-bold text-slate-900">7 Days Replacement</div>
+                    <div class="text-[11px] text-slate-500">Hassle-free return policy</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. FLASH DEALS / DEAL OF THE DAY GRID -->
+        <section class="bg-white p-4 sm:p-6 rounded-2xl shadow-md border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 rounded-xl bg-rose-500 text-white">
+                        <i data-lucide="flame" class="w-6 h-6 animate-bounce"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2">
+                            Deal of the Day
+                        </h2>
+                        <p class="text-xs text-slate-500">Handpicked crazy offers updated hourly</p>
+                    </div>
+                </div>
+                <button onclick="resetCatalogFilters()" class="text-xs font-bold text-flipBlue hover:underline flex items-center gap-1">
+                    View All Deals <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                </button>
+            </div>
+
+            <!-- Horizontal Scrollable Flash Items -->
+            <div id="flash-deals-row" class="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+                <!-- Dynamically Populated by JS -->
+            </div>
+        </section>
+
+        <!-- 5. MAIN PRODUCT CATALOG + SIDEBAR FILTER LAYOUT -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- SIDEBAR FILTERS (3 Cols) -->
+            <aside class="lg:col-span-3 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                    <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                        <i data-lucide="sliders-horizontal" class="w-4 h-4 text-flipBlue"></i> Filters
+                    </h3>
+                    <button onclick="resetCatalogFilters()" class="text-xs text-rose-600 font-semibold hover:underline">
+                        Clear All
+                    </button>
+                </div>
+
+                <!-- Price Range Filter -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center text-xs font-bold text-slate-700">
+                        <span>Max Price</span>
+                        <span id="price-range-val" class="text-flipBlue">₹1,50,000</span>
+                    </div>
+                    <input type="range" id="price-slider" min="500" max="150000" step="500" value="150000" oninput="applyFilters()" class="w-full">
+                    <div class="flex justify-between text-[11px] text-slate-400 font-medium">
+                        <span>₹500</span>
+                        <span>₹1.5 Lakh+</span>
+                    </div>
+                </div>
+
+                <!-- Category Checkboxes -->
+                <div class="space-y-2 pt-3 border-t border-slate-100">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">Categories</h4>
+                    <div class="space-y-1.5 text-xs text-slate-700">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" value="Mobiles" onchange="applyFilters()" class="filter-cat-check rounded text-flipBlue focus:ring-flipBlue">
+                            <span>Mobiles & Tech</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" value="Electronics" onchange="applyFilters()" class="filter-cat-check rounded text-flipBlue focus:ring-flipBlue">
+                            <span>Electronics & Audio</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" value="Fashion" onchange="applyFilters()" class="filter-cat-check rounded text-flipBlue focus:ring-flipBlue">
+                            <span>Fashion & Apparel</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" value="Home" onchange="applyFilters()" class="filter-cat-check rounded text-flipBlue focus:ring-flipBlue">
+                            <span>Home & Kitchen</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" value="Appliances" onchange="applyFilters()" class="filter-cat-check rounded text-flipBlue focus:ring-flipBlue">
+                            <span>TV & Appliances</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Minimum Star Rating -->
+                <div class="space-y-2 pt-3 border-t border-slate-100">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">Customer Ratings</h4>
+                    <div class="space-y-1.5 text-xs">
+                        <label class="flex items-center gap-2 cursor-pointer text-slate-700">
+                            <input type="radio" name="rating-filter" value="4" onchange="applyFilters()" class="text-flipBlue focus:ring-flipBlue">
+                            <span class="flex items-center gap-1">4.0 <i data-lucide="star" class="w-3 h-3 fill-amber-400 text-amber-400"></i> & above</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer text-slate-700">
+                            <input type="radio" name="rating-filter" value="3" onchange="applyFilters()" class="text-flipBlue focus:ring-flipBlue">
+                            <span class="flex items-center gap-1">3.0 <i data-lucide="star" class="w-3 h-3 fill-amber-400 text-amber-400"></i> & above</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer text-slate-700">
+                            <input type="radio" name="rating-filter" value="0" checked onchange="applyFilters()" class="text-flipBlue focus:ring-flipBlue">
+                            <span>All Ratings</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- ApexAssured Filter Tag -->
+                <div class="pt-3 border-t border-slate-100">
+                    <label class="flex items-center justify-between p-2.5 rounded-xl bg-sky-50 border border-sky-200 cursor-pointer">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="shield-check" class="w-4 h-4 text-flipBlue"></i>
+                            <span class="text-xs font-bold text-flipBlue">ApexAssured Only</span>
+                        </div>
+                        <input type="checkbox" id="assured-filter" onchange="applyFilters()" class="rounded text-flipBlue">
+                    </label>
+                </div>
+
+            </aside>
+
+            <!-- PRODUCT CATALOG GRID AREA (9 Cols) -->
+            <section class="lg:col-span-9 space-y-4">
+                
+                <!-- Catalog Header / Sorting Bar -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-black text-slate-900" id="catalog-title">All Recommended Products</h2>
+                        <p class="text-xs text-slate-500"><span id="product-count">0</span> items found</p>
+                    </div>
+
+                    <!-- Sorting Options -->
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-slate-500 whitespace-nowrap">Sort By:</span>
+                        <select id="sort-select" onchange="applyFilters()" class="bg-slate-100 border border-slate-300 text-slate-800 text-xs font-bold rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-flipBlue cursor-pointer">
+                            <option value="popularity">Popularity</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="rating">Highest Rated</option>
+                            <option value="discount">Biggest Discount</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Product Grid -->
+                <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <!-- Dynamically Populated by JS -->
+                </div>
+
+                <!-- Empty State Indicator -->
+                <div id="no-results" class="hidden text-center py-16 bg-white rounded-2xl border border-slate-200 space-y-3">
+                    <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto">
+                        <i data-lucide="search-x" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800">No matching products found</h3>
+                    <p class="text-xs text-slate-500 max-w-sm mx-auto">Try adjusting your category filter, price range slider, or search key terms.</p>
+                    <button onclick="resetCatalogFilters()" class="px-4 py-2 bg-flipBlue text-white font-bold text-xs rounded-xl shadow">
+                        Reset All Filters
+                    </button>
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-apexNavy text-slate-300 border-t border-slate-800 mt-12 text-xs">
+        <div class="max-w-7xl mx-auto px-4 py-12 grid grid-cols-2 md:grid-cols-5 gap-8">
+            <div>
+                <h4 class="font-extrabold text-white uppercase text-xs tracking-wider mb-3">About ApexZone</h4>
+                <ul class="space-y-2 text-slate-400">
+                    <li><a href="#" class="hover:underline">About Us</a></li>
+                    <li><a href="#" class="hover:underline">Careers</a></li>
+                    <li><a href="#" class="hover:underline">Press Releases</a></li>
+                    <li><a href="#" class="hover:underline">ApexZone Science</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-extrabold text-white uppercase text-xs tracking-wider mb-3">Customer Care</h4>
+                <ul class="space-y-2 text-slate-400">
+                    <li><a href="#" class="hover:underline">Your Account</a></li>
+                    <li><a href="#" class="hover:underline">Returns Centre</a></li>
+                    <li><a href="#" class="hover:underline">100% Purchase Protection</a></li>
+                    <li><a href="#" class="hover:underline">Help & FAQs</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-extrabold text-white uppercase text-xs tracking-wider mb-3">Connect With Us</h4>
+                <ul class="space-y-2 text-slate-400">
+                    <li><a href="#" class="hover:underline">Facebook</a></li>
+                    <li><a href="#" class="hover:underline">Twitter / X</a></li>
+                    <li><a href="#" class="hover:underline">Instagram</a></li>
+                </ul>
+            </div>
+
+            <div class="col-span-2 space-y-3">
+                <div class="text-sm font-extrabold text-white flex items-center gap-2">
+                    <span class="p-1 rounded bg-apexOrange text-apexNavy">AZ</span> ApexZone MegaStore India
+                </div>
+                <p class="text-slate-400 text-xs leading-relaxed">
+                    India's leading online shopping platform for Electronics, Smartphones, Fashion, Home Appliances, and Everyday Essentials. Enjoy fast delivery, safe online payment modes, and exclusive bank discounts.
+                </p>
+                <div class="flex items-center gap-2 text-slate-500 pt-2">
+                    <i data-lucide="lock" class="w-4 h-4"></i>
+                    <span>256-Bit SSL Encryption Secured Platform</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-apexNavyLight py-4 border-t border-slate-800 text-center text-slate-500 text-[11px]">
+            © 2026 ApexZone MegaStore India Pvt Ltd. All Rights Reserved. Modelled for High-Conversion E-Commerce.
+        </div>
+    </footer>
+
+    <!-- MODAL 1: PRODUCT QUICK VIEW & DETAILS MODAL -->
+    <div id="product-modal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative border border-slate-200">
+            
+            <button onclick="closeProductModal()" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-800 rounded-full hover:bg-slate-100 z-10 transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+
+            <div id="product-modal-content" class="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-12 gap-8">
+                <!-- Dynamically Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: LOCATION PINCODE SELECTOR -->
+    <div id="location-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-200">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                <h3 class="font-extrabold text-slate-900 text-base flex items-center gap-2">
+                    <i data-lucide="map-pin" class="w-5 h-5 text-flipBlue"></i> Choose Delivery Location
+                </h3>
+                <button onclick="closeLocationModal()" class="text-slate-400 hover:text-slate-700">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-500">Enter your 6-digit Pincode to check product availability and fast delivery options in your city.</p>
+
+            <div class="flex gap-2">
+                <input type="text" id="pincode-input" placeholder="e.g. 400001, 110001, 560001" maxlength="6" class="flex-1 px-4 py-2.5 rounded-xl bg-slate-100 border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-flipBlue font-bold tracking-wider">
+                <button onclick="saveLocationPincode()" class="bg-flipBlue text-white font-bold px-5 py-2.5 rounded-xl text-xs hover:bg-blue-700 shadow">
+                    Apply
+                </button>
+            </div>
+
+            <div class="pt-2 text-xs text-slate-400 space-y-1">
+                <div class="font-bold text-slate-700">Popular Delivery Hubs:</div>
+                <div class="flex flex-wrap gap-1.5 pt-1">
+                    <button onclick="setPincodeDirect('400001', 'Mumbai')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-[11px] font-semibold text-slate-700">Mumbai 400001</button>
+                    <button onclick="setPincodeDirect('110001', 'Delhi')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-[11px] font-semibold text-slate-700">Delhi 110001</button>
+                    <button onclick="setPincodeDirect('560001', 'Bengaluru')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-[11px] font-semibold text-slate-700">Bengaluru 560001</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DRAWER 1: SLIDE-OVER CART DRAWER -->
+    <div id="cart-drawer-backdrop" onclick="closeCartDrawer()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden"></div>
+    <aside id="cart-drawer" class="fixed top-0 right-0 bottom-0 w-full max-w-md bg-white z-50 shadow-2xl drawer-slide translate-x-full flex flex-col">
+        
+        <!-- Cart Header -->
+        <div class="p-4 bg-apexNavy text-white flex items-center justify-between border-b border-slate-800">
+            <div class="flex items-center gap-2">
+                <i data-lucide="shopping-bag" class="w-5 h-5 text-apexYellow"></i>
+                <h3 class="font-extrabold text-base">Your Shopping Cart</h3>
+            </div>
+            <button onclick="closeCartDrawer()" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-300">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Free Delivery Progress Bar -->
+        <div class="bg-amber-50 p-3 border-b border-amber-200 text-xs font-semibold text-amber-900 space-y-1.5">
+            <div class="flex justify-between items-center" id="free-shipping-text">
+                <span>Free Express Delivery Target</span>
+                <span class="text-emerald-700 font-bold" id="free-ship-status">Add ₹499 more</span>
+            </div>
+            <div class="w-full bg-amber-200 h-2 rounded-full overflow-hidden">
+                <div id="free-ship-bar" class="bg-emerald-500 h-full transition-all duration-300 w-0"></div>
+            </div>
+        </div>
+
+        <!-- Cart Items List Container -->
+        <div id="cart-items-container" class="flex-grow p-4 overflow-y-auto space-y-3 divide-y divide-slate-100">
+            <!-- Dynamically Populated by JS -->
+        </div>
+
+        <!-- Cart Footer & Price Summary -->
+        <div class="p-4 bg-slate-50 border-t border-slate-200 space-y-3">
+            
+            <!-- Promo Coupon Input -->
+            <div class="flex gap-2">
+                <input type="text" id="coupon-input" placeholder="Coupon (e.g. FESTIVE2026)" class="flex-1 uppercase text-xs px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-flipBlue font-bold">
+                <button onclick="applyCoupon()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs px-4 py-2 rounded-xl">
+                    Apply
+                </button>
+            </div>
+
+            <!-- Price Breakdown -->
+            <div class="space-y-1.5 text-xs text-slate-600">
+                <div class="flex justify-between">
+                    <span>Item Subtotal:</span>
+                    <span id="cart-subtotal" class="font-bold text-slate-800">₹0</span>
+                </div>
+                <div class="flex justify-between text-emerald-600" id="discount-row">
+                    <span>Bank Offer / Promo Discount:</span>
+                    <span id="cart-discount" class="font-bold">-₹0</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Delivery Charge:</span>
+                    <span id="cart-delivery" class="font-bold text-slate-800">₹0</span>
+                </div>
+                <div class="flex justify-between pt-2 border-t border-slate-200 text-sm font-black text-slate-900">
+                    <span>Total Amount Payable:</span>
+                    <span id="cart-final-total" class="text-flipBlue">₹0</span>
+                </div>
+            </div>
+
+            <button onclick="openCheckoutModal()" id="checkout-btn" class="w-full py-3.5 rounded-xl bg-apexOrange hover:bg-apexOrangeHover text-apexNavy font-black text-sm shadow-lg transition-transform hover:scale-[1.02] flex items-center justify-center gap-2">
+                <span>Proceed to Checkout</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- DRAWER 2: WISHLIST DRAWER -->
+    <div id="wishlist-drawer-backdrop" onclick="closeWishlistDrawer()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden"></div>
+    <aside id="wishlist-drawer" class="fixed top-0 right-0 bottom-0 w-full max-w-md bg-white z-50 shadow-2xl drawer-slide translate-x-full flex flex-col">
+        <div class="p-4 bg-apexNavy text-white flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i data-lucide="heart" class="w-5 h-5 text-rose-500 fill-rose-500"></i>
+                <h3 class="font-extrabold text-base">Saved Wishlist</h3>
+            </div>
+            <button onclick="closeWishlistDrawer()" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-300">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <div id="wishlist-items-container" class="flex-grow p-4 overflow-y-auto space-y-3">
+            <!-- Dynamically Populated by JS -->
+        </div>
+    </aside>
+
+    <!-- DRAWER 3: PAST ORDERS & ACCOUNT DRAWER -->
+    <div id="orders-drawer-backdrop" onclick="closeOrdersDrawer()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden"></div>
+    <aside id="orders-drawer" class="fixed top-0 right-0 bottom-0 w-full max-w-md bg-white z-50 shadow-2xl drawer-slide translate-x-full flex flex-col">
+        <div class="p-4 bg-apexNavy text-white flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i data-lucide="package" class="w-5 h-5 text-apexYellow"></i>
+                <h3 class="font-extrabold text-base">Your Orders & Deliveries</h3>
+            </div>
+            <button onclick="closeOrdersDrawer()" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-300">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <div id="orders-items-container" class="flex-grow p-4 overflow-y-auto space-y-4">
+            <!-- Dynamically Populated by JS -->
+        </div>
+    </aside>
+
+    <!-- MODAL 3: MULTI-STEP CHECKOUT MODAL -->
+    <div id="checkout-modal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/80 backdrop-blur-sm hidden overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 my-auto shadow-2xl border border-slate-200 relative">
+            
+            <button onclick="closeCheckoutModal()" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-800 rounded-full">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+
+            <!-- Checkout Steps Header -->
+            <div class="flex items-center justify-between mb-8 pb-4 border-b border-slate-200">
+                <div class="flex items-center gap-2">
+                    <span id="step-1-badge" class="w-7 h-7 rounded-full bg-flipBlue text-white font-extrabold text-xs flex items-center justify-center">1</span>
+                    <span class="text-xs font-bold text-slate-800">Address</span>
+                </div>
+                <div class="w-8 h-0.5 bg-slate-200"></div>
+                <div class="flex items-center gap-2">
+                    <span id="step-2-badge" class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 font-extrabold text-xs flex items-center justify-center">2</span>
+                    <span class="text-xs font-bold text-slate-800">Payment</span>
+                </div>
+                <div class="w-8 h-0.5 bg-slate-200"></div>
+                <div class="flex items-center gap-2">
+                    <span id="step-3-badge" class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 font-extrabold text-xs flex items-center justify-center">3</span>
+                    <span class="text-xs font-bold text-slate-800">Confirmation</span>
+                </div>
+            </div>
+
+            <!-- STEP 1: ADDRESS SELECTION -->
+            <div id="checkout-step-1" class="space-y-4">
+                <h3 class="text-base font-extrabold text-slate-900">Select Shipping Address</h3>
+                
+                <div class="space-y-3">
+                    <label class="p-4 rounded-2xl border-2 border-flipBlue bg-sky-50/50 flex items-start gap-3 cursor-pointer">
+                        <input type="radio" name="address" checked class="mt-1 text-flipBlue">
+                        <div class="text-xs">
+                            <div class="font-extrabold text-slate-900 text-sm">Rahul Sharma <span class="ml-2 px-2 py-0.5 bg-slate-200 text-slate-700 text-[10px] rounded font-bold">HOME</span></div>
+                            <p class="text-slate-600 mt-1">Flat 402, Sunshine Heights, MG Road, Lower Parel, Mumbai, Maharashtra - 400013</p>
+                            <p class="text-slate-500 mt-0.5">Mobile: +91 98765 43210</p>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="pt-4 flex justify-between items-center">
+                    <button onclick="closeCheckoutModal()" class="text-xs font-bold text-slate-500 hover:underline">Cancel</button>
+                    <button onclick="goToCheckoutStep(2)" class="bg-flipBlue hover:bg-blue-700 text-white font-bold text-xs px-6 py-3 rounded-xl shadow">
+                        Deliver To This Address
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 2: PAYMENT METHOD -->
+            <div id="checkout-step-2" class="space-y-4 hidden">
+                <h3 class="text-base font-extrabold text-slate-900">Select Payment Method</h3>
+                
+                <div class="space-y-2.5 text-xs">
+                    <!-- UPI -->
+                    <label class="p-3.5 rounded-2xl border border-slate-200 hover:border-flipBlue flex items-center gap-3 cursor-pointer bg-slate-50">
+                        <input type="radio" name="payment" value="UPI" checked class="text-flipBlue">
+                        <div class="p-2 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-xs">UPI</div>
+                        <div>
+                            <div class="font-bold text-slate-900">Google Pay / PhonePe / Paytm / BHIM</div>
+                            <div class="text-[11px] text-slate-500">Instant 1-Click Pay using UPI ID</div>
+                        </div>
+                    </label>
+
+                    <!-- Credit / Debit Card -->
+                    <label class="p-3.5 rounded-2xl border border-slate-200 hover:border-flipBlue flex items-center gap-3 cursor-pointer bg-slate-50">
+                        <input type="radio" name="payment" value="CARD" class="text-flipBlue">
+                        <div class="p-2 rounded-lg bg-blue-100 text-blue-800 font-bold text-xs">CARD</div>
+                        <div>
+                            <div class="font-bold text-slate-900">Credit / Debit Card (HDFC, SBI, ICICI)</div>
+                            <div class="text-[11px] text-emerald-600 font-bold">10% Instant Discount Applied</div>
+                        </div>
+                    </label>
+
+                    <!-- Cash on Delivery -->
+                    <label class="p-3.5 rounded-2xl border border-slate-200 hover:border-flipBlue flex items-center gap-3 cursor-pointer bg-slate-50">
+                        <input type="radio" name="payment" value="COD" class="text-flipBlue">
+                        <div class="p-2 rounded-lg bg-amber-100 text-amber-800 font-bold text-xs">COD</div>
+                        <div>
+                            <div class="font-bold text-slate-900">Cash on Delivery</div>
+                            <div class="text-[11px] text-slate-500">Pay cash upon item delivery</div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="p-3 rounded-xl bg-slate-100 flex justify-between text-xs font-bold text-slate-800">
+                    <span>Payable Amount:</span>
+                    <span id="checkout-amount" class="text-flipBlue font-extrabold text-sm">₹0</span>
+                </div>
+
+                <div class="pt-4 flex justify-between items-center">
+                    <button onclick="goToCheckoutStep(1)" class="text-xs font-bold text-slate-500 hover:underline">Back</button>
+                    <button onclick="confirmOrderPlacement()" class="bg-apexOrange hover:bg-apexOrangeHover text-apexNavy font-black text-xs px-8 py-3.5 rounded-xl shadow-lg transition-transform hover:scale-105">
+                        Place Order & Pay
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 3: ORDER CONFIRMATION TICKET -->
+            <div id="checkout-step-3" class="text-center space-y-4 hidden py-4">
+                <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto border-2 border-emerald-300">
+                    <i data-lucide="check-circle-2" class="w-10 h-10"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-black text-slate-900">Order Placed Successfully!</h3>
+                    <p class="text-xs text-slate-500">Thank you for shopping at ApexZone MegaStore.</p>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-left text-xs space-y-2 max-w-md mx-auto">
+                    <div class="flex justify-between"><span class="text-slate-500">Order ID:</span> <span id="confirmed-order-id" class="font-mono font-bold text-slate-900">#AZ-984210</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Estimated Delivery:</span> <span class="font-bold text-emerald-600">Arriving Tomorrow by 9 PM</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Payment Status:</span> <span class="font-bold text-slate-800">Confirmed (UPI)</span></div>
+                </div>
+
+                <button onclick="closeCheckoutModal(); openOrdersDrawer();" class="bg-apexNavy text-white font-bold text-xs px-6 py-3 rounded-xl shadow">
+                    View Order Details in My Account
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APP STATE & LOGIC -->
+    <script>
+        // 1. MOCK PRODUCT DATABASE
+        const productsDatabase = [
+            {
+                id: "p1",
+                name: "ApexPhone 16 Pro Max (256GB) - Titanium Gray",
+                category: "Mobiles",
+                price: 129900,
+                originalPrice: 139900,
+                rating: 4.8,
+                reviewsCount: 14200,
+                isAssured: true,
+                isFlashDeal: true,
+                stockProgress: 88,
+                image: "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?auto=format&fit=crop&w=600&q=80",
+                description: "Super Retina XDR Display, A18 Pro Bionic Chip, 48MP Triple Camera System, Titanium Body with Ceramic Shield.",
+                bankOffer: "10% Instant Discount on HDFC Bank Credit Cards"
+            },
+            {
+                id: "p2",
+                name: "UltraBook Pro M3 Max 16-inch Laptop (32GB / 1TB SSD)",
+                category: "Electronics",
+                price: 214900,
+                originalPrice: 239900,
+                rating: 4.9,
+                reviewsCount: 8900,
+                isAssured: true,
+                isFlashDeal: false,
+                stockProgress: 60,
+                image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80",
+                description: "Extreme performance M3 Max processor, Liquid Retina XDR display, 22-hour battery life.",
+                bankOffer: "Flat ₹5,000 Instant SBI Discount"
+            },
+            {
+                id: "p3",
+                name: "Noise-Cancelling Wireless Headphones 700",
+                category: "Electronics",
+                price: 14999,
+                originalPrice: 24999,
+                rating: 4.6,
+                reviewsCount: 21500,
+                isAssured: true,
+                isFlashDeal: true,
+                stockProgress: 94,
+                image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
+                description: "World-class active noise cancelling, crystal-clear voice pickup, 20 hours battery life.",
+                bankOffer: "Free EMI starting from ₹1,250/mo"
+            },
+            {
+                id: "p4",
+                name: "Men's Premium Leather Biker Jacket - Onyx Black",
+                category: "Fashion",
+                price: 3499,
+                originalPrice: 8999,
+                rating: 4.4,
+                reviewsCount: 3200,
+                isAssured: false,
+                isFlashDeal: true,
+                stockProgress: 75,
+                image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=600&q=80",
+                description: "100% Genuine grain leather jacket with durable YKK zippers and warm quilted inner lining.",
+                bankOffer: "Buy 2 Get Extra 15% OFF"
+            },
+            {
+                id: "p5",
+                name: "Automatic Espresso & Coffee Machine with Milk Frother",
+                category: "Home",
+                price: 18990,
+                originalPrice: 29990,
+                rating: 4.7,
+                reviewsCount: 5400,
+                isAssured: true,
+                isFlashDeal: false,
+                stockProgress: 45,
+                image: "https://images.unsplash.com/photo-1517668808822-9e428824603b?auto=format&fit=crop&w=600&q=80",
+                description: "15-Bar Italian Pump, custom bean grinder, intuitive touchscreen display for barista-style coffee.",
+                bankOffer: "10% Instant Discount on Axis Cards"
+            },
+            {
+                id: "p6",
+                name: "Smart OLED 4K Ultra HD TV 55-inch",
+                category: "Appliances",
+                price: 64990,
+                originalPrice: 99990,
+                rating: 4.8,
+                reviewsCount: 11200,
+                isAssured: true,
+                isFlashDeal: true,
+                stockProgress: 82,
+                image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=600&q=80",
+                description: "Self-lit OLED pixels, Dolby Vision IQ, 120Hz Gaming refresh rate, AI Sound Pro.",
+                bankOffer: "Exchange Bonus up to ₹8,000"
+            },
+            {
+                id: "p7",
+                name: "Luxury Chronograph Mens Watch - Rose Gold",
+                category: "Fashion",
+                price: 5999,
+                originalPrice: 14999,
+                rating: 4.5,
+                reviewsCount: 6800,
+                isAssured: true,
+                isFlashDeal: false,
+                stockProgress: 30,
+                image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80",
+                description: "Stainless steel strap, water resistant 50m, Japanese quartz movement.",
+                bankOffer: "Extra 5% ApexCoins Cashback"
+            },
+            {
+                id: "p8",
+                name: "Smart Fitness Watch Series 9 with ECG",
+                category: "Electronics",
+                price: 28900,
+                originalPrice: 41900,
+                rating: 4.7,
+                reviewsCount: 18400,
+                isAssured: true,
+                isFlashDeal: true,
+                stockProgress: 90,
+                image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=600&q=80",
+                description: "Always-On Retina display, blood oxygen monitoring, crash detection, swimproof design.",
+                bankOffer: "No Cost EMI Available"
+            }
+        ];
+
+        // APP STATE PERSISTENCE (LocalStorage)
+        let state = {
+            cart: JSON.parse(localStorage.getItem('az_cart')) || [],
+            wishlist: JSON.parse(localStorage.getItem('az_wishlist')) || [],
+            orders: JSON.parse(localStorage.getItem('az_orders')) || [
+                {
+                    id: "#AZ-884102",
+                    date: "12 Oct 2026",
+                    total: 14999,
+                    status: "Delivered Yesterday",
+                    itemsCount: 1,
+                    firstItemName: "Noise-Cancelling Wireless Headphones 700"
+                }
+            ],
+            pincode: localStorage.getItem('az_pincode') || "400001",
+            city: localStorage.getItem('az_city') || "Mumbai",
+            appliedDiscount: 0,
+            activeCategory: "All",
+            searchQuery: ""
+        };
+
+        // SAVE STATE
+        function saveState() {
+            localStorage.setItem('az_cart', JSON.stringify(state.cart));
+            localStorage.setItem('az_wishlist', JSON.stringify(state.wishlist));
+            localStorage.setItem('az_orders', JSON.stringify(state.orders));
+            localStorage.setItem('az_pincode', state.pincode);
+            localStorage.setItem('az_city', state.city);
+            updateBadgesAndTotals();
+        }
+
+        // INITIALIZE APP ON LOAD
+        window.onload = function() {
+            lucide.createIcons();
+            document.getElementById('current-pincode-display').innerText = `${state.city} ${state.pincode}`;
+            
+            renderFlashDeals();
+            renderCatalog(productsDatabase);
+            updateBadgesAndTotals();
+            startCountdownTimer();
+        };
+
+        // 2. BANNER CAROUSEL LOGIC
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.banner-slide');
+
+        function showSlide(index) {
+            slides.forEach((s, i) => {
+                s.classList.toggle('active', i === index);
+            });
+        }
+        function nextBanner() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+        function prevBanner() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        }
+        setInterval(nextBanner, 6000);
+
+        // 3. COUNTDOWN TIMER
+        function startCountdownTimer() {
+            let totalSeconds = 4 * 3600 + 12 * 60 + 30;
+            const timerEl = document.getElementById('countdown-timer');
+            
+            setInterval(() => {
+                totalSeconds--;
+                if (totalSeconds <= 0) totalSeconds = 5 * 3600;
+
+                const hrs = Math.floor(totalSeconds / 3600);
+                const mins = Math.floor((totalSeconds % 3600) / 60);
+                const secs = totalSeconds % 60;
+
+                timerEl.innerText = `${String(hrs).padStart(2,'0')}h ${String(mins).padStart(2,'0')}m ${String(secs).padStart(2,'0')}s`;
+            }, 1000);
+        }
+
+        // 4. FLASH DEALS RENDER
+        function renderFlashDeals() {
+            const flashRow = document.getElementById('flash-deals-row');
+            const flashProducts = productsDatabase.filter(p => p.isFlashDeal);
+
+            flashRow.innerHTML = flashProducts.map(p => {
+                const discount = Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100);
+                return `
+                    <div class="min-w-[220px] sm:min-w-[240px] bg-slate-50 rounded-2xl p-3 border border-slate-200 hover:border-apexOrange transition-all flex flex-col justify-between group">
+                        <div>
+                            <div class="relative rounded-xl overflow-hidden mb-2 bg-white h-36 flex items-center justify-center">
+                                <img src="${p.image}" alt="${p.name}" class="max-h-full object-contain group-hover:scale-105 transition-transform duration-300">
+                                <span class="absolute top-2 left-2 bg-rose-600 text-white font-black text-[10px] px-2 py-0.5 rounded-full shadow">
+                                    -${discount}% OFF
+                                </span>
+                            </div>
+                            <div class="text-xs font-bold text-slate-800 line-clamp-2 mb-1 group-hover:text-flipBlue">${p.name}</div>
+                        </div>
+
+                        <div class="space-y-2 pt-2">
+                            <div>
+                                <div class="text-sm font-black text-slate-900">₹${p.price.toLocaleString()}</div>
+                                <div class="text-[11px] text-slate-400 line-through">₹${p.originalPrice.toLocaleString()}</div>
+                            </div>
+
+                            <!-- Stock Progress Bar -->
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-[10px] text-rose-600 font-extrabold">
+                                    <span>Selling Fast</span>
+                                    <span>${p.stockProgress}% Claimed</span>
+                                </div>
+                                <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-rose-500 h-full rounded-full" style="width: ${p.stockProgress}%"></div>
+                                </div>
+                            </div>
+
+                            <button onclick="openProductModal('${p.id}')" class="w-full py-1.5 rounded-lg bg-slate-200 hover:bg-apexOrange hover:text-apexNavy text-slate-800 text-xs font-bold transition-colors">
+                                Grab Deal
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        // 5. CATALOG RENDER & FILTERING ENGINE
+        function renderCatalog(items) {
+            const grid = document.getElementById('product-grid');
+            const noRes = document.getElementById('no-results');
+            document.getElementById('product-count').innerText = items.length;
+
+            if (items.length === 0) {
+                grid.innerHTML = '';
+                noRes.classList.remove('hidden');
+                return;
+            }
+            noRes.classList.add('hidden');
+
+            grid.innerHTML = items.map(p => {
+                const discount = Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100);
+                const isWishlisted = state.wishlist.some(w => w.id === p.id);
+
+                return `
+                    <div class="bg-white rounded-2xl p-4 border border-slate-200 hover:border-flipBlue hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative group">
+                        
+                        <!-- Wishlist Toggle Heart -->
+                        <button onclick="toggleWishlist('${p.id}')" class="absolute top-6 right-6 p-2 rounded-full bg-white/80 hover:bg-white shadow text-slate-400 hover:text-rose-500 z-10 transition-colors">
+                            <i data-lucide="heart" class="w-4 h-4 ${isWishlisted ? 'fill-rose-500 text-rose-500' : ''}"></i>
+                        </button>
+
+                        <div>
+                            <!-- Image Container -->
+                            <div onclick="openProductModal('${p.id}')" class="relative h-48 rounded-xl overflow-hidden bg-slate-50 flex items-center justify-center cursor-pointer mb-3">
+                                <img src="${p.image}" alt="${p.name}" class="max-h-full object-contain group-hover:scale-105 transition-transform duration-500">
+                                
+                                ${p.isAssured ? `
+                                    <span class="absolute bottom-2 left-2 bg-assuredBlue text-white font-extrabold text-[9px] px-2 py-0.5 rounded flex items-center gap-0.5">
+                                        <i data-lucide="shield-check" class="w-3 h-3"></i> ApexAssured
+                                    </span>
+                                ` : ''}
+
+                                <span class="absolute top-2 left-2 bg-emerald-600 text-white font-black text-[10px] px-2 py-0.5 rounded-full">
+                                    ${discount}% OFF
+                                </span>
+                            </div>
+
+                            <!-- Title & Rating -->
+                            <div onclick="openProductModal('${p.id}')" class="cursor-pointer space-y-1">
+                                <div class="text-xs text-slate-400 font-semibold uppercase">${p.category}</div>
+                                <h3 class="text-sm font-bold text-slate-800 line-clamp-2 hover:text-flipBlue transition-colors">${p.name}</h3>
+                                
+                                <div class="flex items-center gap-1.5 text-xs">
+                                    <span class="bg-emerald-600 text-white font-bold px-1.5 py-0.5 rounded text-[10px] flex items-center gap-0.5">
+                                        ${p.rating} <i data-lucide="star" class="w-2.5 h-2.5 fill-white"></i>
+                                    </span>
+                                    <span class="text-slate-400 text-[11px]">(${p.reviewsCount.toLocaleString()})</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Price & Action CTA -->
+                        <div class="pt-4 space-y-3">
+                            <div>
+                                <div class="flex items-baseline gap-2">
+                                    <span class="text-lg font-black text-slate-900">₹${p.price.toLocaleString()}</span>
+                                    <span class="text-xs text-slate-400 line-through">₹${p.originalPrice.toLocaleString()}</span>
+                                </div>
+                                <div class="text-[10px] text-emerald-600 font-bold">${p.bankOffer}</div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="addToCart('${p.id}')" class="py-2 rounded-xl bg-amber-100 hover:bg-apexYellow text-slate-900 font-bold text-xs transition-colors flex items-center justify-center gap-1">
+                                    <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i> Add
+                                </button>
+                                <button onclick="buyNow('${p.id}')" class="py-2 rounded-xl bg-apexOrange hover:bg-apexOrangeHover text-apexNavy font-black text-xs shadow transition-transform hover:scale-105">
+                                    Buy Now
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        // APPLY CATALOG FILTERS ENGINE
+        function applyFilters() {
+            let filtered = [...productsDatabase];
+
+            // 1. Search Query
+            if (state.searchQuery) {
+                const q = state.searchQuery.toLowerCase();
+                filtered = filtered.filter(p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+            }
+
+            // 2. Selected Category Checkboxes
+            const catChecks = Array.from(document.querySelectorAll('.filter-cat-check:checked')).map(c => c.value);
+            if (catChecks.length > 0) {
+                filtered = filtered.filter(p => catChecks.includes(p.category));
+            } else if (state.activeCategory !== "All") {
+                filtered = filtered.filter(p => p.category === state.activeCategory);
+            }
+
+            // 3. Price Slider
+            const maxPrice = parseInt(document.getElementById('price-slider').value);
+            document.getElementById('price-range-val').innerText = `₹${maxPrice.toLocaleString()}`;
+            filtered = filtered.filter(p => p.price <= maxPrice);
+
+            // 4. Rating Filter
+            const minRating = parseFloat(document.querySelector('input[name="rating-filter"]:checked').value);
+            if (minRating > 0) {
+                filtered = filtered.filter(p => p.rating >= minRating);
+            }
+
+            // 5. Assured Filter
+            const assuredOnly = document.getElementById('assured-filter').checked;
+            if (assuredOnly) {
+                filtered = filtered.filter(p => p.isAssured);
+            }
+
+            // 6. Sorting
+            const sortVal = document.getElementById('sort-select').value;
+            if (sortVal === "price-low") filtered.sort((a,b) => a.price - b.price);
+            if (sortVal === "price-high") filtered.sort((a,b) => b.price - a.price);
+            if (sortVal === "rating") filtered.sort((a,b) => b.rating - a.rating);
+            if (sortVal === "discount") filtered.sort((a,b) => (b.originalPrice - b.price) - (a.originalPrice - a.price));
+
+            renderCatalog(filtered);
+        }
+
+        function filterByCategory(catName) {
+            state.activeCategory = catName;
+            document.getElementById('catalog-title').innerText = `${catName} Store`;
+            applyFilters();
+        }
+
+        function resetCatalogFilters() {
+            state.activeCategory = "All";
+            state.searchQuery = "";
+            document.getElementById('search-input').value = "";
+            document.getElementById('catalog-title').innerText = "All Recommended Products";
+            document.getElementById('price-slider').value = 150000;
+            document.getElementById('assured-filter').checked = false;
+            document.querySelectorAll('.filter-cat-check').forEach(c => c.checked = false);
+            document.querySelector('input[name="rating-filter"][value="0"]').checked = true;
+            applyFilters();
+        }
+
+        // 6. SEARCH AUTO-SUGGESTIONS
+        function onSearchInput(val) {
+            const sugBox = document.getElementById('search-suggestions');
+            if (!val.trim()) {
+                sugBox.classList.add('hidden');
+                return;
+            }
+
+            const matches = productsDatabase.filter(p => p.name.toLowerCase().includes(val.toLowerCase()));
+            if (matches.length === 0) {
+                sugBox.classList.add('hidden');
+                return;
+            }
+
+            sugBox.innerHTML = matches.slice(0, 5).map(m => `
+                <div onclick="selectSuggestion('${m.name}')" class="p-3 hover:bg-slate-100 cursor-pointer flex items-center justify-between border-b border-slate-100 last:border-none">
+                    <span class="font-medium text-slate-800">${m.name}</span>
+                    <span class="text-xs text-slate-400">${m.category}</span>
+                </div>
+            `).join('');
+            sugBox.classList.remove('hidden');
+        }
+
+        function selectSuggestion(name) {
+            document.getElementById('search-input').value = name;
+            document.getElementById('search-suggestions').classList.add('hidden');
+            state.searchQuery = name;
+            applyFilters();
+        }
+
+        function handleSearch(e) {
+            e.preventDefault();
+            state.searchQuery = document.getElementById('search-input').value;
+            applyFilters();
+        }
+
+        // 7. PRODUCT QUICK VIEW MODAL
+        function openProductModal(id) {
+            const product = productsDatabase.find(p => p.id === id);
+            if (!product) return;
+
+            const modal = document.getElementById('product-modal');
+            const content = document.getElementById('product-modal-content');
+
+            content.innerHTML = `
+                <!-- Left: Image Gallery -->
+                <div class="md:col-span-5 space-y-4">
+                    <div class="bg-slate-50 rounded-2xl p-6 h-72 sm:h-80 flex items-center justify-center border border-slate-200">
+                        <img src="${product.image}" alt="${product.name}" class="max-h-full object-contain">
+                    </div>
+                </div>
+
+                <!-- Right: Product Information & Controls -->
+                <div class="md:col-span-7 space-y-4">
+                    <div>
+                        <span class="text-xs font-bold text-flipBlue uppercase">${product.category}</span>
+                        <h2 class="text-xl font-extrabold text-slate-900 mt-1">${product.name}</h2>
+                        
+                        <div class="flex items-center gap-2 mt-2 text-xs">
+                            <span class="bg-emerald-600 text-white font-bold px-2 py-0.5 rounded flex items-center gap-1">
+                                ${product.rating} <i data-lucide="star" class="w-3 h-3 fill-white"></i>
+                            </span>
+                            <span class="text-slate-500 font-medium">${product.reviewsCount.toLocaleString()} Ratings & Reviews</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                        <div class="flex items-baseline gap-3">
+                            <span class="text-3xl font-black text-slate-900">₹${product.price.toLocaleString()}</span>
+                            <span class="text-sm text-slate-400 line-through">₹${product.originalPrice.toLocaleString()}</span>
+                            <span class="text-xs font-bold text-emerald-600">Save ₹${(product.originalPrice - product.price).toLocaleString()}</span>
+                        </div>
+                        <div class="text-xs font-bold text-flipBlue flex items-center gap-1 pt-1">
+                            <i data-lucide="tag" class="w-3.5 h-3.5"></i> ${product.bankOffer}
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-slate-600 leading-relaxed">${product.description}</p>
+
+                    <!-- Pincode Checker Widget -->
+                    <div class="p-3 rounded-xl border border-slate-200 space-y-2">
+                        <div class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                            <i data-lucide="truck" class="w-4 h-4 text-emerald-600"></i> Delivery & Availability
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="text" value="${state.pincode}" readonly class="bg-slate-100 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-300 w-28">
+                            <span class="text-xs text-emerald-600 font-bold flex items-center">Standard Free Delivery by Tomorrow</span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="pt-2 grid grid-cols-2 gap-3">
+                        <button onclick="addToCart('${product.id}'); closeProductModal();" class="py-3.5 rounded-xl bg-amber-100 hover:bg-apexYellow text-slate-900 font-extrabold text-xs transition-colors flex items-center justify-center gap-2">
+                            <i data-lucide="shopping-cart" class="w-4 h-4"></i> Add to Cart
+                        </button>
+                        <button onclick="closeProductModal(); buyNow('${product.id}');" class="py-3.5 rounded-xl bg-apexOrange hover:bg-apexOrangeHover text-apexNavy font-black text-xs shadow-lg transition-transform hover:scale-105">
+                            Buy Now Immediately
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+            lucide.createIcons();
+        }
+
+        function closeProductModal() {
+            const modal = document.getElementById('product-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        // 8. CART & WISHLIST ACTIONS
+        function addToCart(id) {
+            const product = productsDatabase.find(p => p.id === id);
+            if (!product) return;
+
+            const existing = state.cart.find(item => item.id === id);
+            if (existing) {
+                existing.qty++;
+            } else {
+                state.cart.push({ ...product, qty: 1 });
+            }
+
+            saveState();
+            showToast(`Added "${product.name.substring(0, 22)}..." to Cart!`);
+        }
+
+        function toggleWishlist(id) {
+            const product = productsDatabase.find(p => p.id === id);
+            if (!product) return;
+
+            const idx = state.wishlist.findIndex(w => w.id === id);
+            if (idx > -1) {
+                state.wishlist.splice(idx, 1);
+                showToast(`Removed from Wishlist`);
+            } else {
+                state.wishlist.push(product);
+                showToast(`Saved to Wishlist!`);
+            }
+
+            saveState();
+            applyFilters();
+        }
+
+        function updateCartQty(id, delta) {
+            const item = state.cart.find(c => c.id === id);
+            if (!item) return;
+
+            item.qty += delta;
+            if (item.qty <= 0) {
+                state.cart = state.cart.filter(c => c.id !== id);
+            }
+            saveState();
+            renderCartDrawer();
+        }
+
+        function buyNow(id) {
+            addToCart(id);
+            openCartDrawer();
+        }
+
+        // 9. DRAWER RENDERING & CONTROL LOGIC
+        function updateBadgesAndTotals() {
+            const cartCount = state.cart.reduce((sum, item) => sum + item.qty, 0);
+            const cartBadge = document.getElementById('cart-badge');
+            cartBadge.innerText = cartCount;
+
+            const wishBadge = document.getElementById('wishlist-badge');
+            wishBadge.innerText = state.wishlist.length;
+            wishBadge.classList.toggle('hidden', state.wishlist.length === 0);
+        }
+
+        function renderCartDrawer() {
+            const container = document.getElementById('cart-items-container');
+            
+            if (state.cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-16 space-y-3">
+                        <i data-lucide="shopping-bag" class="w-12 h-12 text-slate-300 mx-auto"></i>
+                        <div class="text-sm font-bold text-slate-700">Your Cart is Empty</div>
+                        <p class="text-xs text-slate-400">Explore deals and add items to your cart!</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = state.cart.map(item => `
+                    <div class="pt-3 flex gap-3 items-center">
+                        <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-contain bg-slate-50 p-1 rounded-xl border border-slate-200">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-xs font-bold text-slate-800 truncate">${item.name}</h4>
+                            <div class="text-xs font-black text-slate-900 mt-0.5">₹${(item.price * item.qty).toLocaleString()}</div>
+                            
+                            <div class="flex items-center gap-2 mt-2">
+                                <button onclick="updateCartQty('${item.id}', -1)" class="w-6 h-6 rounded-md bg-slate-200 hover:bg-slate-300 font-extrabold text-xs flex items-center justify-center">-</button>
+                                <span class="text-xs font-bold text-slate-800 w-4 text-center">${item.qty}</span>
+                                <button onclick="updateCartQty('${item.id}', 1)" class="w-6 h-6 rounded-md bg-slate-200 hover:bg-slate-300 font-extrabold text-xs flex items-center justify-center">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Calculate Totals
+            const subtotal = state.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const deliveryCharge = subtotal >= 499 || subtotal === 0 ? 0 : 70;
+            const discount = state.appliedDiscount;
+            const finalTotal = Math.max(0, subtotal - discount + deliveryCharge);
+
+            document.getElementById('cart-subtotal').innerText = `₹${subtotal.toLocaleString()}`;
+            document.getElementById('cart-discount').innerText = `-₹${discount.toLocaleString()}`;
+            document.getElementById('cart-delivery').innerText = deliveryCharge === 0 ? "FREE" : `₹${deliveryCharge}`;
+            document.getElementById('cart-final-total').innerText = `₹${finalTotal.toLocaleString()}`;
+
+            // Free Delivery Bar
+            const freeBar = document.getElementById('free-ship-bar');
+            const freeStatus = document.getElementById('free-ship-status');
+            if (subtotal >= 499) {
+                freeBar.style.width = '100%';
+                freeStatus.innerText = 'Unlocked FREE Delivery!';
+            } else {
+                const pct = (subtotal / 499) * 100;
+                freeBar.style.width = `${pct}%`;
+                freeStatus.innerText = `Add ₹${499 - subtotal} more`;
+            }
+
+            lucide.createIcons();
+        }
+
+        function applyCoupon() {
+            const input = document.getElementById('coupon-input').value.trim().toUpperCase();
+            if (input === "FESTIVE2026") {
+                const subtotal = state.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                state.appliedDiscount = Math.round(subtotal * 0.15);
+                showToast("Coupon 'FESTIVE2026' Applied! Saved 15%");
+            } else {
+                showToast("Invalid Coupon Code. Try FESTIVE2026");
+            }
+            renderCartDrawer();
+        }
+
+        function openCartDrawer() {
+            renderCartDrawer();
+            document.getElementById('cart-drawer-backdrop').classList.remove('hidden');
+            document.getElementById('cart-drawer').classList.remove('translate-x-full');
+        }
+        function closeCartDrawer() {
+            document.getElementById('cart-drawer-backdrop').classList.add('hidden');
+            document.getElementById('cart-drawer').classList.add('translate-x-full');
+        }
+
+        // WISHLIST DRAWER
+        function openWishlistDrawer() {
+            const container = document.getElementById('wishlist-items-container');
+            if (state.wishlist.length === 0) {
+                container.innerHTML = `<div class="text-center py-16 text-xs text-slate-400">No saved items in Wishlist</div>`;
+            } else {
+                container.innerHTML = state.wishlist.map(w => `
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3">
+                        <img src="${w.image}" class="w-12 h-12 object-contain">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-xs font-bold text-slate-800 truncate">${w.name}</h4>
+                            <div class="text-xs font-black text-slate-900">₹${w.price.toLocaleString()}</div>
+                        </div>
+                        <button onclick="addToCart('${w.id}')" class="px-3 py-1.5 bg-apexOrange text-apexNavy font-bold text-xs rounded-lg shadow">
+                            Move to Cart
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('wishlist-drawer-backdrop').classList.remove('hidden');
+            document.getElementById('wishlist-drawer').classList.remove('translate-x-full');
+        }
+        function closeWishlistDrawer() {
+            document.getElementById('wishlist-drawer-backdrop').classList.add('hidden');
+            document.getElementById('wishlist-drawer').classList.add('translate-x-full');
+        }
+
+        // PAST ORDERS DRAWER
+        function openOrdersDrawer() {
+            const container = document.getElementById('orders-items-container');
+            if (state.orders.length === 0) {
+                container.innerHTML = `<div class="text-center py-16 text-xs text-slate-400">No previous orders</div>`;
+            } else {
+                container.innerHTML = state.orders.map(o => `
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                        <div class="flex justify-between text-xs">
+                            <span class="font-mono font-bold text-flipBlue">${o.id}</span>
+                            <span class="text-slate-400">${o.date}</span>
+                        </div>
+                        <div class="text-xs font-bold text-slate-800 truncate">${o.firstItemName} ${o.itemsCount > 1 ? `+${o.itemsCount - 1} more` : ''}</div>
+                        <div class="flex justify-between items-center pt-2 border-t border-slate-200">
+                            <span class="text-xs font-black text-slate-900">₹${o.total.toLocaleString()}</span>
+                            <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">${o.status}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('orders-drawer-backdrop').classList.remove('hidden');
+            document.getElementById('orders-drawer').classList.remove('translate-x-full');
+        }
+        function closeOrdersDrawer() {
+            document.getElementById('orders-drawer-backdrop').classList.add('hidden');
+            document.getElementById('orders-drawer').classList.add('translate-x-full');
+        }
+
+        // 10. MULTI-STEP CHECKOUT
+        function openCheckoutModal() {
+            if (state.cart.length === 0) {
+                showToast("Add items to your cart first!");
+                return;
+            }
+            closeCartDrawer();
+            goToCheckoutStep(1);
+            
+            const subtotal = state.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const deliveryCharge = subtotal >= 499 ? 0 : 70;
+            const finalTotal = Math.max(0, subtotal - state.appliedDiscount + deliveryCharge);
+            document.getElementById('checkout-amount').innerText = `₹${finalTotal.toLocaleString()}`;
+
+            document.getElementById('checkout-modal').classList.remove('hidden');
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkout-modal').classList.add('hidden');
+        }
+
+        function goToCheckoutStep(stepNum) {
+            [1, 2, 3].forEach(i => {
+                document.getElementById(`checkout-step-${i}`).classList.add('hidden');
+            });
+            document.getElementById(`checkout-step-${stepNum}`).classList.remove('hidden');
+        }
+
+        function confirmOrderPlacement() {
+            const subtotal = state.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const deliveryCharge = subtotal >= 499 ? 0 : 70;
+            const finalTotal = Math.max(0, subtotal - state.appliedDiscount + deliveryCharge);
+            const newOrderId = `#AZ-${Math.floor(100000 + Math.random() * 900000)}`;
+
+            const newOrder = {
+                id: newOrderId,
+                date: "Today",
+                total: finalTotal,
+                status: "Arriving Tomorrow",
+                itemsCount: state.cart.length,
+                firstItemName: state.cart[0].name
+            };
+
+            state.orders.unshift(newOrder);
+            state.cart = [];
+            state.appliedDiscount = 0;
+            saveState();
+
+            document.getElementById('confirmed-order-id').innerText = newOrderId;
+            goToCheckoutStep(3);
+        }
+
+        // 11. LOCATION & PINCODE LOGIC
+        function openLocationModal() {
+            document.getElementById('location-modal').classList.remove('hidden');
+        }
+        function closeLocationModal() {
+            document.getElementById('location-modal').classList.add('hidden');
+        }
+        function setPincodeDirect(pin, city) {
+            state.pincode = pin;
+            state.city = city;
+            saveState();
+            document.getElementById('current-pincode-display').innerText = `${city} ${pin}`;
+            closeLocationModal();
+            showToast(`Delivery location updated to ${city}`);
+        }
+        function saveLocationPincode() {
+            const pin = document.getElementById('pincode-input').value.trim();
+            if (pin.length === 6) {
+                setPincodeDirect(pin, "Custom Hub");
+            } else {
+                showToast("Please enter a valid 6-digit Indian Pincode");
+            }
+        }
+
+        // 12. TOAST NOTIFICATIONS
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            toast.className = 'bg-slate-900 text-white text-xs font-bold p-3 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3 transition-all duration-300 pointer-events-auto';
+            toast.innerHTML = `
+                <div class="p-1 rounded-full bg-emerald-500 text-slate-900">
+                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                </div>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

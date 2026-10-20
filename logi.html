@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogiSync CRM - Enterprise Logistics & Operations Platform</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts (Inter & JetBrains Mono) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            900: '#1e3a8a',
+                        },
+                        accent: {
+                            400: '#22d3ee',
+                            500: '#06b6d4',
+                            600: '#0891b2',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #0284c7; }
+
+        .glass-panel {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+        }
+
+        .glass-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            border-color: #38bdf8;
+            box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.12);
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+
+    <!-- Toast Notifications Layer -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2.5 pointer-events-none"></div>
+
+    <div class="flex flex-1 h-screen overflow-hidden">
+
+        <!-- MAIN SIDEBAR NAVIGATION -->
+        <aside class="w-64 bg-slate-900 text-white border-r border-slate-800 flex flex-col flex-shrink-0 z-20 shadow-xl">
+            <!-- Brand Header -->
+            <div class="h-16 px-5 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('dashboard')">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 via-sky-500 to-accent-500 p-0.5 shadow-lg shadow-brand-500/20">
+                        <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+                            <i data-lucide="box" class="w-5 h-5 text-sky-400"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="text-base font-bold tracking-tight text-white block leading-tight font-mono">LOGI<span class="text-sky-400">SYNC</span></span>
+                        <span class="text-[10px] text-slate-400 font-mono tracking-widest uppercase block">Operations CRM</span>
+                    </div>
+                </div>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    v3.0 Live
+                </span>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto no-scrollbar font-medium text-xs">
+                <button id="nav-dashboard" onclick="switchTab('dashboard')" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all text-slate-300 hover:bg-slate-800 hover:text-white">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4 text-sky-400"></i>
+                    <span>Dashboard Telemetry</span>
+                </button>
+
+                <button id="nav-shipments" onclick="switchTab('shipments')" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all text-slate-300 hover:bg-slate-800 hover:text-white">
+                    <i data-lucide="truck" class="w-4 h-4 text-brand-500"></i>
+                    <span>Active Shipments</span>
+                    <span id="nav-shipments-count" class="ml-auto bg-brand-500/20 text-sky-300 border border-brand-500/30 font-mono text-[10px] px-2 py-0.5 rounded-full">0</span>
+                </button>
+
+                <button id="nav-clients" onclick="switchTab('clients')" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all text-slate-300 hover:bg-slate-800 hover:text-white">
+                    <i data-lucide="users" class="w-4 h-4 text-accent-500"></i>
+                    <span>Clients Directory</span>
+                </button>
+
+                <button id="nav-calculator" onclick="switchTab('calculator')" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all text-slate-300 hover:bg-slate-800 hover:text-white">
+                    <i data-lucide="calculator" class="w-4 h-4 text-amber-400"></i>
+                    <span>Route & Rate Calculator</span>
+                </button>
+
+                <button id="nav-fleet" onclick="switchTab('fleet')" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all text-slate-300 hover:bg-slate-800 hover:text-white">
+                    <i data-lucide="shield-alert" class="w-4 h-4 text-emerald-400"></i>
+                    <span>Fleet & Driver Roster</span>
+                </button>
+
+                <button id="nav-analytics" onclick="switchTab('analytics')" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all text-slate-300 hover:bg-slate-800 hover:text-white">
+                    <i data-lucide="bar-chart-3" class="w-4 h-4 text-rose-400"></i>
+                    <span>Analytics & Reports</span>
+                </button>
+            </nav>
+
+            <!-- Dispatch System Quick Action -->
+            <div class="p-3 border-t border-slate-800">
+                <button onclick="openCreateShipmentModal()" class="w-full bg-gradient-to-r from-brand-600 to-sky-600 hover:from-brand-700 hover:to-sky-700 text-white font-semibold text-xs py-2.5 px-3 rounded-xl shadow-lg shadow-brand-600/30 transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>+ New Shipment</span>
+                </button>
+            </div>
+
+            <!-- User Profile / System Status Footer -->
+            <div class="p-3 border-t border-slate-800 bg-slate-950 flex items-center gap-3">
+                <div class="relative">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-sky-400 font-mono">
+                        OP
+                    </div>
+                    <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-900 absolute -bottom-0.5 -right-0.5"></span>
+                </div>
+                <div class="flex-1 overflow-hidden">
+                    <div class="text-xs font-semibold text-slate-200 truncate">Dispatch Control</div>
+                    <div class="text-[10px] text-slate-400 truncate">Terminal ID #US-ORD-09</div>
+                </div>
+                <button onclick="resetDataToDefault()" title="Reset Mock Data" class="text-slate-500 hover:text-rose-400 p-1 transition-colors">
+                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN VIEWPORT AREA -->
+        <main class="flex-1 flex flex-col overflow-hidden bg-slate-50">
+            
+            <!-- GLOBAL TOP BAR -->
+            <header class="h-16 border-b border-slate-200 px-6 flex items-center justify-between gap-4 bg-white shadow-sm z-10">
+                <!-- Search & Filters Header Bar -->
+                <div class="flex items-center gap-3 flex-1 max-w-lg">
+                    <div class="relative w-full">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                        <input type="text" id="global-search-input" oninput="handleGlobalSearch(this.value)" placeholder="Search tracking #, client, receiver, origin, or destination..." class="w-full bg-slate-100 border border-slate-200 rounded-xl pl-9 pr-4 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+                    </div>
+                </div>
+
+                <!-- Top Bar Quick Controls -->
+                <div class="flex items-center gap-3">
+                    <div class="hidden sm:flex items-center gap-2 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-mono text-slate-600">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>GPS Hub: <span class="text-slate-900 font-semibold">CHICAGO CENTRAL</span></span>
+                    </div>
+
+                    <button onclick="openCreateShipmentModal()" class="bg-brand-600 hover:bg-brand-700 text-white font-medium text-xs px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                        <span>+ New Shipment</span>
+                    </button>
+
+                    <button onclick="openClientModal()" class="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 font-medium text-xs px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5">
+                        <i data-lucide="user-plus" class="w-3.5 h-3.5 text-brand-600"></i>
+                        <span class="hidden sm:inline">+ Add Client</span>
+                    </button>
+
+                    <button onclick="showToast('System operational. All 18 nodes connected.', 'info')" class="p-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-200 transition-colors relative">
+                        <i data-lucide="bell" class="w-4 h-4"></i>
+                        <span class="w-2 h-2 bg-brand-600 rounded-full absolute top-1.5 right-1.5"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- SCROLLABLE PAGE CONTAINER -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-6" id="main-content-viewport">
+
+                <!-- ================= 1. DASHBOARD TELEMETRY VIEW ================= -->
+                <section id="view-dashboard" class="space-y-6">
+                    <!-- Metrics Cards Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="glass-panel rounded-2xl p-5 flex flex-col justify-between">
+                            <div class="flex items-center justify-between text-slate-500 text-xs font-medium">
+                                <span>Monthly Freight Revenue</span>
+                                <div class="p-2.5 rounded-xl bg-blue-50 text-brand-600 border border-blue-100">
+                                    <i data-lucide="dollar-sign" class="w-4 h-4"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <span id="stat-total-revenue" class="text-2xl font-bold font-mono text-slate-900">$0.00</span>
+                                <div class="flex items-center gap-1 text-[11px] text-emerald-600 font-mono mt-1 font-medium">
+                                    <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                                    <span>+14.2% vs last month</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel rounded-2xl p-5 flex flex-col justify-between">
+                            <div class="flex items-center justify-between text-slate-500 text-xs font-medium">
+                                <span>Total Active Shipments</span>
+                                <div class="p-2.5 rounded-xl bg-sky-50 text-sky-600 border border-sky-100">
+                                    <i data-lucide="truck" class="w-4 h-4"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <span id="stat-active-shipments" class="text-2xl font-bold font-mono text-slate-900">0</span>
+                                <div class="flex items-center gap-1 text-[11px] text-slate-500 font-mono mt-1">
+                                    <span id="stat-pending-dispatch" class="text-amber-600 font-bold">0</span> Pending Dispatch
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel rounded-2xl p-5 flex flex-col justify-between">
+                            <div class="flex items-center justify-between text-slate-500 text-xs font-medium">
+                                <span>On-Time Delivery Rate</span>
+                                <div class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <span id="stat-ontime-rate" class="text-2xl font-bold font-mono text-emerald-600">98.4%</span>
+                                <div class="flex items-center gap-1 text-[11px] text-slate-500 font-mono mt-1">
+                                    <span>Target SLA: 95.0%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel rounded-2xl p-5 flex flex-col justify-between">
+                            <div class="flex items-center justify-between text-slate-500 text-xs font-medium">
+                                <span>Fleet Utilization Rate</span>
+                                <div class="p-2.5 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100">
+                                    <i data-lucide="activity" class="w-4 h-4"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <span id="stat-fleet-active" class="text-2xl font-bold font-mono text-slate-900">0 / 0</span>
+                                <div class="flex items-center gap-1 text-[11px] text-indigo-600 font-mono mt-1">
+                                    <span id="stat-fleet-maintenance">0</span> assets in maintenance
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts & Operations Dashboard Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Revenue & Cargo Volume SVG Line Chart -->
+                        <div class="lg:col-span-2 glass-panel rounded-2xl p-5 flex flex-col justify-between space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                <div>
+                                    <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                        <i data-lucide="trending-up" class="w-4 h-4 text-brand-600"></i>
+                                        Freight Revenue & Volume Trend
+                                    </h3>
+                                    <p class="text-[11px] text-slate-500">Real-time tonnage and freight billings across all active lanes</p>
+                                </div>
+                                <span class="text-xs font-mono bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200">7-Day Live</span>
+                            </div>
+
+                            <!-- Interactive SVG Line Chart -->
+                            <div class="relative w-full h-56 flex items-end pt-4">
+                                <svg class="w-full h-full overflow-visible" viewBox="0 0 500 150" preserveAspectRatio="none">
+                                    <defs>
+                                        <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stop-color="#0284c7" stop-opacity="0.3"/>
+                                            <stop offset="100%" stop-color="#0284c7" stop-opacity="0.0"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <!-- Grid lines -->
+                                    <line x1="0" y1="30" x2="500" y2="30" stroke="#f1f5f9" stroke-dasharray="3 3" stroke-width="1"/>
+                                    <line x1="0" y1="75" x2="500" y2="75" stroke="#f1f5f9" stroke-dasharray="3 3" stroke-width="1"/>
+                                    <line x1="0" y1="120" x2="500" y2="120" stroke="#f1f5f9" stroke-dasharray="3 3" stroke-width="1"/>
+                                    
+                                    <!-- Area Fill -->
+                                    <polygon points="0,150 0,110 80,75 160,90 240,40 320,60 400,20 500,35 500,150" fill="url(#chartGrad)"/>
+                                    <!-- Line Path -->
+                                    <path d="M 0 110 L 80 75 L 160 90 L 240 40 L 320 60 L 400 20 L 500 35" fill="none" stroke="#0284c7" stroke-width="3" stroke-linecap="round"/>
+                                    <!-- Data Dots -->
+                                    <circle cx="80" cy="75" r="4" class="fill-sky-500 stroke-white stroke-2"/>
+                                    <circle cx="160" cy="90" r="4" class="fill-sky-500 stroke-white stroke-2"/>
+                                    <circle cx="240" cy="40" r="4" class="fill-sky-500 stroke-white stroke-2"/>
+                                    <circle cx="320" cy="60" r="4" class="fill-sky-500 stroke-white stroke-2"/>
+                                    <circle cx="400" cy="20" r="6" class="fill-brand-600 stroke-white stroke-2 animate-ping"/>
+                                    <circle cx="400" cy="20" r="4" class="fill-brand-600 stroke-white stroke-2"/>
+                                    <circle cx="500" cy="35" r="4" class="fill-sky-500 stroke-white stroke-2"/>
+                                </svg>
+                            </div>
+                            <div class="flex justify-between text-[11px] font-mono text-slate-400 border-t border-slate-100 pt-2">
+                                <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+                            </div>
+                        </div>
+
+                        <!-- Modal Breakdown / Status Donut Widget -->
+                        <div class="glass-panel rounded-2xl p-5 flex flex-col justify-between space-y-4">
+                            <div class="border-b border-slate-100 pb-3">
+                                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                    <i data-lucide="pie-chart" class="w-4 h-4 text-sky-600"></i>
+                                    Transport Mode Share
+                                </h3>
+                                <p class="text-[11px] text-slate-500">Active shipments by transport category</p>
+                            </div>
+
+                            <div class="flex flex-col items-center justify-center py-2 space-y-3">
+                                <div id="status-donut-container" class="relative w-36 h-36">
+                                    <!-- Dynamic Donut Chart -->
+                                </div>
+                                <div class="w-full space-y-1.5 text-xs font-mono">
+                                    <div class="flex justify-between items-center text-slate-600">
+                                        <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-brand-600"></span> In Transit</span>
+                                        <span id="donut-in-transit-count" class="font-bold">0</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-slate-600">
+                                        <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Delivered</span>
+                                        <span id="donut-delivered-count" class="font-bold">0</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-slate-600">
+                                        <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Pending / Hold</span>
+                                        <span id="donut-pending-count" class="font-bold">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Dispatch Stream Table -->
+                    <div class="glass-panel rounded-2xl p-5 space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                    <i data-lucide="list" class="w-4 h-4 text-brand-600"></i>
+                                    Live Dispatch & Shipment Stream
+                                </h3>
+                                <p class="text-[11px] text-slate-500">Real-time status updates across active transport network</p>
+                            </div>
+                            <button onclick="switchTab('shipments')" class="text-xs text-brand-600 hover:text-brand-700 font-mono font-semibold flex items-center gap-1">
+                                View Full Roster <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs font-mono">
+                                <thead class="bg-slate-100/80 text-slate-600 border-b border-slate-200">
+                                    <tr>
+                                        <th class="p-3">Tracking ID</th>
+                                        <th class="p-3">Client</th>
+                                        <th class="p-3">Receiver</th>
+                                        <th class="p-3">Route</th>
+                                        <th class="p-3">Mode</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3 text-right">Freight Value</th>
+                                        <th class="p-3 text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboard-recent-shipments-tbody" class="divide-y divide-slate-100 text-slate-700">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- ================= 2. ACTIVE SHIPMENTS TABLE VIEW ================= -->
+                <section id="view-shipments" class="hidden space-y-6">
+                    <!-- Toolbar & Controls -->
+                    <div class="glass-panel rounded-2xl p-4 flex flex-col md:flex-row gap-3 justify-between items-stretch md:items-center">
+                        <div class="flex flex-wrap items-center gap-3 flex-1">
+                            <!-- Status Filter -->
+                            <select id="shipment-filter-status" onchange="filterShipmentsTable()" class="bg-slate-50 border border-slate-200 text-xs text-slate-700 rounded-xl px-3 py-2 focus:outline-none focus:border-brand-500 font-mono">
+                                <option value="ALL">All Statuses</option>
+                                <option value="In Transit">In Transit</option>
+                                <option value="Delivered">Delivered</option>
+                                <option value="Customs Hold">Customs Hold</option>
+                                <option value="Pending">Pending Dispatch</option>
+                            </select>
+
+                            <!-- Mode Filter -->
+                            <select id="shipment-filter-mode" onchange="filterShipmentsTable()" class="bg-slate-50 border border-slate-200 text-xs text-slate-700 rounded-xl px-3 py-2 focus:outline-none focus:border-brand-500 font-mono">
+                                <option value="ALL">All Modes</option>
+                                <option value="Trucking">Trucking</option>
+                                <option value="Air Freight">Air Freight</option>
+                                <option value="Ocean Freight">Ocean Freight</option>
+                                <option value="Rail Freight">Rail Freight</option>
+                            </select>
+
+                            <button onclick="resetShipmentFilters()" class="text-xs text-slate-500 hover:text-slate-800 font-mono px-2">
+                                Reset Filters
+                            </button>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <button onclick="openCreateShipmentModal()" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs px-4 py-2 rounded-xl transition-all shadow-md shadow-brand-500/20 flex items-center gap-1.5">
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                                <span>+ New Shipment</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Active Shipments Master Table -->
+                    <div class="glass-panel rounded-2xl overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs font-mono">
+                                <thead class="bg-slate-100 text-slate-600 border-b border-slate-200 uppercase tracking-wider text-[10px]">
+                                    <tr>
+                                        <th class="p-3.5">Tracking #</th>
+                                        <th class="p-3.5">Client Account</th>
+                                        <th class="p-3.5">Receiver</th>
+                                        <th class="p-3.5">Route (Origin → Dest)</th>
+                                        <th class="p-3.5">Mode / Driver</th>
+                                        <th class="p-3.5">ETA</th>
+                                        <th class="p-3.5">Status</th>
+                                        <th class="p-3.5 text-right">Value ($)</th>
+                                        <th class="p-3.5 text-center">Manage</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="shipments-master-tbody" class="divide-y divide-slate-100 text-slate-700">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- ================= 3. CLIENT CRM DIRECTORY VIEW ================= -->
+                <section id="view-clients" class="hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                <i data-lucide="users" class="w-5 h-5 text-brand-600"></i>
+                                Client Accounts Directory
+                            </h2>
+                            <p class="text-xs text-slate-500">Manage B2B customer profiles, credit limits, account status, and lifetime freight value</p>
+                        </div>
+                        <button onclick="openClientModal()" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md shadow-brand-600/20 flex items-center gap-2">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i>
+                            <span>+ Add Client Account</span>
+                        </button>
+                    </div>
+
+                    <!-- Client Cards Grid -->
+                    <div id="clients-card-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        <!-- Dynamic Client Cards -->
+                    </div>
+                </section>
+
+
+                <!-- ================= 4. ROUTE & RATE CALCULATOR VIEW ================= -->
+                <section id="view-calculator" class="hidden space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        
+                        <!-- Rate Inputs Panel -->
+                        <div class="lg:col-span-5 glass-panel rounded-2xl p-6 space-y-5">
+                            <div class="border-b border-slate-100 pb-3">
+                                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                                    <i data-lucide="calculator" class="w-5 h-5 text-brand-600"></i>
+                                    Freight Tariff & Rate Estimator
+                                </h3>
+                                <p class="text-xs text-slate-500">Instant freight tariff breakdown based on weight, volume, and mode</p>
+                            </div>
+
+                            <form id="calc-form" onsubmit="calculateFreightQuote(event)" class="space-y-4 text-xs font-mono">
+                                <div>
+                                    <label class="text-slate-700 block mb-1 font-semibold">Origin Hub</label>
+                                    <select id="calc-origin" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:outline-none focus:border-brand-500">
+                                        <option value="Chicago, IL">Chicago, IL (ORD Terminal)</option>
+                                        <option value="Los Angeles, CA">Los Angeles, CA (LAX Port)</option>
+                                        <option value="New York, NY">New York, NY (JFK Airport)</option>
+                                        <option value="Houston, TX">Houston, TX (Port Terminal)</option>
+                                        <option value="Miami, FL">Miami, FL (Gateway Hub)</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="text-slate-700 block mb-1 font-semibold">Destination Hub</label>
+                                    <select id="calc-destination" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:outline-none focus:border-brand-500">
+                                        <option value="Los Angeles, CA">Los Angeles, CA (LAX Port)</option>
+                                        <option value="Chicago, IL">Chicago, IL (ORD Terminal)</option>
+                                        <option value="New York, NY">New York, NY (JFK Airport)</option>
+                                        <option value="Houston, TX">Houston, TX (Port Terminal)</option>
+                                        <option value="Seattle, WA">Seattle, WA (Port Hub)</option>
+                                    </select>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="text-slate-700 block mb-1 font-semibold">Weight (KG)</label>
+                                        <input type="number" id="calc-weight" value="1250" min="1" step="1" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:outline-none focus:border-brand-500">
+                                    </div>
+                                    <div>
+                                        <label class="text-slate-700 block mb-1 font-semibold">Volume (CBM / m³)</label>
+                                        <input type="number" id="calc-volume" value="8.5" min="0.1" step="0.1" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:outline-none focus:border-brand-500">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="text-slate-700 block mb-1 font-semibold">Transportation Mode</label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer hover:border-brand-500">
+                                            <input type="radio" name="calc-mode" value="Trucking" checked class="accent-brand-600">
+                                            <span>Trucking</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer hover:border-brand-500">
+                                            <input type="radio" name="calc-mode" value="Air Freight" class="accent-brand-600">
+                                            <span>Air Cargo</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer hover:border-brand-500">
+                                            <input type="radio" name="calc-mode" value="Ocean Freight" class="accent-brand-600">
+                                            <span>Ocean Freight</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer hover:border-brand-500">
+                                            <input type="radio" name="calc-mode" value="Rail Freight" class="accent-brand-600">
+                                            <span>Rail Freight</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl transition-all shadow-md shadow-brand-600/20 flex items-center justify-center gap-2">
+                                    <i data-lucide="zap" class="w-4 h-4"></i>
+                                    <span>Calculate Instant Tariff Quote</span>
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Quote Output Breakout Sheet -->
+                        <div class="lg:col-span-7 glass-panel rounded-2xl p-6 flex flex-col justify-between space-y-6">
+                            <div>
+                                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                                        <i data-lucide="receipt" class="w-5 h-5 text-emerald-600"></i>
+                                        Instant Rate Breakdown
+                                    </h3>
+                                    <span class="text-xs font-mono bg-emerald-50 text-emerald-600 border border-emerald-200 px-2.5 py-1 rounded-full font-semibold">Official Quote</span>
+                                </div>
+
+                                <div class="mt-6 space-y-4 font-mono text-xs">
+                                    <div class="grid grid-cols-2 gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                                        <div>
+                                            <span class="text-slate-500 block text-[10px]">SELECTED LANE ROUTE</span>
+                                            <span id="quote-route-display" class="text-slate-900 font-bold text-sm">Chicago, IL → Los Angeles, CA</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-slate-500 block text-[10px]">ESTIMATED DISTANCE / ETA</span>
+                                            <span id="quote-eta-display" class="text-slate-900 font-bold text-sm">2,015 Miles (~2.5 Days)</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2 border-t border-slate-200 pt-4 text-slate-700">
+                                        <div class="flex justify-between">
+                                            <span>Base Freight Charge (Weight/Vol Rate)</span>
+                                            <span id="quote-base-rate" class="font-bold text-slate-900">$1,850.00</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Fuel Surcharge (12.5% Fuel Index)</span>
+                                            <span id="quote-fuel-surcharge" class="font-bold text-slate-900">$231.25</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Terminal Handling & Customs Admin Fee</span>
+                                            <span id="quote-admin-fee" class="font-bold text-slate-900">$140.00</span>
+                                        </div>
+                                        <div class="flex justify-between text-brand-600 font-semibold">
+                                            <span>Environmental Carbon Offsetting (2%)</span>
+                                            <span id="quote-eco-fee" class="font-bold">$41.62</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="border-t border-slate-200 pt-4 flex justify-between items-center text-sm">
+                                        <span class="text-slate-900 font-bold">TOTAL ESTIMATED QUOTE</span>
+                                        <span id="quote-grand-total" class="text-2xl font-bold font-mono text-brand-600">$2,262.87</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-100">
+                                <button onclick="showToast('Tariff Quote PDF Summary generated!', 'info')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs py-3 rounded-xl border border-slate-200 transition-all flex items-center justify-center gap-2">
+                                    <i data-lucide="file-text" class="w-4 h-4 text-brand-600"></i>
+                                    <span>Download Summary PDF</span>
+                                </button>
+                                <button onclick="openCreateShipmentModal()" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs py-3 rounded-xl shadow-md shadow-brand-600/20 transition-all flex items-center justify-center gap-2">
+                                    <i data-lucide="arrow-right-circle" class="w-4 h-4"></i>
+                                    <span>Convert to Live Shipment</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- ================= 5. FLEET & DRIVERS ROSTER VIEW ================= -->
+                <section id="view-fleet" class="hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                <i data-lucide="shield-alert" class="w-5 h-5 text-emerald-600"></i>
+                                Fleet Telemetry & Driver Roster
+                            </h2>
+                            <p class="text-xs text-slate-500">Live vehicle status, fuel ratings, driver assignments, and maintenance scheduling</p>
+                        </div>
+                        <button onclick="showToast('GPS Telemetry synced across 12 vehicles', 'success')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-semibold text-xs px-3.5 py-2 rounded-xl transition-all flex items-center gap-2">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-brand-600"></i>
+                            <span>Sync Fleet GPS</span>
+                        </button>
+                    </div>
+
+                    <!-- Vehicle Asset Cards -->
+                    <div id="fleet-assets-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        <!-- Dynamic Fleet Cards -->
+                    </div>
+                </section>
+
+
+                <!-- ================= 6. ANALYTICS & REPORTS VIEW ================= -->
+                <section id="view-analytics" class="hidden space-y-6">
+                    <div class="glass-panel rounded-2xl p-6 space-y-6">
+                        <div class="border-b border-slate-100 pb-3 flex justify-between items-center">
+                            <div>
+                                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                                    <i data-lucide="bar-chart-3" class="w-5 h-5 text-rose-500"></i>
+                                    Operations Intelligence & Performance Logs
+                                </h3>
+                                <p class="text-xs text-slate-500">Network efficiency, SLA compliance, and freight mode distribution</p>
+                            </div>
+                            <button onclick="showToast('Exporting Analytics Report as CSV...', 'info')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-mono px-3 py-1.5 rounded-lg border border-slate-200">
+                                Export CSV Report
+                            </button>
+                        </div>
+
+                        <!-- Visual Metric Bar Charts -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Transportation Mode Distribution Bar Breakdown -->
+                            <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
+                                <h4 class="text-xs font-bold text-slate-700 font-mono">Freight Mode Share Distribution</h4>
+                                <div class="space-y-3 font-mono text-xs">
+                                    <div>
+                                        <div class="flex justify-between text-slate-600 mb-1">
+                                            <span>Trucking</span>
+                                            <span class="text-slate-900 font-bold">54%</span>
+                                        </div>
+                                        <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                                            <div class="bg-brand-600 h-full w-[54%]"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-slate-600 mb-1">
+                                            <span>Air Freight</span>
+                                            <span class="text-slate-900 font-bold">22%</span>
+                                        </div>
+                                        <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                                            <div class="bg-sky-500 h-full w-[22%]"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-slate-600 mb-1">
+                                            <span>Ocean Freight</span>
+                                            <span class="text-slate-900 font-bold">16%</span>
+                                        </div>
+                                        <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                                            <div class="bg-indigo-600 h-full w-[16%]"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-slate-600 mb-1">
+                                            <span>Rail Freight</span>
+                                            <span class="text-slate-900 font-bold">8%</span>
+                                        </div>
+                                        <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                                            <div class="bg-amber-500 h-full w-[8%]"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Network Health & SLA Stats -->
+                            <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
+                                <h4 class="text-xs font-bold text-slate-700 font-mono">Network SLA Performance Metrics</h4>
+                                <div class="grid grid-cols-2 gap-3 font-mono text-xs">
+                                    <div class="p-3 bg-white rounded-xl border border-slate-200 shadow-sm">
+                                        <span class="text-slate-500 text-[10px] block">AVG DWELL TIME</span>
+                                        <span class="text-lg font-bold text-slate-900">1.4 Hrs</span>
+                                        <span class="text-[10px] text-emerald-600 block mt-1"> -12% vs benchmark</span>
+                                    </div>
+                                    <div class="p-3 bg-white rounded-xl border border-slate-200 shadow-sm">
+                                        <span class="text-slate-500 text-[10px] block">DAMAGE-FREE RATE</span>
+                                        <span class="text-lg font-bold text-emerald-600">99.8%</span>
+                                        <span class="text-[10px] text-slate-500 block mt-1"> 0.02% claim rate</span>
+                                    </div>
+                                    <div class="p-3 bg-white rounded-xl border border-slate-200 shadow-sm">
+                                        <span class="text-slate-500 text-[10px] block">FUEL EFFICIENCY</span>
+                                        <span class="text-lg font-bold text-brand-600">7.2 MPG</span>
+                                        <span class="text-[10px] text-emerald-600 block mt-1"> Class 8 Fleet</span>
+                                    </div>
+                                    <div class="p-3 bg-white rounded-xl border border-slate-200 shadow-sm">
+                                        <span class="text-slate-500 text-[10px] block">CO2 REDUCTION</span>
+                                        <span class="text-lg font-bold text-sky-600">42.8 Tons</span>
+                                        <span class="text-[10px] text-sky-600 block mt-1"> Route optimized</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL 1: + NEW SHIPMENT -->
+    <div id="modal-create-shipment" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div onclick="closeModal('modal-create-shipment')" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+        <div class="relative bg-white border border-slate-200 rounded-3xl max-w-2xl w-full p-6 shadow-2xl z-10 space-y-5 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="box" class="w-5 h-5 text-brand-600"></i>
+                    <h3 class="font-bold text-slate-900 text-base">Dispatch & Book New Shipment</h3>
+                </div>
+                <button onclick="closeModal('modal-create-shipment')" class="text-slate-400 hover:text-slate-700">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="create-shipment-form" onsubmit="handleCreateShipment(event)" class="space-y-4 text-xs font-mono">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-slate-700 block mb-1 font-semibold">Select Client Account</label>
+                        <select id="form-shipment-client" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:outline-none focus:border-brand-500">
+                            <!-- Populated JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-slate-700 block mb-1 font-semibold">Receiver / Consignee</label>
+                        <input type="text" id="form-shipment-receiver" required placeholder="e.g. Acme West Logistics Terminal" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-slate-700 block mb-1 font-semibold">Transport Mode</label>
+                        <select id="form-shipment-mode" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:outline-none focus:border-brand-500">
+                            <option value="Trucking">Trucking</option>
+                            <option value="Air Freight">Air Freight</option>
+                            <option value="Ocean Freight">Ocean Freight</option>
+                            <option value="Rail Freight">Rail Freight</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-slate-700 block mb-1 font-semibold">Estimated Delivery Date</label>
+                        <input type="date" id="form-shipment-eta" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-slate-700 block mb-1 font-semibold">Origin City / Terminal</label>
+                        <input type="text" id="form-shipment-origin" required placeholder="e.g. Chicago, IL Hub" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="text-slate-700 block mb-1 font-semibold">Destination Address</label>
+                        <input type="text" id="form-shipment-dest" required placeholder="e.g. Los Angeles, CA Port" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="text-slate-700 block mb-1 font-semibold">Weight (KG)</label>
+                        <input type="number" id="form-shipment-weight" required value="850" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="text-slate-700 block mb-1 font-semibold">Freight Value ($)</label>
+                        <input type="number" id="form-shipment-value" required value="2450" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="text-slate-700 block mb-1 font-semibold">Assign Driver</label>
+                        <select id="form-shipment-driver" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:outline-none focus:border-brand-500">
+                            <!-- Populated JS -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('modal-create-shipment')" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100">Cancel</button>
+                    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-5 py-2.5 rounded-xl shadow-md shadow-brand-600/20">
+                        Dispatch Shipment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: SHIPMENT DETAIL & TRACKING DRAWER -->
+    <div id="drawer-shipment-detail" class="fixed inset-0 z-50 pointer-events-none transition-opacity duration-300 opacity-0">
+        <div onclick="toggleShipmentDrawer(false)" class="absolute inset-0 bg-slate-900/50 backdrop-blur-xs pointer-events-auto"></div>
+        <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
+            <div class="w-screen max-w-md bg-white border-l border-slate-200 p-6 flex flex-col pointer-events-auto shadow-2xl space-y-6 overflow-y-auto">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <div>
+                        <span id="drawer-tracking-id" class="text-xs font-mono text-brand-600 font-bold block">LOG-8821</span>
+                        <h3 class="font-bold text-slate-900 text-base">Shipment Tracking & Telemetry</h3>
+                    </div>
+                    <button onclick="toggleShipmentDrawer(false)" class="text-slate-400 hover:text-slate-700">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Info Cards -->
+                <div class="space-y-4 font-mono text-xs">
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                        <div class="flex justify-between text-slate-500"><span>Client Account</span> <span id="drawer-client-name" class="text-slate-900 font-bold">Acme Corp</span></div>
+                        <div class="flex justify-between text-slate-500"><span>Receiver</span> <span id="drawer-receiver" class="text-slate-900 font-bold">Consignee Corp</span></div>
+                        <div class="flex justify-between text-slate-500"><span>Route</span> <span id="drawer-route" class="text-slate-800">Chicago → LA</span></div>
+                        <div class="flex justify-between text-slate-500"><span>Assigned Driver</span> <span id="drawer-driver" class="text-brand-600 font-bold">Marcus Vance</span></div>
+                        <div class="flex justify-between text-slate-500"><span>Weight & Value</span> <span id="drawer-weight-value" class="text-slate-800">1,250 kg / $3,400</span></div>
+                        <div class="flex justify-between text-slate-500"><span>Target ETA</span> <span id="drawer-eta" class="text-emerald-600 font-bold">2026-10-18</span></div>
+                    </div>
+
+                    <!-- Status Change Selector -->
+                    <div class="space-y-1">
+                        <label class="text-slate-500 text-[10px] block uppercase font-bold tracking-wider">Update Active Status</label>
+                        <select id="drawer-status-select" onchange="updateDrawerShipmentStatus(this.value)" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-xl p-2.5 font-bold focus:outline-none focus:border-brand-500">
+                            <option value="Pending">Pending Dispatch</option>
+                            <option value="In Transit">In Transit</option>
+                            <option value="Customs Hold">Customs Hold</option>
+                            <option value="Delivered">Delivered</option>
+                        </select>
+                    </div>
+
+                    <!-- Dynamic Tracking Stepper -->
+                    <div class="space-y-3 pt-3">
+                        <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider font-sans">Live Delivery Stepper Timeline</h4>
+                        <div class="relative pl-6 space-y-4 border-l-2 border-slate-200 text-[11px]" id="drawer-timeline-container">
+                            <!-- Dynamic Stepper Nodes -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: + ADD CLIENT ACCOUNT -->
+    <div id="modal-create-client" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div onclick="closeModal('modal-create-client')" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+        <div class="relative bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-2xl z-10 space-y-5">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="user-plus" class="w-5 h-5 text-brand-600"></i>
+                    <h3 class="font-bold text-slate-900 text-base">Add New B2B Client Account</h3>
+                </div>
+                <button onclick="closeModal('modal-create-client')" class="text-slate-400 hover:text-slate-700">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="create-client-form" onsubmit="handleCreateClient(event)" class="space-y-4 text-xs font-mono">
+                <div>
+                    <label class="text-slate-700 block mb-1 font-semibold">Company / Client Name</label>
+                    <input type="text" id="form-client-name" required placeholder="Apex Global Freight" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:outline-none focus:border-brand-500">
+                </div>
+                <div>
+                    <label class="text-slate-700 block mb-1 font-semibold">Contact Email</label>
+                    <input type="email" id="form-client-email" required placeholder="dispatch@apex.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:outline-none focus:border-brand-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-slate-700 block mb-1 font-semibold">Account Status</label>
+                        <select id="form-client-status" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:outline-none focus:border-brand-500">
+                            <option value="Active VIP">Active VIP</option>
+                            <option value="Active Standard">Active Standard</option>
+                            <option value="Prospect Lead">Prospect Lead</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-slate-700 block mb-1 font-semibold">Credit Limit ($)</label>
+                        <input type="number" id="form-client-credit" value="50000" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('modal-create-client')" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100">Cancel</button>
+                    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-5 py-2.5 rounded-xl shadow-md shadow-brand-600/20">
+                        Add Client
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ================= JAVASCRIPT ENGINE & STATE PERSISTENCE ================= -->
+    <script>
+        // INITIAL DATASETS
+        const INITIAL_CLIENTS = [
+            { id: 1, name: "Nexus Global Tech", email: "logistics@nexus.io", status: "Active VIP", creditLimit: 150000, lifetimeRev: 142000, activeOrders: 3, phone: "+1 (555) 019-2831" },
+            { id: 2, name: "Vanguard Retail Supply", email: "supply@vanguard.com", status: "Active Standard", creditLimit: 75000, lifetimeRev: 89400, activeOrders: 2, phone: "+1 (555) 482-9901" },
+            { id: 3, name: "Titan Industrial Metals", email: "freight@titan.com", status: "Active VIP", creditLimit: 250000, lifetimeRev: 210500, activeOrders: 1, phone: "+1 (555) 883-1029" },
+            { id: 4, name: "Horizon Solar Corp", email: "shipping@horizonsolar.org", status: "Prospect Lead", creditLimit: 30000, lifetimeRev: 34000, activeOrders: 1, phone: "+1 (555) 302-8812" }
+        ];
+
+        const INITIAL_DRIVERS = [
+            { id: 1, name: "Marcus Vance", vehicle: "Kenworth T680 (TRK-104)", status: "On Duty", fuel: 78, rating: 4.9 },
+            { id: 2, name: "Elena Rostova", vehicle: "Freightliner Cascadia (TRK-208)", status: "In Transit", fuel: 92, rating: 5.0 },
+            { id: 3, name: "Devon Thorne", vehicle: "Volvo VNL 860 (TRK-302)", status: "Under Maintenance", fuel: 45, rating: 4.8 },
+            { id: 4, name: "Sarah Jenkins", vehicle: "Boeing 747 Air Cargo (AIR-09)", status: "On Duty", fuel: 85, rating: 4.95 }
+        ];
+
+        const INITIAL_SHIPMENTS = [
+            {
+                id: "LOG-8821",
+                clientId: 1,
+                clientName: "Nexus Global Tech",
+                receiver: "Pacific Distribution Hub",
+                origin: "Chicago, IL Hub",
+                destination: "Los Angeles, CA Terminal",
+                carrier: "Trucking",
+                driver: "Marcus Vance",
+                weight: 1250,
+                eta: "2026-10-18",
+                status: "In Transit",
+                value: 3400,
+                timeline: [
+                    { title: "Dispatch Booked", time: "Oct 15, 08:30 AM", done: true },
+                    { title: "Departed Origin Terminal", time: "Oct 15, 11:15 AM", done: true },
+                    { title: "In Transit (I-80 Westbound)", time: "Oct 16, 04:20 PM", done: true },
+                    { title: "Customs / Inspection Check", time: "Pending", done: false },
+                    { title: "Delivered to Recipient", time: "Pending", done: false }
+                ]
+            },
+            {
+                id: "LOG-9402",
+                clientId: 2,
+                clientName: "Vanguard Retail Supply",
+                receiver: "JFK Freight Depot",
+                origin: "Houston, TX Port",
+                destination: "New York, NY JFK",
+                carrier: "Air Freight",
+                driver: "Sarah Jenkins",
+                weight: 450,
+                eta: "2026-10-16",
+                status: "In Transit",
+                value: 6200,
+                timeline: [
+                    { title: "Cargo Loaded Flight AF-90", time: "Oct 15, 02:00 PM", done: true },
+                    { title: "Airborne In Transit", time: "Oct 15, 04:30 PM", done: true },
+                    { title: "Touchdown JFK Airport", time: "Pending", done: false }
+                ]
+            },
+            {
+                id: "LOG-7104",
+                clientId: 3,
+                clientName: "Titan Industrial Metals",
+                receiver: "Midwest Rail Center",
+                origin: "Seattle, WA Port",
+                destination: "Chicago, IL Hub",
+                carrier: "Rail Freight",
+                driver: "Unassigned Rail",
+                weight: 8900,
+                eta: "2026-10-22",
+                status: "Customs Hold",
+                value: 12500,
+                timeline: [
+                    { title: "Freight Manifest Generated", time: "Oct 15, 09:00 AM", done: true },
+                    { title: "Customs Clearance Required", time: "Oct 16, 08:00 AM", done: true }
+                ]
+            },
+            {
+                id: "LOG-5519",
+                clientId: 4,
+                clientName: "Horizon Solar Corp",
+                receiver: "Georgia Power Facility",
+                origin: "Miami, FL Hub",
+                destination: "Atlanta, GA Hub",
+                carrier: "Trucking",
+                driver: "Elena Rostova",
+                weight: 620,
+                eta: "2026-10-14",
+                status: "Delivered",
+                value: 1850,
+                timeline: [
+                    { title: "Picked Up", time: "Oct 13, 10:00 AM", done: true },
+                    { title: "Out for Delivery", time: "Oct 14, 08:00 AM", done: true },
+                    { title: "Delivered & Signed", time: "Oct 14, 02:15 PM", done: true }
+                ]
+            }
+        ];
+
+        // GLOBAL STATE MANAGEMENT
+        let state = {
+            currentTab: 'dashboard',
+            shipments: JSON.parse(localStorage.getItem('logisync_w_shipments')) || INITIAL_SHIPMENTS,
+            clients: JSON.parse(localStorage.getItem('logisync_w_clients')) || INITIAL_CLIENTS,
+            drivers: JSON.parse(localStorage.getItem('logisync_w_drivers')) || INITIAL_DRIVERS,
+            activeDrawerShipmentId: null,
+            searchQuery: ''
+        };
+
+        function saveState() {
+            localStorage.setItem('logisync_w_shipments', JSON.stringify(state.shipments));
+            localStorage.setItem('logisync_w_clients', JSON.stringify(state.clients));
+            localStorage.setItem('logisync_w_drivers', JSON.stringify(state.drivers));
+            updateTelemetryAndUI();
+        }
+
+        function resetDataToDefault() {
+            localStorage.clear();
+            state.shipments = [...INITIAL_SHIPMENTS];
+            state.clients = [...INITIAL_CLIENTS];
+            state.drivers = [...INITIAL_DRIVERS];
+            saveState();
+            showToast('All CRM state reset to default mock data!', 'info');
+        }
+
+        // INITIALIZATION
+        document.addEventListener('DOMContentLoaded', () => {
+            switchTab('dashboard');
+            populateDropdowns();
+            updateTelemetryAndUI();
+            lucide.createIcons();
+        });
+
+        // VIEW NAVIGATION ENGINE
+        function switchTab(tabId) {
+            state.currentTab = tabId;
+            const views = ['dashboard', 'shipments', 'clients', 'calculator', 'fleet', 'analytics'];
+            
+            views.forEach(v => {
+                const navBtn = document.getElementById(`nav-${v}`);
+                const viewSec = document.getElementById(`view-${v}`);
+
+                if (v === tabId) {
+                    if (navBtn) navBtn.className = "nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all bg-brand-600 text-white font-semibold shadow-md shadow-brand-600/20";
+                    if (viewSec) viewSec.classList.remove('hidden');
+                } else {
+                    if (navBtn) navBtn.className = "nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all text-slate-300 hover:bg-slate-800 hover:text-white";
+                    if (viewSec) viewSec.classList.add('hidden');
+                }
+            });
+
+            lucide.createIcons();
+        }
+
+        // MASTER UI UPDATE
+        function updateTelemetryAndUI() {
+            // Dashboard Metrics
+            const totalRevenue = state.shipments.reduce((acc, curr) => acc + curr.value, 0);
+            const activeInTransit = state.shipments.filter(s => s.status === 'In Transit').length;
+            const pendingDispatch = state.shipments.filter(s => s.status === 'Pending' || s.status === 'Customs Hold').length;
+            const activeFleet = state.drivers.filter(d => d.status === 'In Transit' || d.status === 'On Duty').length;
+            const maintenanceFleet = state.drivers.filter(d => d.status === 'Under Maintenance').length;
+
+            document.getElementById('stat-total-revenue').textContent = `$${totalRevenue.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('stat-active-shipments').textContent = activeInTransit;
+            document.getElementById('stat-pending-dispatch').textContent = pendingDispatch;
+            document.getElementById('stat-fleet-active').textContent = `${activeFleet} / ${state.drivers.length}`;
+            document.getElementById('stat-fleet-maintenance').textContent = maintenanceFleet;
+            document.getElementById('nav-shipments-count').textContent = state.shipments.length;
+
+            const deliveredCount = state.shipments.filter(s => s.status === 'Delivered').length;
+            document.getElementById('donut-in-transit-count').textContent = activeInTransit;
+            document.getElementById('donut-delivered-count').textContent = deliveredCount;
+            document.getElementById('donut-pending-count').textContent = pendingDispatch;
+
+            renderDonutChart(activeInTransit, deliveredCount, pendingDispatch);
+
+            renderDashboardRecentTable();
+            renderShipmentsMasterTable();
+            renderClientCards();
+            renderFleetCards();
+
+            lucide.createIcons();
+        }
+
+        // DONUT CHART ENGINE
+        function renderDonutChart(inTransit, delivered, pending) {
+            const container = document.getElementById('status-donut-container');
+            const total = inTransit + delivered + pending || 1;
+
+            const p1 = (inTransit / total) * 100;
+
+            container.innerHTML = `
+                <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                    <path class="text-slate-100" stroke-width="3.8" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    <path class="text-brand-600" stroke-dasharray="${p1}, 100" stroke-width="3.8" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center font-mono">
+                    <span class="text-xl font-bold text-slate-900">${state.shipments.length}</span>
+                    <span class="text-[9px] text-slate-500 uppercase">Loads</span>
+                </div>
+            `;
+        }
+
+        // RENDER RECENT DASHBOARD TABLE
+        function renderDashboardRecentTable() {
+            const tbody = document.getElementById('dashboard-recent-shipments-tbody');
+            const list = state.shipments.slice(0, 5);
+
+            tbody.innerHTML = list.map(s => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="p-3 font-bold text-brand-600 cursor-pointer" onclick="openShipmentDrawer('${s.id}')">${s.id}</td>
+                    <td class="p-3 font-sans font-semibold text-slate-900">${s.clientName}</td>
+                    <td class="p-3 font-sans text-slate-700">${s.receiver || 'N/A'}</td>
+                    <td class="p-3 text-slate-600">${s.origin} → ${s.destination}</td>
+                    <td class="p-3 text-slate-500">${s.carrier}</td>
+                    <td class="p-3">${getStatusBadgeHTML(s.status)}</td>
+                    <td class="p-3 text-right font-bold text-slate-900">$${s.value.toLocaleString()}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="openShipmentDrawer('${s.id}')" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // RENDER MASTER SHIPMENTS TABLE
+        function renderShipmentsMasterTable() {
+            const tbody = document.getElementById('shipments-master-tbody');
+            const statusFilter = document.getElementById('shipment-filter-status').value;
+            const modeFilter = document.getElementById('shipment-filter-mode').value;
+
+            let filtered = state.shipments.filter(s => {
+                const matchStatus = statusFilter === 'ALL' || s.status === statusFilter;
+                const matchMode = modeFilter === 'ALL' || s.carrier === modeFilter;
+                const q = state.searchQuery;
+                const matchSearch = s.id.toLowerCase().includes(q) || 
+                                    s.clientName.toLowerCase().includes(q) ||
+                                    (s.receiver && s.receiver.toLowerCase().includes(q)) ||
+                                    s.origin.toLowerCase().includes(q) ||
+                                    s.destination.toLowerCase().includes(q);
+                return matchStatus && matchMode && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-slate-400 font-mono">No matching active shipments found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(s => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="p-3.5 font-bold text-brand-600 cursor-pointer" onclick="openShipmentDrawer('${s.id}')">${s.id}</td>
+                    <td class="p-3.5 font-sans font-semibold text-slate-900">${s.clientName}</td>
+                    <td class="p-3.5 font-sans text-slate-700">${s.receiver || 'N/A'}</td>
+                    <td class="p-3.5 text-slate-600">${s.origin} → ${s.destination}</td>
+                    <td class="p-3.5 text-slate-500">${s.carrier} / <span class="text-slate-800 font-medium">${s.driver}</span></td>
+                    <td class="p-3.5 text-slate-600">${s.eta}</td>
+                    <td class="p-3.5">${getStatusBadgeHTML(s.status)}</td>
+                    <td class="p-3.5 text-right font-bold text-slate-900">$${s.value.toLocaleString()}</td>
+                    <td class="p-3.5 text-center">
+                        <button onclick="openShipmentDrawer('${s.id}')" class="bg-brand-50 hover:bg-brand-100 text-brand-700 text-[11px] font-bold px-2.5 py-1 rounded-lg border border-brand-200">
+                            Track
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getStatusBadgeHTML(status) {
+            if (status === 'In Transit') {
+                return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-200">
+                    <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span> In Transit
+                </span>`;
+            } else if (status === 'Delivered') {
+                return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    ✓ Delivered
+                </span>`;
+            } else if (status === 'Customs Hold') {
+                return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                    ⚠ Customs Hold
+                </span>`;
+            } else {
+                return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                    ⏱ Pending
+                </span>`;
+            }
+        }
+
+        // RENDER CLIENT CRM CARDS
+        function renderClientCards() {
+            const grid = document.getElementById('clients-card-grid');
+            grid.innerHTML = state.clients.map(c => `
+                <div class="glass-card rounded-2xl p-5 space-y-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-brand-50 text-brand-700 border border-brand-200 font-bold">${c.status}</span>
+                            <h3 class="text-base font-bold text-slate-900 mt-2">${c.name}</h3>
+                            <p class="text-xs text-slate-500 font-mono">${c.email}</p>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-slate-100 text-brand-600">
+                            <i data-lucide="building-2" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 font-mono text-xs pt-2 border-t border-slate-100">
+                        <div>
+                            <span class="text-slate-500 text-[10px] block">CREDIT LIMIT</span>
+                            <span class="text-sm font-bold text-slate-900">$${(c.creditLimit || 50000).toLocaleString()}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-500 text-[10px] block">LIFETIME REV</span>
+                            <span class="text-sm font-bold text-emerald-600">$${c.lifetimeRev.toLocaleString()}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 pt-2">
+                        <button onclick="showToast('Rate quote created for ${c.name}', 'info')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-mono font-semibold py-2 rounded-xl border border-slate-200 transition-colors">
+                            Create Quote
+                        </button>
+                        <button onclick="showToast('Contacting ${c.phone}', 'success')" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600">
+                            <i data-lucide="phone" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // RENDER FLEET CARDS
+        function renderFleetCards() {
+            const grid = document.getElementById('fleet-assets-grid');
+            grid.innerHTML = state.drivers.map(d => `
+                <div class="glass-card rounded-2xl p-5 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-brand-50 border border-brand-100 flex items-center justify-center font-mono font-bold text-brand-600">
+                                ${d.name.split(' ').map(n=>n[0]).join('')}
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-900">${d.name}</h4>
+                                <span class="text-xs text-slate-500 font-mono">${d.vehicle}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 font-mono text-xs pt-2 border-t border-slate-100">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Duty Status</span>
+                            <span class="font-bold text-slate-800">${d.status}</span>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-[10px] text-slate-500">
+                                <span>Fuel Rating</span>
+                                <span class="text-slate-800 font-bold">${d.fuel}%</span>
+                            </div>
+                            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                                <div class="bg-brand-600 h-full" style="width: ${d.fuel}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // SHIPMENT DRAWER HANDLERS
+        function openShipmentDrawer(id) {
+            const shipment = state.shipments.find(s => s.id === id);
+            if (!shipment) return;
+
+            state.activeDrawerShipmentId = id;
+            document.getElementById('drawer-tracking-id').textContent = shipment.id;
+            document.getElementById('drawer-client-name').textContent = shipment.clientName;
+            document.getElementById('drawer-receiver').textContent = shipment.receiver || 'N/A';
+            document.getElementById('drawer-route').textContent = `${shipment.origin} → ${shipment.destination}`;
+            document.getElementById('drawer-driver').textContent = shipment.driver;
+            document.getElementById('drawer-weight-value').textContent = `${shipment.weight} kg / $${shipment.value.toLocaleString()}`;
+            document.getElementById('drawer-eta').textContent = shipment.eta;
+            document.getElementById('drawer-status-select').value = shipment.status;
+
+            const timelineContainer = document.getElementById('drawer-timeline-container');
+            timelineContainer.innerHTML = shipment.timeline.map(t => `
+                <div class="relative">
+                    <span class="absolute -left-[31px] top-0 w-3 h-3 rounded-full border-2 ${t.done ? 'bg-brand-600 border-white shadow-sm' : 'bg-slate-200 border-slate-300'}"></span>
+                    <p class="font-bold text-slate-800">${t.title}</p>
+                    <span class="text-[10px] text-slate-400 font-mono">${t.time}</span>
+                </div>
+            `).join('');
+
+            toggleShipmentDrawer(true);
+        }
+
+        function toggleShipmentDrawer(open) {
+            const drawer = document.getElementById('drawer-shipment-detail');
+            if (open) drawer.classList.remove('opacity-0', 'pointer-events-none');
+            else drawer.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function updateDrawerShipmentStatus(newStatus) {
+            if (!state.activeDrawerShipmentId) return;
+            const shipment = state.shipments.find(s => s.id === state.activeDrawerShipmentId);
+            if (shipment) {
+                shipment.status = newStatus;
+                saveState();
+                showToast(`Status updated for ${shipment.id} to ${newStatus}`, 'success');
+            }
+        }
+
+        // MODAL TOGGLES & POPULATE
+        function openCreateShipmentModal() {
+            populateDropdowns();
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('form-shipment-eta').value = today;
+            document.getElementById('modal-create-shipment').classList.remove('hidden');
+        }
+
+        function openClientModal() {
+            document.getElementById('modal-create-client').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function populateDropdowns() {
+            const clientSelect = document.getElementById('form-shipment-client');
+            const driverSelect = document.getElementById('form-shipment-driver');
+
+            if (clientSelect) {
+                clientSelect.innerHTML = state.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            }
+            if (driverSelect) {
+                driverSelect.innerHTML = state.drivers.map(d => `<option value="${d.name}">${d.name} (${d.vehicle})</option>`).join('');
+            }
+        }
+
+        // FORM SUBMISSIONS
+        function handleCreateShipment(e) {
+            e.preventDefault();
+            const clientId = parseInt(document.getElementById('form-shipment-client').value);
+            const client = state.clients.find(c => c.id === clientId);
+
+            const newShipment = {
+                id: `LOG-${Math.floor(1000 + Math.random() * 9000)}`,
+                clientId: clientId,
+                clientName: client ? client.name : "Acme Corp",
+                receiver: document.getElementById('form-shipment-receiver').value,
+                origin: document.getElementById('form-shipment-origin').value,
+                destination: document.getElementById('form-shipment-dest').value,
+                carrier: document.getElementById('form-shipment-mode').value,
+                driver: document.getElementById('form-shipment-driver').value,
+                weight: parseFloat(document.getElementById('form-shipment-weight').value),
+                eta: document.getElementById('form-shipment-eta').value,
+                status: "Pending",
+                value: parseFloat(document.getElementById('form-shipment-value').value),
+                timeline: [
+                    { title: "Dispatch Booked & Logged", time: "Just now", done: true },
+                    { title: "Driver En Route to Origin Terminal", time: "Pending", done: false }
+                ]
+            };
+
+            state.shipments.unshift(newShipment);
+            if (client) client.activeOrders++;
+
+            saveState();
+            closeModal('modal-create-shipment');
+            showToast(`Shipment ${newShipment.id} created & logged!`, 'success');
+        }
+
+        function handleCreateClient(e) {
+            e.preventDefault();
+            const newClient = {
+                id: state.clients.length + 1,
+                name: document.getElementById('form-client-name').value,
+                email: document.getElementById('form-client-email').value,
+                status: document.getElementById('form-client-status').value,
+                creditLimit: parseFloat(document.getElementById('form-client-credit').value),
+                lifetimeRev: 0,
+                activeOrders: 0,
+                phone: "+1 (555) 000-0000"
+            };
+
+            state.clients.push(newClient);
+            saveState();
+            closeModal('modal-create-client');
+            showToast(`Client ${newClient.name} added to CRM!`, 'success');
+        }
+
+        // CALCULATOR ENGINE
+        function calculateFreightQuote(e) {
+            e.preventDefault();
+            const weight = parseFloat(document.getElementById('calc-weight').value);
+            const vol = parseFloat(document.getElementById('calc-volume').value);
+            const origin = document.getElementById('calc-origin').value;
+            const dest = document.getElementById('calc-destination').value;
+
+            const mode = document.querySelector('input[name="calc-mode"]:checked').value;
+
+            let multiplier = 1.2;
+            if (mode === 'Air Freight') multiplier = 3.5;
+            if (mode === 'Ocean Freight') multiplier = 0.8;
+            if (mode === 'Rail Freight') multiplier = 0.95;
+
+            const baseRate = (weight * 0.85 + vol * 45) * multiplier;
+            const fuelSurcharge = baseRate * 0.125;
+            const adminFee = 140.00;
+            const ecoFee = baseRate * 0.02;
+            const grandTotal = baseRate + fuelSurcharge + adminFee + ecoFee;
+
+            document.getElementById('quote-route-display').textContent = `${origin} → ${dest}`;
+            document.getElementById('quote-base-rate').textContent = `$${baseRate.toFixed(2)}`;
+            document.getElementById('quote-fuel-surcharge').textContent = `$${fuelSurcharge.toFixed(2)}`;
+            document.getElementById('quote-grand-total').textContent = `$${grandTotal.toFixed(2)}`;
+
+            showToast('Instant Tariff Quote Recalculated!', 'info');
+        }
+
+        // SEARCH & FILTERS
+        function handleGlobalSearch(val) {
+            state.searchQuery = val.toLowerCase().trim();
+            renderShipmentsMasterTable();
+        }
+
+        function filterShipmentsTable() {
+            renderShipmentsMasterTable();
+        }
+
+        function resetShipmentFilters() {
+            document.getElementById('shipment-filter-status').value = 'ALL';
+            document.getElementById('shipment-filter-mode').value = 'ALL';
+            state.searchQuery = '';
+            document.getElementById('global-search-input').value = '';
+            renderShipmentsMasterTable();
+        }
+
+        // TOAST ENGINE
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `bg-slate-900 text-white shadow-2xl rounded-xl px-4 py-3 text-xs font-mono flex items-center gap-2.5 pointer-events-auto transition-all transform duration-300 translate-y-2 opacity-0`;
+            
+            const icon = type === 'success' ? 'check-circle-2' : 'info';
+            const iconColor = type === 'success' ? 'text-emerald-400' : 'text-sky-400';
+
+            toast.innerHTML = `
+                <i data-lucide="${icon}" class="w-4 h-4 ${iconColor}"></i>
+                <span>${msg}</span>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
